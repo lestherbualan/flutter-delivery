@@ -2,6 +2,8 @@
 
 A new Flutter project.
 
-flutter clean
-flutter packages get
-flutter run
+```bash
+  flutter clean
+  flutter packages get
+  flutter run
+```
