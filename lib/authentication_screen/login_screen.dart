@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'registration_screen.dart'; // Importing the registration screen file
 
 class LoginScreen extends StatelessWidget {
-  const LoginScreen({super.key});
+  const LoginScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +36,18 @@ class LoginScreen extends StatelessWidget {
                 // Implement your login functionality here
               },
               child: const Text('Login'),
+            ),
+            const SizedBox(height: 10), // Adding some space between the buttons
+            OutlinedButton(
+              onPressed: () {
+                // Navigate to the registration screen
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const RegistrationScreen()),
+                );
+              },
+              child: const Text('Register'),
             ),
           ],
         ),
