@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import '../map_app/app.dart'; // Importing the app.dart file
 import 'registration_screen.dart'; // Importing the registration screen file
 
 class LoginScreen extends StatelessWidget {
-  const LoginScreen({super.key});
+  const LoginScreen({Key? key});
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +34,11 @@ class LoginScreen extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                // Implement your login functionality here
+                // Simulating successful login, navigate to App.dart
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const MyApp()),
+                );
               },
               child: const Text('Login'),
             ),
