@@ -8,12 +8,26 @@ class MapDisplay extends StatefulWidget {
   List<GeoPoint> pointsRoad = [];
 
   MapDisplay({required this.controller})
-      : tapController =
-            MapTapController(controller, updateDistance: _updateDistance);
+      : tapController = MapTapController(controller,
+            updateDistance: _updateDistance,
+            updateStartingAddress: _updateStartingAddress,
+            updateEndingAddress: _updateEndingAddress);
 
   static void _updateDistance(double distance) {
     if (_mapDisplayState != null) {
       _mapDisplayState!.updateDistance(distance);
+    }
+  }
+
+  static void _updateStartingAddress(String startingAddress) {
+    if (_mapDisplayState != null) {
+      _mapDisplayState!.updateStartingAddress(startingAddress);
+    }
+  }
+
+  static void _updateEndingAddress(String endingAddress) {
+    if (_mapDisplayState != null) {
+      _mapDisplayState!.updateEndingAddress(endingAddress);
     }
   }
 
@@ -28,10 +42,24 @@ class MapDisplay extends StatefulWidget {
 
 class _MapDisplayState extends State<MapDisplay> {
   double distance = 0.0;
+  String start = '';
+  String end = '';
 
   void updateDistance(double newDistance) {
     setState(() {
       distance = newDistance;
+    });
+  }
+
+  void updateStartingAddress(String startingAddress) {
+    setState(() {
+      start = startingAddress;
+    });
+  }
+
+  void updateEndingAddress(String endingAddress) {
+    setState(() {
+      end = endingAddress;
     });
   }
 
@@ -96,12 +124,12 @@ class _MapDisplayState extends State<MapDisplay> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Starting Point: ${widget.pointsRoad.isNotEmpty ? 1 : 0}',
+                  'Starting Point: $start',
                   style: const TextStyle(color: Colors.white),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'End Point: ${widget.pointsRoad.length}',
+                  'End Point: $end',
                   style: const TextStyle(color: Colors.white),
                 ),
                 Text(

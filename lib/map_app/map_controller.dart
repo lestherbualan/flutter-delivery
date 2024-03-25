@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 import 'package:geodesy/geodesy.dart';
+import 'package:geocoding/geocoding.dart';
 
 class MapTapController {
   final MapController controller;
   final Function(double)? updateDistance;
+  final Function(String)? updateStartingAddress;
+  final Function(String)? updateEndingAddress;
   final List<GeoPoint> pointsRoad = [];
   final Geodesy geodesy = Geodesy();
 
-  MapTapController(this.controller, {this.updateDistance}) {
+  MapTapController(this.controller,
+      {this.updateDistance,
+      this.updateStartingAddress,
+      this.updateEndingAddress}) {
     controller.listenerMapSingleTapping.addListener(_handleMapTap);
   }
 
@@ -17,6 +23,8 @@ class MapTapController {
       GeoPoint tappedPoint = controller.listenerMapSingleTapping.value!;
       if (pointsRoad.isEmpty) {
         pointsRoad.add(tappedPoint);
+        getCoordinateInfo(pointsRoad[0].latitude, pointsRoad[0].longitude)
+            .then((value) => {updateStartingAddress?.call(value)});
         await controller.addMarker(
           tappedPoint,
           markerIcon: const MarkerIcon(
@@ -29,6 +37,8 @@ class MapTapController {
         );
       } else {
         pointsRoad.add(tappedPoint);
+        getCoordinateInfo(pointsRoad[1].latitude, pointsRoad[1].longitude)
+            .then((value) => {updateEndingAddress?.call(value)});
         await controller.addMarker(
           tappedPoint,
           markerIcon: const MarkerIcon(
@@ -64,6 +74,28 @@ class MapTapController {
     double distance =
         geodesy.distanceBetweenTwoGeoPoints(startLatLng, endLatLng) as double;
     return distance / 1000;
+  }
+
+  Future<String> getCoordinateInfo(double latitude, double longitude) async {
+    String street = '';
+    String locality = '';
+    String subadministrative = '';
+    try {
+      // Create a new instance of GeocodingPlatform
+      GeocodingPlatform? geocodingPlatform = GeocodingPlatform.instance;
+
+      // Get placemarks using the new instance
+      List<Placemark> placemarks = await geocodingPlatform!
+          .placemarkFromCoordinates(latitude, longitude);
+
+      Placemark firstPlacemark = placemarks.first;
+      street = firstPlacemark.street ?? '';
+      locality = firstPlacemark.locality ?? '';
+      subadministrative = firstPlacemark.subAdministrativeArea ?? '';
+    } catch (e) {
+      return e.toString();
+    }
+    return '$street, $locality $subadministrative';
   }
 
   void dispose() {
