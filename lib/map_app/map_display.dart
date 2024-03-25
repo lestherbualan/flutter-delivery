@@ -1,56 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
+import 'package:delivery/map_app/map_controller.dart';
 
 class MapDisplay extends StatefulWidget {
   final MapController controller;
+  final MapTapController tapController;
   List<GeoPoint> pointsRoad = [];
 
-  MapDisplay({super.key, required this.controller});
+  MapDisplay({required this.controller})
+      : tapController =
+            MapTapController(controller, updateDistance: _updateDistance);
+
+  static void _updateDistance(double distance) {
+    if (_mapDisplayState != null) {
+      _mapDisplayState!.updateDistance(distance);
+    }
+  }
+
+  static _MapDisplayState? _mapDisplayState;
 
   @override
-  _MapDisplayState createState() => _MapDisplayState();
+  _MapDisplayState createState() {
+    _mapDisplayState = _MapDisplayState();
+    return _mapDisplayState!;
+  }
 }
 
 class _MapDisplayState extends State<MapDisplay> {
-  @override
-  void initState() {
-    super.initState();
-    widget.controller.listenerMapSingleTapping.addListener(() async {
-      if (widget.controller.listenerMapSingleTapping.value != null) {
-        if (widget.pointsRoad.isEmpty) {
-          widget.pointsRoad
-              .add(widget.controller.listenerMapSingleTapping.value!);
-          await widget.controller
-              .addMarker(widget.controller.listenerMapSingleTapping.value!,
-                  markerIcon: const MarkerIcon(
-                    icon: Icon(
-                      Icons.person_pin_circle,
-                      color: Colors.redAccent,
-                      size: 48,
-                    ),
-                  ));
-        } else {
-          widget.pointsRoad
-              .add(widget.controller.listenerMapSingleTapping.value!);
-          await widget.controller
-              .addMarker(widget.controller.listenerMapSingleTapping.value!,
-                  markerIcon: const MarkerIcon(
-                    icon: Icon(
-                      Icons.person_pin_circle,
-                      color: Colors.blueAccent,
-                      size: 48,
-                    ),
-                  ));
-          widget.controller.drawRoad(
-              widget.pointsRoad.first, widget.pointsRoad.last,
-              roadType: RoadType.bike,
-              intersectPoint: widget.pointsRoad
-                  .getRange(1, widget.pointsRoad.length - 1)
-                  .toList(),
-              roadOption: const RoadOption(
-                  roadColor: Colors.blue, roadWidth: 10, zoomInto: true));
-        }
-      }
+  double distance = 0.0;
+
+  void updateDistance(double newDistance) {
+    setState(() {
+      distance = newDistance;
     });
   }
 
@@ -59,7 +40,7 @@ class _MapDisplayState extends State<MapDisplay> {
     return Stack(
       children: [
         OSMFlutter(
-          controller: widget.controller,
+          controller: widget.tapController.controller,
           osmOption: OSMOption(
             zoomOption: const ZoomOption(
               initZoom: 18,
@@ -97,7 +78,6 @@ class _MapDisplayState extends State<MapDisplay> {
             ),
           ),
         ),
-        //black rectangle bellow
         Positioned(
           bottom: 0,
           left: 0,
@@ -115,14 +95,18 @@ class _MapDisplayState extends State<MapDisplay> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Starting Point: 0',
-                  style: TextStyle(color: Colors.white),
+                Text(
+                  'Starting Point: ${widget.pointsRoad.isNotEmpty ? 1 : 0}',
+                  style: const TextStyle(color: Colors.white),
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'End Point: 0',
-                  style: TextStyle(color: Colors.white),
+                Text(
+                  'End Point: ${widget.pointsRoad.length}',
+                  style: const TextStyle(color: Colors.white),
+                ),
+                Text(
+                  'Distance: ${distance.toStringAsFixed(2)} km',
+                  style: const TextStyle(color: Colors.white),
                 ),
                 const Spacer(),
                 Container(
