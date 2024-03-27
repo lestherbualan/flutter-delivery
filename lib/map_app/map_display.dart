@@ -104,6 +104,7 @@ class _MapDisplayState extends State<MapDisplay> {
                 ),
               ),
             ),
+            enableRotationByGesture: false,
           ),
         ),
         Positioned(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../map_app/app.dart'; // Importing the app.dart file
 import 'registration_screen.dart'; // Importing the registration screen file
+import '../dashboard_screen/dashboard_screen.dart'; //
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({Key? key});
@@ -37,7 +38,8 @@ class LoginScreen extends StatelessWidget {
                 // Simulating successful login, navigate to App.dart
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => const MyApp()),
+                  MaterialPageRoute(
+                      builder: (context) => const DashboardScreen()),
                 );
               },
               child: const Text('Login'),

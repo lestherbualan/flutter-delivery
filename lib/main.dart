@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import './authentication_screen/login_screen.dart';
+import './dashboard_screen/dashboard_screen.dart'; // Import the dashboard screen file
 
 void main() {
   runApp(const MyApp());
@@ -15,7 +16,13 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const LoginScreen(), // Set the login screen as the home screen
+      // Use a named route for navigation
+      initialRoute: '/dashboard',
+      routes: {
+        '/': (context) => const LoginScreen(), // Route to LoginScreen
+        '/dashboard': (context) =>
+            const DashboardScreen(), // Route to DashboardScreen
+      },
     );
   }
 }
