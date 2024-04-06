@@ -93,7 +93,7 @@ class _MapDisplayState extends State<MapDisplay> {
               ),
             ),
             roadConfiguration: const RoadOption(
-              roadColor: Colors.yellowAccent,
+              roadColor: Colors.white,
             ),
             markerOption: MarkerOption(
               defaultMarker: const MarkerIcon(
@@ -115,7 +115,7 @@ class _MapDisplayState extends State<MapDisplay> {
             padding: const EdgeInsets.all(16.0),
             height: MediaQuery.of(context).size.height * 0.3,
             decoration: const BoxDecoration(
-              color: Colors.black,
+              color: Colors.white,
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(20.0),
                 topRight: Radius.circular(20.0),
@@ -126,23 +126,23 @@ class _MapDisplayState extends State<MapDisplay> {
               children: [
                 Text(
                   'Starting Point: $start',
-                  style: const TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Colors.black),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'End Point: $end',
-                  style: const TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Colors.black),
                 ),
                 Text(
                   'Distance: ${distance.toStringAsFixed(2)} km',
-                  style: const TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Colors.black),
                 ),
                 const Spacer(),
                 Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(25),
-                    color: Colors.white,
+                    color: Colors.black,
                   ),
                   child: TextButton(
                     onPressed: () {
@@ -155,7 +155,7 @@ class _MapDisplayState extends State<MapDisplay> {
                     child: const Text(
                       'Order now',
                       style: TextStyle(
-                        color: Colors.black,
+                        color: Colors.white,
                         fontSize: 16.0,
                         fontWeight: FontWeight.bold,
                       ),

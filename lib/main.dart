@@ -11,18 +11,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       title: 'Your App Title',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      // Use a named route for navigation
-      initialRoute: '/dashboard',
-      routes: {
-        '/': (context) => const LoginScreen(), // Route to LoginScreen
-        '/dashboard': (context) =>
-            const DashboardScreen(), // Route to DashboardScreen
-      },
+      home: DashboardScreen(),
     );
   }
 }
