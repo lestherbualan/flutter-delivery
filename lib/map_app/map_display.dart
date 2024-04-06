@@ -107,65 +107,65 @@ class _MapDisplayState extends State<MapDisplay> {
             enableRotationByGesture: false,
           ),
         ),
-        Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          child: Container(
-            padding: const EdgeInsets.all(16.0),
-            height: MediaQuery.of(context).size.height * 0.3,
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(20.0),
-                topRight: Radius.circular(20.0),
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Starting Point: $start',
-                  style: const TextStyle(color: Colors.black),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'End Point: $end',
-                  style: const TextStyle(color: Colors.black),
-                ),
-                Text(
-                  'Distance: ${distance.toStringAsFixed(2)} km',
-                  style: const TextStyle(color: Colors.black),
-                ),
-                const Spacer(),
-                Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(25),
-                    color: Colors.black,
-                  ),
-                  child: TextButton(
-                    onPressed: () {
-                      // Handle button press
-                    },
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 16.0, horizontal: 32.0),
-                    ),
-                    child: const Text(
-                      'Order now',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+        // Positioned(
+        //   bottom: 0,
+        //   left: 0,
+        //   right: 0,
+        //   child: Container(
+        //     padding: const EdgeInsets.all(16.0),
+        //     height: MediaQuery.of(context).size.height * 0.3,
+        //     decoration: const BoxDecoration(
+        //       color: Colors.white,
+        //       borderRadius: BorderRadius.only(
+        //         topLeft: Radius.circular(20.0),
+        //         topRight: Radius.circular(20.0),
+        //       ),
+        //     ),
+        //     child: Column(
+        //       crossAxisAlignment: CrossAxisAlignment.start,
+        //       children: [
+        //         Text(
+        //           'Starting Point: $start',
+        //           style: const TextStyle(color: Colors.black),
+        //         ),
+        //         const SizedBox(height: 8),
+        //         Text(
+        //           'End Point: $end',
+        //           style: const TextStyle(color: Colors.black),
+        //         ),
+        //         Text(
+        //           'Distance: ${distance.toStringAsFixed(2)} km',
+        //           style: const TextStyle(color: Colors.black),
+        //         ),
+        //         const Spacer(),
+        //         Container(
+        //           width: double.infinity,
+        //           decoration: BoxDecoration(
+        //             borderRadius: BorderRadius.circular(25),
+        //             color: Colors.black,
+        //           ),
+        //           child: TextButton(
+        //             onPressed: () {
+        //               // Handle button press
+        //             },
+        //             style: TextButton.styleFrom(
+        //               padding: const EdgeInsets.symmetric(
+        //                   vertical: 16.0, horizontal: 32.0),
+        //             ),
+        //             child: const Text(
+        //               'Order now',
+        //               style: TextStyle(
+        //                 color: Colors.white,
+        //                 fontSize: 16.0,
+        //                 fontWeight: FontWeight.bold,
+        //               ),
+        //             ),
+        //           ),
+        //         ),
+        //       ],
+        //     ),
+        //   ),
+        // ),
       ],
     );
   }

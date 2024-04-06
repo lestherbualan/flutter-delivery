@@ -23,6 +23,10 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/images/Bicycle.png
+    - assets/images/Car.png
+    - assets/images/Motorcycle.png
 
 fonts:
   family: Montserrat

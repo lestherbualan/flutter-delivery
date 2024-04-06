@@ -60,7 +60,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               left: 0,
               right: 0,
               bottom: 0,
-              height: 300,
+              height: 250,
               child: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: const BoxDecoration(
@@ -79,7 +79,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         children: <Widget>[
                           Container(
                             width: 160,
-                            height: 100,
+                            height: 80,
                             margin: const EdgeInsets.only(right: 10.0),
                             decoration: const BoxDecoration(
                               color: Colors.white,
@@ -87,25 +87,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 Radius.circular(10),
                               ),
                             ),
-                            child: const Center(
+                            child: Center(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  TextButton(
+                                  IconButton(
                                     onPressed: null,
-                                    child: Icon(
-                                      Icons.motorcycle,
-                                      size: 100.0,
-                                      color: Colors.black,
+                                    icon: Image.asset(
+                                      'assets/images/Motorcycle.png',
+                                      width: 150.0,
+                                      height: 100.0,
                                     ),
-                                  ),
+                                  )
                                 ],
                               ),
                             ),
                           ),
                           Container(
                             width: 160,
-                            height: 100,
+                            height: 80,
                             margin: const EdgeInsets.only(right: 10.0),
                             decoration: const BoxDecoration(
                               color: Colors.white,
@@ -113,25 +113,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 Radius.circular(10),
                               ),
                             ),
-                            child: const Center(
+                            child: Center(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  TextButton(
+                                  IconButton(
                                     onPressed: null,
-                                    child: Icon(
-                                      Icons.directions_car_outlined,
-                                      size: 100.0,
-                                      color: Colors.black,
+                                    icon: Image.asset(
+                                      'assets/images/Car.png',
+                                      width: 150.0,
+                                      height: 100.0,
                                     ),
-                                  ),
+                                  )
                                 ],
                               ),
                             ),
                           ),
                           Container(
                             width: 160,
-                            height: 100,
+                            height: 80,
                             margin: const EdgeInsets.only(right: 10.0),
                             decoration: const BoxDecoration(
                               color: Colors.white,
@@ -139,18 +139,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 Radius.circular(10),
                               ),
                             ),
-                            child: const Center(
+                            child: Center(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  TextButton(
+                                  IconButton(
                                     onPressed: null,
-                                    child: Icon(
-                                      Icons.pedal_bike_outlined,
-                                      size: 100.0,
-                                      color: Colors.black,
+                                    icon: Image.asset(
+                                      'assets/images/Bicycle.png',
+                                      width: 150.0,
+                                      height: 100.0,
                                     ),
-                                  ),
+                                  )
                                 ],
                               ),
                             ),
