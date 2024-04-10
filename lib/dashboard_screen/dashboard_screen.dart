@@ -12,6 +12,8 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+  late final MapInitializer _mapInitializer;
+
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
 
@@ -53,17 +55,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    // Initialize MapInitializer widget here
+    _mapInitializer = MapInitializer(
+      onUpdate: updateMapData,
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: Stack(
           children: [
-            const Center(
-              child: MapInitializer(),
-            ),
-            MapDisplay(
-              controller: MapController(),
-            ),
+            Center(child: _mapInitializer),
             Positioned(
               top: 10,
               right: 10,
