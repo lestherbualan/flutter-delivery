@@ -1,6 +1,8 @@
 import 'package:delivery/map_app/map_initializer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 import '../home_screen/home_screen.dart';
+import 'package:delivery/map_app/map_display.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -12,6 +14,20 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
+
+  // Variables to hold data received from MapDisplay
+  String startingPoint = '';
+  String endPoint = '';
+  double distance = 0.0;
+
+  // Function to update data received from MapDisplay
+  void updateMapData(String start, String end, double dist) {
+    setState(() {
+      startingPoint = start;
+      endPoint = end;
+      distance = dist;
+    });
+  }
 
   Future<void> _selectDateAndTime() async {
     final DateTime? pickedDate = await showDatePicker(
@@ -45,6 +61,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
             const Center(
               child: MapInitializer(),
             ),
+            MapDisplay(
+              controller: MapController(),
+            ),
             Positioned(
               top: 10,
               right: 10,
@@ -60,7 +79,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               left: 0,
               right: 0,
               bottom: 0,
-              height: 250,
+              height: 300,
               child: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: const BoxDecoration(
@@ -73,6 +92,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Row(
+                      children: [
+                        Column(
+                          children: [
+                            Text(
+                              'Starting Point: $startingPoint',
+                              style: const TextStyle(color: Colors.black),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'End Point: $endPoint',
+                              style: const TextStyle(color: Colors.black),
+                            ),
+                            Text(
+                              'Distance: ${distance.toStringAsFixed(2)} km',
+                              style: const TextStyle(color: Colors.black),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ), //
                     Expanded(
                       child: ListView(
                         scrollDirection: Axis.horizontal,

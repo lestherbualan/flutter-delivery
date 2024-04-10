@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
-import '../map_app/app.dart'; // Importing the app.dart file
-import 'registration_screen.dart'; // Importing the registration screen file
-import '../dashboard_screen/dashboard_screen.dart'; //
+import 'package:firebase_auth/firebase_auth.dart';
+import '../dashboard_screen/dashboard_screen.dart';
+import 'registration_screen.dart';
 
 class LoginScreen extends StatelessWidget {
-  const LoginScreen({Key? key});
+  const LoginScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    String emailAddress = '';
+    String password = '';
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Login'),
@@ -16,35 +19,63 @@ class LoginScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Padding(
-              padding: EdgeInsets.all(20.0),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
               child: TextField(
-                decoration: InputDecoration(
-                  labelText: 'Username',
+                onChanged: (value) {
+                  emailAddress = value;
+                },
+                decoration: const InputDecoration(
+                  labelText: 'Email',
                 ),
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.all(20.0),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
               child: TextField(
+                onChanged: (value) {
+                  password = value;
+                },
                 obscureText: true,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Password',
                 ),
               ),
             ),
             ElevatedButton(
-              onPressed: () {
-                // Simulating successful login, navigate to App.dart
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const DashboardScreen()),
-                );
+              onPressed: () async {
+                try {
+                  final UserCredential userCredential =
+                      await FirebaseAuth.instance.signInWithEmailAndPassword(
+                    email: emailAddress,
+                    password: password,
+                  );
+                  // Navigate to the dashboard screen upon successful login
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const DashboardScreen()),
+                  );
+                } on FirebaseAuthException catch (e) {
+                  if (e.code == 'user-not-found') {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text('No user found for that email.')),
+                    );
+                  } else if (e.code == 'wrong-password') {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content:
+                              Text('Wrong password provided for that user.')),
+                    );
+                  } else {
+                    print(e);
+                  }
+                }
               },
               child: const Text('Login'),
             ),
-            const SizedBox(height: 10), // Adding some space between the buttons
+            const SizedBox(height: 10),
             OutlinedButton(
               onPressed: () {
                 // Navigate to the registration screen
