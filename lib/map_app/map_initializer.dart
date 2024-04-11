@@ -4,7 +4,8 @@ import 'package:geolocator/geolocator.dart';
 import 'map_display.dart';
 
 class MapInitializer extends StatelessWidget {
-  const MapInitializer({super.key});
+  final Function(String, String, double) onUpdate;
+  const MapInitializer({super.key, required this.onUpdate});
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +17,7 @@ class MapInitializer extends StatelessWidget {
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
         } else {
-          return MapDisplay(controller: snapshot.data!);
+          return MapDisplay(controller: snapshot.data!, onUpdate: onUpdate);
         }
       },
     );

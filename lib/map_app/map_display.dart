@@ -6,8 +6,9 @@ class MapDisplay extends StatefulWidget {
   final MapController controller;
   final MapTapController tapController;
   List<GeoPoint> pointsRoad = [];
+  final Function(String, String, double) onUpdate;
 
-  MapDisplay({required this.controller})
+  MapDisplay({required this.controller, required this.onUpdate})
       : tapController = MapTapController(controller,
             updateDistance: _updateDistance,
             updateStartingAddress: _updateStartingAddress,
@@ -45,21 +46,28 @@ class _MapDisplayState extends State<MapDisplay> {
   String start = '';
   String end = '';
 
+  void _updateData() {
+    widget.onUpdate(start, end, distance);
+  }
+
   void updateDistance(double newDistance) {
     setState(() {
       distance = newDistance;
+      _updateData();
     });
   }
 
   void updateStartingAddress(String startingAddress) {
     setState(() {
       start = startingAddress;
+      _updateData();
     });
   }
 
   void updateEndingAddress(String endingAddress) {
     setState(() {
       end = endingAddress;
+      _updateData();
     });
   }
 
