@@ -15,6 +15,9 @@ dependencies:
   flutter_hooks: ^0.18.5+1
   pointer_interceptor: ^0.9.3+3
   geodesy: ^0.10.2
+  firebase_core: ^2.29.0
+  firebase_auth: ^4.19.1
+
 
 dev_dependencies:
   flutter_test:

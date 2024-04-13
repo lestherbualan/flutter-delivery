@@ -9,7 +9,7 @@ class MyApp extends StatelessWidget {
     return const MaterialApp(
       title: 'Map App',
       home: Scaffold(
-        body: MapInitializer(),
+        body: Text('hello'),
       ),
     );
   }
