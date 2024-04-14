@@ -1,4 +1,6 @@
+import 'package:delivery/authentication_screen/login_screen.dart';
 import 'package:delivery/map_app/map_initializer.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 import '../delivery/schedule_delivery_screen.dart';
@@ -14,6 +16,7 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   late final MapInitializer _mapInitializer;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
@@ -94,7 +97,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                   padding: const EdgeInsets.all(8),
                   child: const Icon(
-                    Icons.account_circle,
+                    Icons.account_circle_outlined,
                     size: 40.0,
                     color: Colors.black,
                   ),
@@ -126,7 +129,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       // Add your dropdown items here
                       ListTile(
                         leading: const Icon(
-                          Icons.person,
+                          Icons.person_2_outlined,
                           size: 25.0,
                           color: Colors.black,
                         ),
@@ -138,7 +141,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                       ListTile(
                         leading: const Icon(
-                          Icons.calendar_month,
+                          Icons.calendar_month_outlined,
                           size: 25.0,
                           color: Colors.black,
                         ),
@@ -154,6 +157,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           );
                           // Implement action for dropdown item 2
                           toggleDropdownVisibility(); // Close dropdown after action
+                        },
+                      ),
+                      ListTile(
+                        leading: const Icon(
+                          Icons.logout_outlined,
+                          size: 25.0,
+                          color: Colors.black,
+                        ),
+                        title: const Text(
+                          'Logout',
+                          style: TextStyle(fontSize: 12.0),
+                        ),
+                        onTap: () async {
+                          await _auth.signOut().then((value) => {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const LoginScreen()),
+                                )
+                              });
                         },
                       ),
                     ],
@@ -326,7 +350,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 const EdgeInsets.only(top: 15.0, bottom: 15.0),
                           ),
                           child: const Icon(
-                            Icons.timer,
+                            Icons.timer_outlined,
                             size: 30.0,
                           ),
                         ),

@@ -86,12 +86,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   if (_formKey.currentState!.validate()) {
                     try {
                       print('here!!!!');
-                      final UserCredential userCredential = await FirebaseAuth
-                          .instance
+                      await FirebaseAuth.instance
                           .createUserWithEmailAndPassword(
-                        email: emailAddress,
-                        password: password,
-                      );
+                            email: emailAddress,
+                            password: password,
+                          )
+                          .then((value) => {print(value)});
                       // Registration successful, show pop-up
                       showDialog(
                         context: context,
@@ -111,9 +111,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           );
                         },
                       );
-                      // You can handle additional user setup here if needed
-                      print(
-                          'Registration successful for ${userCredential.user!.email}');
                     } on FirebaseAuthException catch (e) {
                       if (e.code == 'weak-password') {
                         ScaffoldMessenger.of(context).showSnackBar(
