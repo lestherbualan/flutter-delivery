@@ -49,6 +49,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '248452815694',
     projectId: 'flutter-delivery-efa31',
     authDomain: 'flutter-delivery-efa31.firebaseapp.com',
+    databaseURL: 'https://flutter-delivery-efa31-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'flutter-delivery-efa31.appspot.com',
     measurementId: 'G-LKGWJCCHHB',
   );
@@ -58,6 +59,7 @@ class DefaultFirebaseOptions {
     appId: '1:248452815694:android:188518e5e5a5a79e691c1f',
     messagingSenderId: '248452815694',
     projectId: 'flutter-delivery-efa31',
+    databaseURL: 'https://flutter-delivery-efa31-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'flutter-delivery-efa31.appspot.com',
   );
 
@@ -66,6 +68,7 @@ class DefaultFirebaseOptions {
     appId: '1:248452815694:ios:54c54ce608799f98691c1f',
     messagingSenderId: '248452815694',
     projectId: 'flutter-delivery-efa31',
+    databaseURL: 'https://flutter-delivery-efa31-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'flutter-delivery-efa31.appspot.com',
     iosBundleId: 'com.example.delivery',
   );
@@ -75,6 +78,7 @@ class DefaultFirebaseOptions {
     appId: '1:248452815694:ios:7b6f654c8a2b0946691c1f',
     messagingSenderId: '248452815694',
     projectId: 'flutter-delivery-efa31',
+    databaseURL: 'https://flutter-delivery-efa31-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'flutter-delivery-efa31.appspot.com',
     iosBundleId: 'com.example.delivery.RunnerTests',
   );

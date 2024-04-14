@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 import 'package:geodesy/geodesy.dart';
@@ -8,13 +10,17 @@ class MapTapController {
   final Function(double)? updateDistance;
   final Function(String)? updateStartingAddress;
   final Function(String)? updateEndingAddress;
+  final Function(GeoPoint)? updateStartingGeopoint;
+  final Function(GeoPoint)? updateEndingGeopoint;
   final List<GeoPoint> pointsRoad = [];
   final Geodesy geodesy = Geodesy();
 
   MapTapController(this.controller,
       {this.updateDistance,
       this.updateStartingAddress,
-      this.updateEndingAddress}) {
+      this.updateEndingAddress,
+      this.updateStartingGeopoint,
+      this.updateEndingGeopoint}) {
     controller.listenerMapSingleTapping.addListener(_handleMapTap);
   }
 
@@ -24,7 +30,10 @@ class MapTapController {
       if (pointsRoad.isEmpty) {
         pointsRoad.add(tappedPoint);
         getCoordinateInfo(pointsRoad[0].latitude, pointsRoad[0].longitude)
-            .then((value) => {updateStartingAddress?.call(value)});
+            .then((value) {
+          updateStartingAddress?.call(value);
+          updateStartingGeopoint?.call(tappedPoint);
+        });
         await controller.addMarker(
           tappedPoint,
           markerIcon: const MarkerIcon(
@@ -38,7 +47,10 @@ class MapTapController {
       } else {
         pointsRoad.add(tappedPoint);
         getCoordinateInfo(pointsRoad[1].latitude, pointsRoad[1].longitude)
-            .then((value) => {updateEndingAddress?.call(value)});
+            .then((value) {
+          updateEndingAddress?.call(value);
+          updateEndingGeopoint?.call(tappedPoint);
+        });
         await controller.addMarker(
           tappedPoint,
           markerIcon: const MarkerIcon(

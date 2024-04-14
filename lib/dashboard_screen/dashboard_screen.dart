@@ -1,6 +1,8 @@
 import 'package:delivery/authentication_screen/login_screen.dart';
 import 'package:delivery/map_app/map_initializer.dart';
+import 'package:delivery/model/order.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 import '../delivery/schedule_delivery_screen.dart';
@@ -17,6 +19,7 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   late final MapInitializer _mapInitializer;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  DatabaseReference ref = FirebaseDatabase.instance.ref("order").push();
 
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
@@ -26,14 +29,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // Variables to hold data received from MapDisplay
   String startingPoint = '';
   String endPoint = '';
+  GeoPoint startingGeopoint = GeoPoint(latitude: 0, longitude: 0);
+  GeoPoint endingGeopoint = GeoPoint(latitude: 0, longitude: 0);
   double distance = 0.0;
+  String vehicleType = '';
+
+  Color _motorBG = Colors.white;
+  Color _carBG = Colors.white;
+  Color _bikeBG = Colors.white;
 
   // Function to update data received from MapDisplay
-  void updateMapData(String start, String end, double dist) {
+  void updateMapData(
+      String start, String end, double dist, GeoPoint long, GeoPoint lat) {
     setState(() {
       startingPoint = start;
       endPoint = end;
       distance = dist;
+      startingGeopoint = long;
+      endingGeopoint = lat;
     });
   }
 
@@ -64,6 +77,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
     setState(() {
       isDropdownVisible = !isDropdownVisible;
     });
+  }
+
+  Future<void> insertOrder(Order order) async {
+    //final reference = dbInstance.ref('order');
+    await ref
+        .set(order.toJson())
+        .then((value) => print('done'))
+        .catchError((onError) => {print(onError)});
   }
 
   @override
@@ -234,9 +255,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             width: 160,
                             height: 80,
                             margin: const EdgeInsets.only(right: 10.0),
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.all(
+                            decoration: BoxDecoration(
+                              color: _motorBG,
+                              borderRadius: const BorderRadius.all(
                                 Radius.circular(10),
                               ),
                             ),
@@ -245,7 +266,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   IconButton(
-                                    onPressed: null,
+                                    onPressed: () {
+                                      setState(() {
+                                        if (_motorBG == Colors.white) {
+                                          _motorBG = Colors.orange;
+                                          _carBG = Colors.white;
+                                          _bikeBG = Colors.white;
+
+                                          vehicleType = 'MOTOR';
+                                        } else {
+                                          _motorBG = Colors.white;
+                                        }
+                                      });
+                                    },
                                     icon: Image.asset(
                                       'assets/images/Motorcycle.png',
                                       width: 150.0,
@@ -260,9 +293,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             width: 160,
                             height: 80,
                             margin: const EdgeInsets.only(right: 10.0),
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.all(
+                            decoration: BoxDecoration(
+                              color: _carBG,
+                              borderRadius: const BorderRadius.all(
                                 Radius.circular(10),
                               ),
                             ),
@@ -271,7 +304,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   IconButton(
-                                    onPressed: null,
+                                    onPressed: () {
+                                      setState(() {
+                                        if (_carBG == Colors.white) {
+                                          _carBG = Colors.orange;
+                                          _bikeBG = Colors.white;
+                                          _motorBG = Colors.white;
+
+                                          vehicleType = 'CAR';
+                                        } else {
+                                          _carBG = Colors.white;
+                                        }
+                                      });
+                                    },
                                     icon: Image.asset(
                                       'assets/images/Car.png',
                                       width: 150.0,
@@ -286,9 +331,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             width: 160,
                             height: 80,
                             margin: const EdgeInsets.only(right: 10.0),
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.all(
+                            decoration: BoxDecoration(
+                              color: _bikeBG,
+                              borderRadius: const BorderRadius.all(
                                 Radius.circular(10),
                               ),
                             ),
@@ -297,7 +342,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   IconButton(
-                                    onPressed: null,
+                                    onPressed: () {
+                                      setState(() {
+                                        if (_bikeBG == Colors.white) {
+                                          _bikeBG = Colors.orange;
+                                          _carBG = Colors.white;
+                                          _motorBG = Colors.white;
+
+                                          vehicleType = 'BIKE';
+                                        } else {
+                                          _bikeBG = Colors.white;
+                                        }
+                                      });
+                                    },
                                     icon: Image.asset(
                                       'assets/images/Bicycle.png',
                                       width: 150.0,
@@ -321,7 +378,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           // Order Now Button occupies all available space
                           child: TextButton(
                             onPressed: () {
-                              // Add functionality for the "Order Now" button
+                              Order order = Order(
+                                  date: DateTime.now().toString(),
+                                  startingGeoPoint: {
+                                    'location': startingPoint,
+                                    'longitude':
+                                        startingGeopoint.longitude.toString(),
+                                    'latitude':
+                                        startingGeopoint.latitude.toString()
+                                  },
+                                  endingGeoPoint: {
+                                    'location': endPoint,
+                                    'longitude':
+                                        endingGeopoint.longitude.toString(),
+                                    'latitude':
+                                        endingGeopoint.latitude.toString()
+                                  },
+                                  distance: distance.toString(),
+                                  status: 'ACTIVE',
+                                  uid: 'sample',
+                                  vehicleType: vehicleType,
+                                  isScheduled: false);
+                              insertOrder(order)
+                                  .then((value) => print('done here'));
                             },
                             style: TextButton.styleFrom(
                               backgroundColor: Colors.white,

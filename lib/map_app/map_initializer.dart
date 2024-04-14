@@ -4,7 +4,7 @@ import 'package:geolocator/geolocator.dart';
 import 'map_display.dart';
 
 class MapInitializer extends StatelessWidget {
-  final Function(String, String, double) onUpdate;
+  final Function(String, String, double, GeoPoint, GeoPoint) onUpdate;
   const MapInitializer({super.key, required this.onUpdate});
 
   @override
