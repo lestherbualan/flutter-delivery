@@ -1,5 +1,7 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../model/user.dart';
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({Key? key}) : super(key: key);
@@ -14,6 +16,15 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   String username = '';
   String emailAddress = '';
   String password = '';
+  bool isRider = false;
+
+  Future<void> insertOrder(UserModel user) async {
+    DatabaseReference ref = FirebaseDatabase.instance.ref("user/${user.uid}");
+    await ref
+        .set(user.toJson())
+        .then((value) => print('done'))
+        .catchError((onError) => {print(onError)});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,6 +92,25 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 },
               ),
               const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Are you a Rider?',
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  SizedBox(width: 10),
+                  Switch(
+                    value: isRider,
+                    onChanged: (bool value) {
+                      setState(() {
+                        isRider = value;
+                      });
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
@@ -88,10 +118,17 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       print('here!!!!');
                       await FirebaseAuth.instance
                           .createUserWithEmailAndPassword(
-                            email: emailAddress,
-                            password: password,
-                          )
-                          .then((value) => {print(value)});
+                        email: emailAddress,
+                        password: password,
+                      )
+                          .then((value) {
+                        UserModel user =
+                            UserModel(uid: value.user!.uid, isRider: isRider);
+
+                        insertOrder(user).then((value) {
+                          print('registration complete');
+                        });
+                      });
                       // Registration successful, show pop-up
                       showDialog(
                         context: context,

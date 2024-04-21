@@ -1,0 +1,33 @@
+import 'package:delivery/driver/driver_map.dart';
+import 'package:delivery/driver/driver_map_initializer.dart';
+import 'package:delivery/model/order.dart';
+import 'package:flutter/material.dart';
+
+class DriverActions extends StatefulWidget {
+  final Order orderInformation;
+  const DriverActions({super.key, required this.orderInformation});
+
+  @override
+  State<DriverActions> createState() => _DriverActionsState();
+}
+
+class _DriverActionsState extends State<DriverActions> {
+  @override
+  void initState() {
+    super.initState();
+    print(widget.orderInformation);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    dynamic orderInfo = widget.orderInformation;
+    return Scaffold(
+      body: SafeArea(
+          child: Material(
+        child: DriverMapInitializer(
+          orderInformation: orderInfo,
+        ),
+      )),
+    );
+  }
+}

@@ -17,6 +17,7 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+  User? user = FirebaseAuth.instance.currentUser;
   late final MapInitializer _mapInitializer;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   DatabaseReference ref = FirebaseDatabase.instance.ref("order").push();
@@ -379,6 +380,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           child: TextButton(
                             onPressed: () {
                               Order order = Order(
+                                  name: user?.displayName ?? "No Name",
                                   date: DateTime.now().toString(),
                                   startingGeoPoint: {
                                     'location': startingPoint,
@@ -396,7 +398,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   },
                                   distance: distance.toString(),
                                   status: 'ACTIVE',
-                                  uid: 'sample',
+                                  uid: user?.uid ?? "No UID",
                                   vehicleType: vehicleType,
                                   isScheduled: false);
                               insertOrder(order)
