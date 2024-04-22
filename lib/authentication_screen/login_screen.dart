@@ -1,3 +1,4 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../dashboard_screen/dashboard_screen.dart';
@@ -10,6 +11,9 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     String emailAddress = '';
     String password = '';
+    TextEditingController email =
+        TextEditingController(text: "driver@gmail.com");
+    TextEditingController pass = TextEditingController(text: "driver");
 
     return Scaffold(
       backgroundColor: const Color(0xFFEDE1D5),
@@ -68,12 +72,6 @@ class LoginScreen extends StatelessWidget {
                                   .signInWithEmailAndPassword(
                             email: emailAddress,
                             password: password,
-                          );
-                          // Navigate to the dashboard screen upon successful login
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const DashboardScreen()),
                           );
                         } on FirebaseAuthException catch (e) {
                           if (e.code == 'user-not-found') {

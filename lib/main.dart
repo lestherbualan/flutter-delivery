@@ -40,14 +40,8 @@ class MyApp extends StatelessWidget {
         }
       });
 
-      bool isRider = false;
+      bool isRider = userDataMap['isRider'];
 
-      // Now userDataMap should be a Map<String, dynamic>
-      userDataMap.forEach((key, value) {
-        print('Key: $key, Value: $value');
-        isRider = value['isRider'];
-      });
-      print(isRider);
       return isRider;
     } catch (e) {
       print('Error fetching user data: $e');
@@ -71,6 +65,7 @@ class MyApp extends StatelessWidget {
                 return const CircularProgressIndicator();
               } else {
                 if (snapshot.hasData && snapshot.data!) {
+                  print(snapshot.data);
                   // User is authenticated in your database
                   return const MaterialApp(
                     title: 'Driver',

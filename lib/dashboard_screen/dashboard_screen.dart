@@ -81,7 +81,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> insertOrder(Order order) async {
-    //final reference = dbInstance.ref('order');
     await ref
         .set(order.toJson())
         .then((value) => print('done'))
