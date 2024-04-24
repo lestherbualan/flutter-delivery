@@ -42,23 +42,25 @@ class _DriverDashboardState extends State<DriverDashboard> {
       if (snapshotValue != null && snapshotValue is Map<dynamic, dynamic>) {
         snapshotValue.forEach((key, value) {
           dynamic orderData = value;
-          setState(() {
-            Order order = Order(
-              key: key,
-              startingGeoPoint:
-                  Map<String, dynamic>.from(orderData['startingGeoPoint']),
-              endingGeoPoint:
-                  Map<String, dynamic>.from(orderData['endingGeoPoint']),
-              distance: orderData['distance'],
-              uid: orderData['uid'],
-              status: orderData['status'],
-              date: orderData['date'],
-              vehicleType: orderData['vehicleType'],
-              name: orderData['name'],
-              isScheduled: orderData['isScheduled'],
-            );
-            orderList.add(order);
-          });
+          if (orderData['status'] == 'ACTIVE') {
+            setState(() {
+              Order order = Order(
+                  key: key,
+                  startingGeoPoint:
+                      Map<String, dynamic>.from(orderData['startingGeoPoint']),
+                  endingGeoPoint:
+                      Map<String, dynamic>.from(orderData['endingGeoPoint']),
+                  distance: orderData['distance'],
+                  uid: orderData['uid'],
+                  status: orderData['status'],
+                  date: orderData['date'],
+                  vehicleType: orderData['vehicleType'],
+                  name: orderData['name'],
+                  isScheduled: orderData['isScheduled'],
+                  netWeight: orderData['netWeight']);
+              orderList.add(order);
+            });
+          }
         });
       } else {
         print("Snapshot value is not of type Map<String, dynamic>");
