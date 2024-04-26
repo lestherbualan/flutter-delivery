@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image_picker/image_picker.dart';
 import '../model/user.dart';
 
 class RegistrationScreen extends StatelessWidget {
@@ -29,6 +32,7 @@ class _RegistrationFormState extends State<RegistrationForm> {
   String emailAddress = '';
   String password = '';
   bool isRider = false;
+  File? _image; // File variable to store the selected image
 
   Future<void> insertOrder(UserModel user) async {
     DatabaseReference ref = FirebaseDatabase.instance.ref("user/${user.uid}");
@@ -36,6 +40,19 @@ class _RegistrationFormState extends State<RegistrationForm> {
         .set(user.toJson())
         .then((value) => print('done'))
         .catchError((onError) => {print(onError)});
+  }
+
+  Future<void> _pickImage() async {
+    final pickedImage =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+
+    setState(() {
+      if (pickedImage != null) {
+        _image = File(pickedImage.path);
+      } else {
+        print('No image selected.');
+      }
+    });
   }
 
   @override
@@ -50,11 +67,23 @@ class _RegistrationFormState extends State<RegistrationForm> {
           children: [
             Padding(
               padding: const EdgeInsets.all(20.0),
-              child: Image.asset(
-                'assets/images/authlogo.jpeg', // Replace with your image path
-                height: 250, // Adjust height as needed
-                width: double.infinity,
-                fit: BoxFit.fill,
+              child: InkWell(
+                onTap: _pickImage, // Open image picker when tapped
+                child: Container(
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.transparent,
+                  ),
+                  padding: const EdgeInsets.all(8),
+                  child: CircleAvatar(
+                    radius: 100,
+                    backgroundColor: Colors.transparent,
+                    foregroundImage: _image != null
+                        ? FileImage(_image!)
+                        : const AssetImage('assets/images/user.png')
+                            as ImageProvider<Object>,
+                  ),
+                ),
               ),
             ),
             TextFormField(
@@ -152,8 +181,14 @@ class _RegistrationFormState extends State<RegistrationForm> {
                       password: password,
                     )
                         .then((value) {
-                      UserModel user =
-                          UserModel(uid: value.user!.uid, isRider: isRider);
+                      UserModel user = UserModel(
+                        username: emailAddress,
+                        emailAddress: emailAddress,
+                        uid: value.user!.uid,
+                        isRider: isRider,
+                        profilePictureUrl:
+                            '', // No profile picture URL during registration
+                      );
 
                       insertOrder(user).then((value) {
                         print('registration complete');

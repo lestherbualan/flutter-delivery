@@ -41,24 +41,30 @@ class _ProfileBodyState extends State<ProfileBody> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const CircleAvatar(
-            radius: 50,
-            backgroundImage: AssetImage(
-                'assets/profile_image.jpg'), // Replace with your image path
-          ),
-          const SizedBox(height: 20),
-          _isEditing
-              ? _buildEditableField(_nameController, 'Name')
-              : _buildReadOnlyField('John Doe'),
-          const SizedBox(height: 8),
-          _isEditing
-              ? _buildEditableField(_roleController, 'Role')
-              : _buildReadOnlyField('Software Developer'),
-          const SizedBox(height: 20),
-          Divider(
-            height: 20,
-            thickness: 2,
-            color: Colors.grey[300],
+          Center(
+            child: Column(
+              children: [
+                const CircleAvatar(
+                  radius: 50,
+                  backgroundImage: AssetImage(
+                      'assets/profile_image.jpg'), // Replace with your image path
+                ),
+                const SizedBox(height: 20),
+                _isEditing
+                    ? _buildEditableField(_nameController, 'Name')
+                    : _buildReadOnlyField('John Doe'),
+                const SizedBox(height: 8),
+                _isEditing
+                    ? _buildEditableField(_roleController, 'Role')
+                    : _buildReadOnlyField('Software Developer'),
+                const SizedBox(height: 20),
+                Divider(
+                  height: 20,
+                  thickness: 2,
+                  color: Colors.grey[300],
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 20),
           const Text(
