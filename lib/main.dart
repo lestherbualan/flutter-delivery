@@ -22,9 +22,6 @@ class MyApp extends StatelessWidget {
       final user = await ref.child('user/${snapshot.data?.uid}').get();
       final userData = user.value;
 
-      print('userData type: ${userData.runtimeType}');
-      print('userData value: $userData');
-
       if (userData == null || userData is! Map<Object?, Object?>) {
         print('userData is null or not a Map<Object?, Object?>');
         return;
@@ -65,7 +62,7 @@ class MyApp extends StatelessWidget {
                 return const CircularProgressIndicator();
               } else {
                 if (snapshot.hasData && snapshot.data!) {
-                  print(snapshot.data);
+                  print(snapshot.data!);
                   // User is authenticated in your database
                   return const MaterialApp(
                     title: 'Driver',

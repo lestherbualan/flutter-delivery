@@ -10,6 +10,7 @@ class Order {
   bool isScheduled;
   double netWeight;
   String? key;
+  String? driverId;
   Order(
       {required this.startingGeoPoint,
       required this.endingGeoPoint,
@@ -21,7 +22,8 @@ class Order {
       required this.name,
       required this.isScheduled,
       required this.netWeight,
-      this.key});
+      this.key,
+      this.driverId});
   Map<String, dynamic> toJson() => {
         'startingGeoPoint': startingGeoPoint,
         'endingGeoPoint': endingGeoPoint,
@@ -33,6 +35,7 @@ class Order {
         'name': name,
         'isScheduled': isScheduled,
         'netWeight': netWeight,
-        'key': key
+        'key': key,
+        'driverId': driverId,
       };
 }

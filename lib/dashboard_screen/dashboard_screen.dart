@@ -5,13 +5,17 @@ import 'package:delivery/model/order.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import '../delivery/schedule_delivery_screen.dart';
 import '../home_screen/home_screen.dart';
 import 'package:delivery/map_app/map_display.dart';
+
+import '../model/review.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -43,6 +47,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Color _motorBG = Colors.white;
   Color _carBG = Colors.white;
   Color _bikeBG = Colors.white;
+
+  String imageFileUrl = '';
+  final FirebaseStorage _storage = FirebaseStorage.instance;
 
   final List<double> items = [
     1,
@@ -111,6 +118,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  Future insertReview(Review review) async {
+    DatabaseReference reviewRef =
+        FirebaseDatabase.instance.ref("review").push();
+
+    await reviewRef
+        .set(review.toJson())
+        .then((value) => {print(reviewRef.key)})
+        .catchError((onError) => {print(onError)});
+  }
+
+  Future getImageUrlFromFireStore() async {
+    Reference ref = _storage.ref().child('profile_pictures/${user?.uid}.jpg');
+
+    String imageUrl = await ref.getDownloadURL();
+    setState(() {
+      imageFileUrl = imageUrl;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -118,6 +144,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _mapInitializer = MapInitializer(
       onUpdate: updateMapData,
     );
+    getImageUrlFromFireStore();
   }
 
   @override
@@ -140,11 +167,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     shape: BoxShape.circle,
                     color: Colors.white,
                   ),
-                  padding: const EdgeInsets.all(8),
-                  child: const Icon(
-                    Icons.account_circle_outlined,
-                    size: 40.0,
-                    color: Colors.black,
+                  padding: const EdgeInsets.all(3),
+                  child: CircleAvatar(
+                    radius: 25,
+                    backgroundColor: Colors.transparent,
+                    backgroundImage: imageFileUrl.isNotEmpty
+                        ? NetworkImage(imageFileUrl)
+                        : null,
                   ),
                 ),
               ),
@@ -577,8 +606,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   vehicleType: vehicleType,
                                   isScheduled: false,
                                   netWeight: netWeight!,
+                                  driverId: '',
                                 );
-                                insertOrder(order).then((value) {
+                                insertOrder(order).then((value) async {
                                   showDialog(
                                     context: context,
                                     barrierDismissible: false,
@@ -605,15 +635,126 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     if (data != null &&
                                         data is Map<Object?, Object?>) {
                                       final dynamic status = data['status'];
+                                      dynamic driverId = data['driverId'];
+                                      dynamic orderId = data['key'];
+                                      dynamic userId = user?.uid;
+                                      String commentText = '';
                                       if (status != null) {
                                         print(status);
                                         if (status == 'ACCEPTED') {
                                           Navigator.pop(context);
+                                          showDialog(
+                                            context: context,
+                                            barrierDismissible: false,
+                                            builder: (BuildContext context) {
+                                              return const AlertDialog(
+                                                content: Row(
+                                                  children: [
+                                                    CircularProgressIndicator(),
+                                                    SizedBox(width: 20),
+                                                    Text(
+                                                        "Driver is on the way ..."),
+                                                  ],
+                                                ),
+                                              );
+                                            },
+                                          );
+                                        }
+                                        if (status == 'COMPLETED') {
+                                          Navigator.pop(context);
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(
                                             const SnackBar(
-                                                content: Text(
-                                                    'A driver accepted the order!')),
+                                                content:
+                                                    Text('Order is complete!')),
+                                          );
+                                          // Show the rating pop-up here
+                                          showDialog(
+                                            context: context,
+                                            barrierDismissible: false,
+                                            builder: (BuildContext context) {
+                                              int rating =
+                                                  0; // Initialize the rating variable
+
+                                              return AlertDialog(
+                                                title: const Text(
+                                                    'Rate the driver'),
+                                                content: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    const Text(
+                                                        'Please rate the driver for this order:'),
+                                                    // Star rating widget
+                                                    RatingBar.builder(
+                                                      initialRating:
+                                                          rating.toDouble(),
+                                                      minRating: 1,
+                                                      direction:
+                                                          Axis.horizontal,
+                                                      allowHalfRating: false,
+                                                      itemCount: 5,
+                                                      itemSize: 40,
+                                                      itemBuilder:
+                                                          (context, _) =>
+                                                              const Icon(
+                                                        Icons.star,
+                                                        color: Colors.amber,
+                                                      ),
+                                                      onRatingUpdate: (value) {
+                                                        rating = value
+                                                            .toInt(); // Update the rating value
+                                                      },
+                                                    ),
+                                                    const SizedBox(height: 20),
+                                                    // Text input for comments
+                                                    TextFormField(
+                                                      onChanged: (value) {
+                                                        setState(() {
+                                                          commentText = value;
+                                                        });
+                                                      },
+                                                      decoration:
+                                                          const InputDecoration(
+                                                        hintText:
+                                                            'Add your comments (optional)',
+                                                        border:
+                                                            OutlineInputBorder(),
+                                                      ),
+                                                      maxLines: null,
+                                                      keyboardType:
+                                                          TextInputType
+                                                              .multiline,
+                                                    ),
+                                                  ],
+                                                ),
+                                                actions: <Widget>[
+                                                  TextButton(
+                                                    onPressed: () async {
+                                                      Review review = Review(
+                                                        driverId: driverId
+                                                                ?.toString() ??
+                                                            'Unknown Driver',
+                                                        orderId: orderId ??
+                                                            'Unknown Order',
+                                                        rating: double.parse(
+                                                            rating?.toString() ??
+                                                                '0.0'),
+                                                        userId: userId ??
+                                                            'Unknown User',
+                                                        message: commentText ??
+                                                            'No comment provided',
+                                                      );
+                                                      await insertReview(review)
+                                                          .then((value) {
+                                                        Navigator.pop(context);
+                                                      });
+                                                    },
+                                                    child: const Text('Submit'),
+                                                  ),
+                                                ],
+                                              );
+                                            },
                                           );
                                         }
                                       } else {
@@ -640,7 +781,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               padding: const EdgeInsets.all(15.0),
                             ),
                             child: const Text(
-                              'Order Now',
+                              'Book Now',
                               style: TextStyle(
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold,

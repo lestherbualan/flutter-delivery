@@ -1,3 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -33,6 +35,25 @@ class _ProfileBodyState extends State<ProfileBody> {
   TextEditingController _emailController = TextEditingController();
   TextEditingController _phoneController = TextEditingController();
   TextEditingController _bioController = TextEditingController();
+  User? user = FirebaseAuth.instance.currentUser;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
+  String imageFileUrl = '';
+
+  Future getImageUrlFromFireStore() async {
+    Reference ref = _storage.ref().child('profile_pictures/${user?.uid}.jpg');
+
+    String imageUrl = await ref.getDownloadURL();
+    setState(() {
+      imageFileUrl = imageUrl;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    getImageUrlFromFireStore();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,20 +65,21 @@ class _ProfileBodyState extends State<ProfileBody> {
           Center(
             child: Column(
               children: [
-                const CircleAvatar(
+                CircleAvatar(
                   radius: 50,
-                  backgroundImage: AssetImage(
-                      'assets/profile_image.jpg'), // Replace with your image path
+                  backgroundImage: imageFileUrl.isNotEmpty
+                      ? NetworkImage(imageFileUrl)
+                      : null, // Replace with your image path
                 ),
                 const SizedBox(height: 20),
                 _isEditing
                     ? _buildEditableField(_nameController, 'Name')
-                    : _buildReadOnlyField('John Doe'),
+                    : _buildReadOnlyField('${user?.displayName}'),
                 const SizedBox(height: 8),
-                _isEditing
-                    ? _buildEditableField(_roleController, 'Role')
-                    : _buildReadOnlyField('Software Developer'),
-                const SizedBox(height: 20),
+                // _isEditing
+                //     ? _buildEditableField(_roleController, 'Role')
+                //     : _buildReadOnlyField('Software Developer'),
+                // const SizedBox(height: 20),
                 Divider(
                   height: 20,
                   thickness: 2,
@@ -77,11 +99,11 @@ class _ProfileBodyState extends State<ProfileBody> {
           const SizedBox(height: 10),
           _isEditing
               ? _buildEditableField(_emailController, 'Email')
-              : _buildReadOnlyField('john.doe@example.com'),
+              : _buildReadOnlyField('${user?.email}'),
           const SizedBox(height: 5),
           _isEditing
               ? _buildEditableField(_phoneController, 'Phone')
-              : _buildReadOnlyField('+1234567890'),
+              : _buildReadOnlyField('${user?.phoneNumber}'),
           const SizedBox(height: 20),
           Divider(
             height: 20,

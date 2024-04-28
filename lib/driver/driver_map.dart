@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 import 'package:geolocator/geolocator.dart';
@@ -22,6 +23,7 @@ class _DriverMapState extends State<DriverMap> {
   DatabaseReference ref = FirebaseDatabase.instance.ref("order");
   bool accepted = false;
   Color containerColor = Colors.blue;
+  User? user = FirebaseAuth.instance.currentUser;
 
   @override
   void initState() {
@@ -87,9 +89,20 @@ class _DriverMapState extends State<DriverMap> {
   void _acceptOrder() async {
     await ref.update({
       '${widget.orderInformation.key}/status': 'ACCEPTED',
+      '${widget.orderInformation.key}/driverId': user?.uid,
     });
     setState(() {
       accepted = true;
+      containerColor = Colors.lightBlue; // Change container color to light blue
+    });
+  }
+
+  void _completeOrder() async {
+    await ref.update({
+      '${widget.orderInformation.key}/status': 'COMPLETED',
+    });
+
+    setState(() {
       containerColor = Colors.lightBlue; // Change container color to light blue
     });
   }
@@ -299,7 +312,8 @@ class _DriverMapState extends State<DriverMap> {
                           Expanded(
                             child: TextButton(
                               onPressed: () {
-                                // Handle completion logic
+                                _completeOrder();
+                                Navigator.pop(context);
                               },
                               style: TextButton.styleFrom(
                                 backgroundColor: Colors.white,
@@ -320,6 +334,7 @@ class _DriverMapState extends State<DriverMap> {
                             child: TextButton(
                               onPressed: () {
                                 // Handle cancellation logic
+                                Navigator.pop(context);
                               },
                               style: TextButton.styleFrom(
                                 backgroundColor: Colors.white,

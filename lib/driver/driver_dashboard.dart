@@ -1,3 +1,4 @@
+import 'package:delivery/dashboard_screen/profile_screen.dart';
 import 'package:delivery/driver/driver_actions.dart';
 import 'package:delivery/model/order.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -27,6 +28,7 @@ class _DriverDashboardState extends State<DriverDashboard> {
   Map<String, Order> sample = {};
   Map<String, Order> orders = {};
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  User? user = FirebaseAuth.instance.currentUser;
 
   void toggleDropdownVisibility() {
     setState(() {
@@ -45,19 +47,20 @@ class _DriverDashboardState extends State<DriverDashboard> {
           if (orderData['status'] == 'ACTIVE') {
             setState(() {
               Order order = Order(
-                  key: key,
-                  startingGeoPoint:
-                      Map<String, dynamic>.from(orderData['startingGeoPoint']),
-                  endingGeoPoint:
-                      Map<String, dynamic>.from(orderData['endingGeoPoint']),
-                  distance: orderData['distance'],
-                  uid: orderData['uid'],
-                  status: orderData['status'],
-                  date: orderData['date'],
-                  vehicleType: orderData['vehicleType'],
-                  name: orderData['name'],
-                  isScheduled: orderData['isScheduled'],
-                  netWeight: orderData['netWeight']);
+                key: key,
+                startingGeoPoint:
+                    Map<String, dynamic>.from(orderData['startingGeoPoint']),
+                endingGeoPoint:
+                    Map<String, dynamic>.from(orderData['endingGeoPoint']),
+                distance: orderData['distance'],
+                uid: orderData['uid'],
+                status: orderData['status'],
+                date: orderData['date'],
+                vehicleType: orderData['vehicleType'],
+                name: orderData['name'],
+                isScheduled: orderData['isScheduled'],
+                netWeight: double.parse(orderData['netWeight'].toString()),
+              );
               orderList.add(order);
             });
           }
@@ -77,6 +80,7 @@ class _DriverDashboardState extends State<DriverDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFEDE1D5),
       body: SafeArea(
         child: Material(
           child: Stack(
@@ -90,15 +94,15 @@ class _DriverDashboardState extends State<DriverDashboard> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Column(
+                        Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Welcome, John Doe!',
-                              style: TextStyle(
+                              'Welcome, ${user?.displayName}!',
+                              style: const TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.bold),
                             ),
-                            Text(
+                            const Text(
                               'Here is the list of orders:',
                               style: TextStyle(fontSize: 16),
                             ),
@@ -186,6 +190,11 @@ class _DriverDashboardState extends State<DriverDashboard> {
                           title: const Text('Profile'),
                           onTap: () {
                             // Implement action for dropdown item 1
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => ProfileScreen()),
+                            );
                             toggleDropdownVisibility(); // Close dropdown after action
                           },
                         ),

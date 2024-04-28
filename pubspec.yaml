@@ -21,7 +21,8 @@ dependencies:
   flutter_launcher_icons: ^0.13.1
   dropdown_button2: ^2.3.9
   image_picker: ^0.8.4+4
-
+  firebase_storage: ^11.7.4
+  flutter_rating_bar: ^4.0.0
 
 dev_dependencies:
   flutter_test:
