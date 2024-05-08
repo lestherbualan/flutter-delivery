@@ -18,7 +18,11 @@ dependencies:
   firebase_core: ^2.29.0
   firebase_auth: ^4.19.1
   firebase_database: ^10.5.1
-
+  flutter_launcher_icons: ^0.13.1
+  dropdown_button2: ^2.3.9
+  image_picker: ^0.8.4+4
+  firebase_storage: ^11.7.4
+  flutter_rating_bar: ^4.0.0
 
 dev_dependencies:
   flutter_test:
@@ -31,8 +35,15 @@ flutter:
     - assets/images/Bicycle.png
     - assets/images/Car.png
     - assets/images/Motorcycle.png
+    - assets/images/authlogo.jpeg
+    - assets/images/user.png
 
 fonts:
   family: Montserrat
   fonts:
     asset: fonts/Montserrat-Regular.ttf
+    
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/icon.jpeg"
