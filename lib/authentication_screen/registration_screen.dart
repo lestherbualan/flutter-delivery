@@ -47,15 +47,11 @@ class _RegistrationFormState extends State<RegistrationForm> {
 
   Future<void> insertUser(UserModel user) async {
     DatabaseReference ref = FirebaseDatabase.instance.ref("user/${user.uid}");
-    await ref
-        .set(user.toJson())
-        .then((value) => print('done'))
-        .catchError((onError) => {print(onError)});
+    await ref.set(user.toJson()).then((value) => print('done')).catchError((onError) => {print(onError)});
   }
 
   Future<void> _pickImage() async {
-    final pickedImage =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedImage = await ImagePicker().pickImage(source: ImageSource.gallery);
 
     setState(() {
       if (pickedImage != null) {
@@ -85,8 +81,7 @@ class _RegistrationFormState extends State<RegistrationForm> {
   }
 
   Future<void> _getImage() async {
-    final pickedFile =
-        await ImagePicker().getImage(source: ImageSource.gallery);
+    final pickedFile = await ImagePicker().getImage(source: ImageSource.gallery);
 
     setState(() {
       if (pickedFile != null) {
@@ -120,10 +115,8 @@ class _RegistrationFormState extends State<RegistrationForm> {
                   child: CircleAvatar(
                     radius: 80,
                     backgroundColor: Colors.transparent,
-                    backgroundImage: _image != null
-                        ? FileImage(_image!)
-                        : const AssetImage('assets/images/user.png')
-                            as ImageProvider<Object>,
+                    backgroundImage:
+                        _image != null ? FileImage(_image!) : const AssetImage('assets/images/user.png') as ImageProvider<Object>,
                   ),
                 ),
               ),
@@ -333,6 +326,7 @@ class _RegistrationFormState extends State<RegistrationForm> {
                         isRider: isRider,
                         profilePictureUrl: imageUrl,
                         displayName: displayName,
+                        online: true,
                       );
 
                       insertUser(user).then((value) {
@@ -346,8 +340,7 @@ class _RegistrationFormState extends State<RegistrationForm> {
                       builder: (BuildContext context) {
                         return AlertDialog(
                           title: const Text('Registration Complete'),
-                          content:
-                              const Text('Your registration was successful!'),
+                          content: const Text('Your registration was successful!'),
                           actions: <Widget>[
                             TextButton(
                               onPressed: () {
@@ -362,15 +355,11 @@ class _RegistrationFormState extends State<RegistrationForm> {
                   } on FirebaseAuthException catch (e) {
                     if (e.code == 'weak-password') {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content:
-                                Text('The password provided is too weak.')),
+                        const SnackBar(content: Text('The password provided is too weak.')),
                       );
                     } else if (e.code == 'email-already-in-use') {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text(
-                                'The account already exists for that email.')),
+                        const SnackBar(content: Text('The account already exists for that email.')),
                       );
                     }
                   } catch (e) {

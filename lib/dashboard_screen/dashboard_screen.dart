@@ -47,6 +47,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   double distance = 0.0;
   String vehicleType = '';
   double? netWeight;
+  int rate = 25;
 
   Color _motorBG = Colors.white;
   Color _carBG = Colors.white;
@@ -72,6 +73,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       distance = dist;
       startingGeopoint = long;
       endingGeopoint = lat;
+      rate = (rate + (5 * distance)).toInt();
     });
   }
 
@@ -144,23 +146,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> _fetchUserList() async {
     DataSnapshot snapshot = await _userRef.get();
-    if (snapshot.exists) {
-      Map<dynamic, dynamic>? data = snapshot.value as Map<dynamic, dynamic>?;
-      if (data != null) {
-        List<Map<dynamic, dynamic>> userList = [];
-        data.forEach((key, value) {
-          if (value['isRider']) {
-            userList.add(Map<dynamic, dynamic>.from(value));
-          }
-        });
-        setState(() {
-          _userList = userList;
-        });
+    _userRef.onValue.listen((event) {
+      if (event.snapshot.exists) {
+        Map<dynamic, dynamic>? data = event.snapshot.value as Map<dynamic, dynamic>?;
+        if (data != null) {
+          List<Map<dynamic, dynamic>> userList = [];
+          data.forEach((key, value) {
+            if (value['isRider'] == true && value['online'] == true) {
+              userList.add(Map<dynamic, dynamic>.from(value));
+            }
+          });
+          setState(() {
+            _userList = userList;
+          });
+        }
+      } else {
+        print('No data available.');
       }
-    } else {
-      print('No data available.');
-    }
-    print(_userList);
+    });
   }
 
   @override
@@ -239,25 +242,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           );
                         },
                       ),
-                      ListTile(
-                        leading: const Icon(
-                          Icons.calendar_month_outlined,
-                          size: 25.0,
-                          color: Colors.black,
-                        ),
-                        title: const Text(
-                          'Scheduled Delivery',
-                          style: TextStyle(fontSize: 12.0),
-                        ),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => ScheduleDeliveryScreen()),
-                          );
-                          // Implement action for dropdown item 2
-                          toggleDropdownVisibility(); // Close dropdown after action
-                        },
-                      ),
+                      // ListTile(
+                      //   leading: const Icon(
+                      //     Icons.calendar_month_outlined,
+                      //     size: 25.0,
+                      //     color: Colors.black,
+                      //   ),
+                      //   title: const Text(
+                      //     'Scheduled Delivery',
+                      //     style: TextStyle(fontSize: 12.0),
+                      //   ),
+                      //   onTap: () {
+                      //     Navigator.push(
+                      //       context,
+                      //       MaterialPageRoute(builder: (context) => ScheduleDeliveryScreen()),
+                      //     );
+                      //     // Implement action for dropdown item 2
+                      //     toggleDropdownVisibility(); // Close dropdown after action
+                      //   },
+                      // ),
                       ListTile(
                         leading: const Icon(
                           Icons.logout_outlined,
@@ -557,13 +560,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ),
                           ),
                           padding: const EdgeInsets.only(top: 11.0, bottom: 11.0),
-                          child: const Center(
+                          child: Center(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  '70 PHP',
-                                  style: TextStyle(color: Colors.black, fontSize: 25.0, fontWeight: FontWeight.bold),
+                                  //(rate * (distance.round())).toString(),
+                                  rate.toString(),
+                                  style: const TextStyle(color: Colors.black, fontSize: 25.0, fontWeight: FontWeight.bold),
                                 ),
                               ],
                             ),
@@ -587,26 +591,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       endingGeopoint.latitude != 0 &&
                                       endingGeopoint.longitude != 0)) {
                                 Order order = Order(
-                                  name: user?.displayName ?? "No Name",
-                                  date: DateTime.now().toString(),
-                                  startingGeoPoint: {
-                                    'location': startingPoint,
-                                    'longitude': startingGeopoint.longitude.toString(),
-                                    'latitude': startingGeopoint.latitude.toString()
-                                  },
-                                  endingGeoPoint: {
-                                    'location': endPoint,
-                                    'longitude': endingGeopoint.longitude.toString(),
-                                    'latitude': endingGeopoint.latitude.toString()
-                                  },
-                                  distance: distance.toString(),
-                                  status: 'PROPOSE',
-                                  uid: user?.uid ?? "No UID",
-                                  vehicleType: vehicleType,
-                                  isScheduled: false,
-                                  netWeight: netWeight!,
-                                  driverId: '',
-                                );
+                                    name: user?.displayName ?? "No Name",
+                                    date: DateTime.now().toString(),
+                                    startingGeoPoint: {
+                                      'location': startingPoint,
+                                      'longitude': startingGeopoint.longitude.toString(),
+                                      'latitude': startingGeopoint.latitude.toString()
+                                    },
+                                    endingGeoPoint: {
+                                      'location': endPoint,
+                                      'longitude': endingGeopoint.longitude.toString(),
+                                      'latitude': endingGeopoint.latitude.toString()
+                                    },
+                                    distance: distance.toString(),
+                                    status: 'PROPOSE',
+                                    uid: user?.uid ?? "No UID",
+                                    vehicleType: vehicleType,
+                                    isScheduled: false,
+                                    netWeight: netWeight!,
+                                    driverId: '',
+                                    rate: (rate * (distance.round())).toInt());
                                 insertOrder(order).then((orderKey) async {
                                   showDialog(
                                     context: context,
@@ -615,24 +619,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       DatabaseReference userRef = FirebaseDatabase.instance.ref('user');
 
                                       return AlertDialog(
-                                        title: const Text('Drivers'),
+                                        title: const Text('Available Drivers'),
                                         content: Container(
                                           width: double.maxFinite,
                                           child: ListView.builder(
                                             itemCount: _userList.length,
                                             itemBuilder: (BuildContext context, int index) {
-                                              final user = _userList[index];
+                                              final drivers = _userList[index];
                                               return ListTile(
                                                 leading: CircleAvatar(
                                                   backgroundImage:
-                                                      user['profilePictureUrl'] != null && user['profilePictureUrl'] != ''
-                                                          ? NetworkImage(user['profilePictureUrl'])
+                                                      drivers['profilePictureUrl'] != null && drivers['profilePictureUrl'] != ''
+                                                          ? NetworkImage(drivers['profilePictureUrl'])
                                                           : null,
                                                 ),
-                                                title: Text(user['displayName']),
-                                                subtitle: Text(user['emailAddress']),
+                                                title: Text(drivers['displayName']),
+                                                subtitle: Text(drivers['emailAddress']),
                                                 onTap: () {
-                                                  Proposal proposal = Proposal(uid: user['uid'], orderId: orderKey);
+                                                  Proposal proposal = Proposal(uid: drivers['uid'], orderId: orderKey);
                                                   insertProposal(proposal).then((value) {
                                                     //Navigator.pop(context);
                                                     DatabaseReference orderReference =
@@ -642,14 +646,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                       print(data);
                                                       if (data != null && data is Map<Object?, Object?>) {
                                                         final dynamic status = data['status'];
-                                                        dynamic driverId = data['driverId'];
+                                                        dynamic driverId = drivers['uid'];
                                                         dynamic orderId = data['key'];
-                                                        dynamic userId = user['uid'];
+                                                        dynamic userId = user?.uid;
                                                         String commentText = '';
                                                         if (status != null) {
                                                           print(status);
                                                           if (status == 'PROPOSE') {
-                                                            //Navigator.pop(context);
                                                             showDialog(
                                                               context: context,
                                                               barrierDismissible: false,
@@ -667,6 +670,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                             );
                                                           }
                                                           if (status == 'ACCEPTED') {
+                                                            print('driver id here');
+                                                            print(data);
                                                             Navigator.pop(context);
                                                             showDialog(
                                                               context: context,
@@ -738,6 +743,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                                   actions: <Widget>[
                                                                     TextButton(
                                                                       onPressed: () async {
+                                                                        DatabaseReference reviewRef =
+                                                                            FirebaseDatabase.instance.ref('review');
+                                                                        dynamic reviewSnapshot = await reviewRef.get();
+
+                                                                        reviewSnapshot.forEach((key, value) {
+                                                                          print(value);
+                                                                        });
                                                                         Review review = Review(
                                                                           driverId: driverId?.toString() ?? 'Unknown Driver',
                                                                           orderId: orderId ?? 'Unknown Order',
