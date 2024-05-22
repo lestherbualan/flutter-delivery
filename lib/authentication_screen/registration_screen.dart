@@ -94,6 +94,10 @@ class _RegistrationFormState extends State<RegistrationForm> {
 
   @override
   Widget build(BuildContext context) {
+    final TextEditingController _fullNameController = TextEditingController();
+    final TextEditingController _usernameController = TextEditingController();
+    final TextEditingController _emailController = TextEditingController();
+    final TextEditingController _passwordController = TextEditingController();
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: Form(
@@ -121,27 +125,32 @@ class _RegistrationFormState extends State<RegistrationForm> {
                 ),
               ),
             ),
-            TextFormField(
-              onChanged: (value) {
-                setState(() {
-                  displayName = value;
-                });
-              },
-              decoration: InputDecoration(
+            RegistrationInputField(
                 labelText: 'Full Name',
-                filled: true,
-                fillColor: Colors.grey[200],
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-              ),
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return 'Please enter a Full Name';
-                }
-                return null;
-              },
-            ),
+                hintText: 'Please enter your Full Name',
+                icon: Icons.contact_page_outlined,
+                controller: _fullNameController),
+            // TextFormField(
+            //   onChanged: (value) {
+            //     setState(() {
+            //       displayName = value;
+            //     });
+            //   },
+            //   decoration: InputDecoration(
+            //     labelText: 'Full Name',
+            //     filled: true,
+            //     fillColor: Colors.grey[200],
+            //     border: OutlineInputBorder(
+            //       borderRadius: BorderRadius.circular(10.0),
+            //     ),
+            //   ),
+            //   validator: (value) {
+            //     if (value!.isEmpty) {
+            //       return 'Please enter a Full Name';
+            //     }
+            //     return null;
+            //   },
+            // ),
             // const SizedBox(height: 15),
             // Row(
             //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -218,74 +227,90 @@ class _RegistrationFormState extends State<RegistrationForm> {
             //     ),
             //   ],
             // ),
-            const SizedBox(height: 15),
-            TextFormField(
-              onChanged: (value) {
-                setState(() {
-                  username = value;
-                });
-              },
-              decoration: InputDecoration(
+            //const SizedBox(height: 15),
+            RegistrationInputField(
                 labelText: 'Username',
-                filled: true,
-                fillColor: Colors.grey[200],
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-              ),
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return 'Please enter a username';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 15),
-            TextFormField(
-              onChanged: (value) {
-                setState(() {
-                  emailAddress = value;
-                });
-              },
-              decoration: InputDecoration(
-                labelText: 'Email',
-                filled: true,
-                fillColor: Colors.grey[200],
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-              ),
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return 'Please enter an email';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 15),
-            TextFormField(
-              onChanged: (value) {
-                setState(() {
-                  password = value;
-                });
-              },
-              obscureText: true,
-              decoration: InputDecoration(
+                hintText: 'Please enter your username',
+                icon: Icons.person_2_outlined,
+                controller: _usernameController),
+            // TextFormField(
+            //   onChanged: (value) {
+            //     setState(() {
+            //       username = value;
+            //     });
+            //   },
+            //   decoration: InputDecoration(
+            //     labelText: 'Username',
+            //     filled: true,
+            //     fillColor: Colors.grey[200],
+            //     border: OutlineInputBorder(
+            //       borderRadius: BorderRadius.circular(10.0),
+            //     ),
+            //   ),
+            //   validator: (value) {
+            //     if (value!.isEmpty) {
+            //       return 'Please enter a username';
+            //     }
+            //     return null;
+            //   },
+            // ),
+            //const SizedBox(height: 15),
+            RegistrationInputField(
+                labelText: 'Email Address',
+                hintText: 'Please enter your email address',
+                icon: Icons.email_outlined,
+                controller: _emailController),
+            // TextFormField(
+            //   onChanged: (value) {
+            //     setState(() {
+            //       emailAddress = value;
+            //     });
+            //   },
+            //   decoration: InputDecoration(
+            //     labelText: 'Email',
+            //     filled: true,
+            //     fillColor: Colors.grey[200],
+            //     border: OutlineInputBorder(
+            //       borderRadius: BorderRadius.circular(10.0),
+            //     ),
+            //   ),
+            //   validator: (value) {
+            //     if (value!.isEmpty) {
+            //       return 'Please enter an email';
+            //     }
+            //     return null;
+            //   },
+            // ),
+            //const SizedBox(height: 15),
+            RegistrationInputField(
                 labelText: 'Password',
-                filled: true,
-                fillColor: Colors.grey[200],
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-              ),
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return 'Please enter a password';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 15),
+                hintText: 'Please enter your password',
+                obscureText: true,
+                icon: Icons.lock_outline,
+                controller: _passwordController),
+            // TextFormField(
+            //   onChanged: (value) {
+            //     setState(() {
+            //       password = value;
+            //     });
+            //   },
+            //   obscureText: true,
+            //   decoration: InputDecoration(
+            //     labelText: 'Password',
+            //     filled: true,
+            //     fillColor: Colors.grey[200],
+            //     border: OutlineInputBorder(
+            //       borderRadius: BorderRadius.circular(10.0),
+            //     ),
+            //   ),
+            //   validator: (value) {
+            //     if (value!.isEmpty) {
+            //       return 'Please enter a password';
+            //     }
+            //     return null;
+            //   },
+            // ),
+            //const SizedBox(height: 15),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -304,29 +329,31 @@ class _RegistrationFormState extends State<RegistrationForm> {
               ],
             ),
             const SizedBox(height: 15),
-            ElevatedButton(
+            OutlinedButton(
+              style: OutlinedButton.styleFrom(backgroundColor: Colors.white70),
               onPressed: () async {
                 if (_formKey.currentState!.validate()) {
                   try {
                     await FirebaseAuth.instance
                         .createUserWithEmailAndPassword(
-                      email: emailAddress,
-                      password: password,
+                      email: _emailController.value.text,
+                      password: _passwordController.value.text,
                     )
                         .then((UserCredential value) async {
                       if (_image != null) {
                         await _uploadProfilePicture(value.user!.uid);
                       }
-                      await value.user?.updateDisplayName(displayName);
+                      await value.user?.updateDisplayName(_fullNameController.value.text);
 
                       UserModel user = UserModel(
-                        username: emailAddress,
-                        emailAddress: emailAddress,
+                        username: _emailController.value.text,
+                        emailAddress: _emailController.value.text,
                         uid: value.user!.uid,
                         isRider: isRider,
                         profilePictureUrl: imageUrl,
-                        displayName: displayName,
+                        displayName: _fullNameController.value.text,
                         online: true,
+                        driverRating: 0,
                       );
 
                       insertUser(user).then((value) {
@@ -379,6 +406,43 @@ class _RegistrationFormState extends State<RegistrationForm> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class RegistrationInputField extends StatelessWidget {
+  final String labelText;
+  final String hintText;
+  final IconData icon;
+  final bool obscureText;
+  final TextEditingController controller;
+
+  const RegistrationInputField({
+    required this.labelText,
+    required this.hintText,
+    required this.icon,
+    this.obscureText = false,
+    required this.controller,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: TextField(
+        controller: controller,
+        obscureText: obscureText,
+        decoration: InputDecoration(
+          labelText: labelText,
+          fillColor: Colors.white70,
+          filled: true,
+          hintText: hintText,
+          prefixIcon: Icon(icon),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       ),
     );

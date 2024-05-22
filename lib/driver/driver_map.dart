@@ -1,3 +1,4 @@
+import 'package:delivery/driver/driver_dashboard.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
@@ -31,10 +32,8 @@ class _DriverMapState extends State<DriverMap> {
     Future.delayed(const Duration(milliseconds: 500), () {
       widget.controller.addMarker(
         GeoPoint(
-          latitude: double.parse(
-              widget.orderInformation.startingGeoPoint['latitude']),
-          longitude: double.parse(
-              widget.orderInformation.startingGeoPoint['longitude']),
+          latitude: double.parse(widget.orderInformation.startingGeoPoint['latitude']),
+          longitude: double.parse(widget.orderInformation.startingGeoPoint['longitude']),
         ),
         markerIcon: const MarkerIcon(
           icon: Icon(
@@ -48,10 +47,8 @@ class _DriverMapState extends State<DriverMap> {
     Future.delayed(const Duration(milliseconds: 500), () {
       widget.controller.addMarker(
         GeoPoint(
-          latitude:
-              double.parse(widget.orderInformation.endingGeoPoint['latitude']),
-          longitude:
-              double.parse(widget.orderInformation.endingGeoPoint['longitude']),
+          latitude: double.parse(widget.orderInformation.endingGeoPoint['latitude']),
+          longitude: double.parse(widget.orderInformation.endingGeoPoint['longitude']),
         ),
         markerIcon: const MarkerIcon(
           icon: Icon(
@@ -65,16 +62,12 @@ class _DriverMapState extends State<DriverMap> {
     Future.delayed(const Duration(milliseconds: 500), () {
       widget.controller.drawRoad(
         GeoPoint(
-          latitude: double.parse(
-              widget.orderInformation.startingGeoPoint['latitude']),
-          longitude: double.parse(
-              widget.orderInformation.startingGeoPoint['longitude']),
+          latitude: double.parse(widget.orderInformation.startingGeoPoint['latitude']),
+          longitude: double.parse(widget.orderInformation.startingGeoPoint['longitude']),
         ),
         GeoPoint(
-          latitude:
-              double.parse(widget.orderInformation.endingGeoPoint['latitude']),
-          longitude:
-              double.parse(widget.orderInformation.endingGeoPoint['longitude']),
+          latitude: double.parse(widget.orderInformation.endingGeoPoint['latitude']),
+          longitude: double.parse(widget.orderInformation.endingGeoPoint['longitude']),
         ),
         roadType: RoadType.bike,
         roadOption: const RoadOption(
@@ -84,6 +77,10 @@ class _DriverMapState extends State<DriverMap> {
         ),
       );
     });
+
+    if (widget.orderInformation.status == 'ACCEPTED') {
+      containerColor = Color.fromARGB(255, 22, 198, 113);
+    }
   }
 
   void _acceptOrder() async {
@@ -93,7 +90,7 @@ class _DriverMapState extends State<DriverMap> {
     });
     setState(() {
       accepted = true;
-      containerColor = Colors.lightBlue; // Change container color to light blue
+      containerColor = Color.fromARGB(255, 22, 198, 113); // Change container color to light blue
     });
   }
 
@@ -159,9 +156,7 @@ class _DriverMapState extends State<DriverMap> {
             bottom: 0,
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 500),
-              height: accepted
-                  ? 200
-                  : null, // Adjust height based on acceptance status
+              height: accepted ? 340 : null, // Adjust height based on acceptance status
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: containerColor,
@@ -184,8 +179,7 @@ class _DriverMapState extends State<DriverMap> {
                       padding: const EdgeInsets.all(10.0),
                       child: Text(
                         'From : ${widget.orderInformation.startingGeoPoint['location']}',
-                        style: const TextStyle(
-                            color: Colors.black, fontSize: 18.0),
+                        style: const TextStyle(color: Colors.black, fontSize: 18.0),
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -198,9 +192,13 @@ class _DriverMapState extends State<DriverMap> {
                       padding: const EdgeInsets.all(10.0),
                       child: Text(
                         'To : ${widget.orderInformation.endingGeoPoint['location']}',
-                        style: const TextStyle(
-                            color: Colors.black, fontSize: 18.0),
+                        style: const TextStyle(color: Colors.black, fontSize: 18.0),
                       ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Distance: ${double.parse(widget.orderInformation.distance).toStringAsFixed(3)} km',
+                      style: const TextStyle(color: Colors.black, fontSize: 18.0),
                     ),
                     const SizedBox(height: 8),
                     Row(
@@ -208,8 +206,7 @@ class _DriverMapState extends State<DriverMap> {
                       children: [
                         // Container for Distance
                         Container(
-                          width: MediaQuery.of(context).size.width *
-                              0.4, // Adjust width as needed
+                          width: MediaQuery.of(context).size.width * 0.4, // Adjust width as needed
                           decoration: BoxDecoration(
                             color: Colors.white60,
                             borderRadius: BorderRadius.circular(10),
@@ -219,43 +216,41 @@ class _DriverMapState extends State<DriverMap> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const Text(
-                                'Distance:',
-                                style: TextStyle(
-                                    color: Colors.black, fontSize: 18.0),
+                                'Net Weight:',
+                                style: TextStyle(color: Colors.black, fontSize: 18.0),
                               ),
                               const SizedBox(height: 4),
-                              Text(
-                                '${double.parse(widget.orderInformation.distance).toStringAsFixed(3)}km',
-                                style: const TextStyle(
-                                    color: Colors.black, fontSize: 20.0),
+                              Center(
+                                child: Text(
+                                  '${widget.orderInformation.netWeight}kg',
+                                  style: const TextStyle(color: Colors.black, fontSize: 20.0),
+                                ),
                               ),
                             ],
                           ),
                         ),
-                        const SizedBox(
-                            width: 8), // Add spacing between containers
+                        const SizedBox(width: 8), // Add spacing between containers
                         // Container for Rate
                         Container(
-                          width: MediaQuery.of(context).size.width *
-                              0.4, // Adjust width as needed
+                          width: MediaQuery.of(context).size.width * 0.4, // Adjust width as needed
                           decoration: BoxDecoration(
                             color: Colors.white60,
                             borderRadius: BorderRadius.circular(10),
                           ),
                           padding: const EdgeInsets.all(10.0),
-                          child: const Column(
+                          child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
+                              const Text(
                                 'Rate:',
-                                style: TextStyle(
-                                    color: Colors.black, fontSize: 18.0),
+                                style: TextStyle(color: Colors.black, fontSize: 18.0),
                               ),
-                              SizedBox(height: 4),
-                              Text(
-                                '70 PHP', // Replace 'rate' with your actual rate value
-                                style: TextStyle(
-                                    color: Colors.black, fontSize: 20.0),
+                              const SizedBox(height: 4),
+                              Center(
+                                child: Text(
+                                  '${widget.orderInformation.rate}', // Replace 'rate' with your actual rate value
+                                  style: const TextStyle(color: Colors.black, fontSize: 20.0),
+                                ),
                               ),
                             ],
                           ),
@@ -314,6 +309,10 @@ class _DriverMapState extends State<DriverMap> {
                               onPressed: () {
                                 _completeOrder();
                                 Navigator.pop(context);
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const DriverDashboard()),
+                                );
                               },
                               style: TextButton.styleFrom(
                                 backgroundColor: Colors.white,

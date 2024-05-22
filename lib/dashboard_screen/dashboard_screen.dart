@@ -131,8 +131,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future insertReview(Review review) async {
     DatabaseReference reviewRef = FirebaseDatabase.instance.ref("review").push();
+    int counter = 0;
+    List driverReviewList = [];
+    await reviewRef.set(review.toJson()).then((value) async {
+      print(reviewRef.key);
+      DatabaseReference newReviewRef = FirebaseDatabase.instance.ref("review");
+      final reviewSnapshot = await newReviewRef.get();
+      Map<dynamic, dynamic> reviews = reviewSnapshot.value as Map<dynamic, dynamic>;
 
-    await reviewRef.set(review.toJson()).then((value) => {print(reviewRef.key)}).catchError((onError) => {print(onError)});
+      reviews.forEach((key, value) {
+        if (value['driverId'] == review.driverId) {
+          driverReviewList.add(value['rating']);
+          counter++;
+        }
+      });
+      int totalRating = driverReviewList.reduce((value, element) => value + element);
+
+      double calculatedRating = totalRating / counter;
+      calculatedRating = double.parse(calculatedRating.toStringAsFixed(2));
+
+      DatabaseReference driver = FirebaseDatabase.instance.ref("user/${review.driverId}");
+      driver.update({'driverRating': calculatedRating});
+    }).catchError((onError) => {print(onError)});
   }
 
   Future getImageUrlFromFireStore() async {
@@ -156,6 +176,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               userList.add(Map<dynamic, dynamic>.from(value));
             }
           });
+          userList.sort((a, b) => b['driverRating'].compareTo(a['driverRating']));
           setState(() {
             _userList = userList;
           });
@@ -634,7 +655,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                           : null,
                                                 ),
                                                 title: Text(drivers['displayName']),
-                                                subtitle: Text(drivers['emailAddress']),
+                                                subtitle: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    //Text(drivers['emailAddress']),
+                                                    Text('Rating: ${drivers['driverRating']}'),
+                                                  ],
+                                                ),
                                                 onTap: () {
                                                   Proposal proposal = Proposal(uid: drivers['uid'], orderId: orderKey);
                                                   insertProposal(proposal).then((value) {
@@ -743,13 +770,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                                   actions: <Widget>[
                                                                     TextButton(
                                                                       onPressed: () async {
-                                                                        DatabaseReference reviewRef =
-                                                                            FirebaseDatabase.instance.ref('review');
-                                                                        dynamic reviewSnapshot = await reviewRef.get();
-
-                                                                        reviewSnapshot.forEach((key, value) {
-                                                                          print(value);
-                                                                        });
                                                                         Review review = Review(
                                                                           driverId: driverId?.toString() ?? 'Unknown Driver',
                                                                           orderId: orderId ?? 'Unknown Order',

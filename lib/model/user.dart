@@ -9,6 +9,7 @@ class UserModel {
   final String? dateOfBirth;
   final String? gender;
   final bool? online;
+  final double? driverRating;
 
   UserModel({
     required this.uid,
@@ -21,6 +22,7 @@ class UserModel {
     this.dateOfBirth,
     this.gender,
     this.online,
+    this.driverRating,
   });
 
   Map<String, dynamic> toJson() {
@@ -35,6 +37,7 @@ class UserModel {
       'dateOfBirth': dateOfBirth,
       'gender': gender,
       'online': online,
+      'driverRating': driverRating,
     };
   }
 }

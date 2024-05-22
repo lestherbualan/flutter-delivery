@@ -1,3 +1,4 @@
+import 'package:delivery/dashboard_screen/profile_screen.dart';
 import 'package:delivery/driver/driver_dashboard.dart';
 import 'package:delivery/firebase_options.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // Import FirebaseAuth
@@ -68,12 +69,20 @@ class MyApp extends StatelessWidget {
                     title: 'Driver',
                     home: DriverDashboard(),
                   );
+                  // return MaterialApp(
+                  //   title: 'Driver',
+                  //   home: ProfileScreen(),
+                  // );
                 } else {
                   // User is not authenticated in your database
                   return const MaterialApp(
                     title: 'Your App Title',
                     home: DashboardScreen(),
                   );
+                  // return MaterialApp(
+                  //   title: 'Driver',
+                  //   home: ProfileScreen(),
+                  // );
                 }
               }
             },
