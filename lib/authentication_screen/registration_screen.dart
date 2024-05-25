@@ -45,6 +45,11 @@ class _RegistrationFormState extends State<RegistrationForm> {
     "Female",
   ];
 
+  final TextEditingController _fullNameController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
   Future<void> insertUser(UserModel user) async {
     DatabaseReference ref = FirebaseDatabase.instance.ref("user/${user.uid}");
     await ref.set(user.toJson()).then((value) => print('done')).catchError((onError) => {print(onError)});
@@ -94,10 +99,6 @@ class _RegistrationFormState extends State<RegistrationForm> {
 
   @override
   Widget build(BuildContext context) {
-    final TextEditingController _fullNameController = TextEditingController();
-    final TextEditingController _usernameController = TextEditingController();
-    final TextEditingController _emailController = TextEditingController();
-    final TextEditingController _passwordController = TextEditingController();
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: Form(
@@ -130,187 +131,22 @@ class _RegistrationFormState extends State<RegistrationForm> {
                 hintText: 'Please enter your Full Name',
                 icon: Icons.contact_page_outlined,
                 controller: _fullNameController),
-            // TextFormField(
-            //   onChanged: (value) {
-            //     setState(() {
-            //       displayName = value;
-            //     });
-            //   },
-            //   decoration: InputDecoration(
-            //     labelText: 'Full Name',
-            //     filled: true,
-            //     fillColor: Colors.grey[200],
-            //     border: OutlineInputBorder(
-            //       borderRadius: BorderRadius.circular(10.0),
-            //     ),
-            //   ),
-            //   validator: (value) {
-            //     if (value!.isEmpty) {
-            //       return 'Please enter a Full Name';
-            //     }
-            //     return null;
-            //   },
-            // ),
-            // const SizedBox(height: 15),
-            // Row(
-            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //   children: [
-            //     Expanded(
-            //       child: TextFormField(
-            //         onChanged: (value) {
-            //           setState(() {
-            //             displayName = value;
-            //           });
-            //         },
-            //         decoration: InputDecoration(
-            //           labelText: 'Contact Number',
-            //           filled: true,
-            //           fillColor: Colors.grey[200],
-            //           border: OutlineInputBorder(
-            //             borderRadius: BorderRadius.circular(10.0),
-            //           ),
-            //         ),
-            //         validator: (value) {
-            //           if (value!.isEmpty) {
-            //             return 'Please enter a Contact Number';
-            //           }
-            //           return null;
-            //         },
-            //       ),
-            //     ),
-            //     const SizedBox(width: 15),
-            //     Expanded(
-            //       child: DropdownButtonHideUnderline(
-            //         child: DropdownButton2<String>(
-            //           isExpanded: true,
-            //           hint: Text(
-            //             'Gender',
-            //             style: TextStyle(
-            //               fontSize: 14,
-            //               color: Theme.of(context).hintColor,
-            //             ),
-            //           ),
-            //           items: items
-            //               .map((String item) => DropdownMenuItem<String>(
-            //                     value: item,
-            //                     child: Text(
-            //                       '$item kg',
-            //                       style: const TextStyle(
-            //                         fontSize: 14,
-            //                       ),
-            //                     ),
-            //                   ))
-            //               .toList(),
-            //           value: gender,
-            //           onChanged: (String? value) {
-            //             setState(() {
-            //               gender = value!;
-            //             });
-            //           },
-            //           buttonStyleData: ButtonStyleData(
-            //             padding: const EdgeInsets.symmetric(horizontal: 16),
-            //             height: 40,
-            //             width: 180,
-            //             decoration: BoxDecoration(
-            //               borderRadius: BorderRadius.circular(14),
-            //               border: Border.all(
-            //                 color: Colors.black,
-            //               ),
-            //               color: Colors.white60,
-            //             ),
-            //           ),
-            //           menuItemStyleData: const MenuItemStyleData(
-            //             height: 40,
-            //           ),
-            //         ),
-            //       ),
-            //     ),
-            //   ],
-            // ),
-            //const SizedBox(height: 15),
             RegistrationInputField(
                 labelText: 'Username',
                 hintText: 'Please enter your username',
                 icon: Icons.person_2_outlined,
                 controller: _usernameController),
-            // TextFormField(
-            //   onChanged: (value) {
-            //     setState(() {
-            //       username = value;
-            //     });
-            //   },
-            //   decoration: InputDecoration(
-            //     labelText: 'Username',
-            //     filled: true,
-            //     fillColor: Colors.grey[200],
-            //     border: OutlineInputBorder(
-            //       borderRadius: BorderRadius.circular(10.0),
-            //     ),
-            //   ),
-            //   validator: (value) {
-            //     if (value!.isEmpty) {
-            //       return 'Please enter a username';
-            //     }
-            //     return null;
-            //   },
-            // ),
-            //const SizedBox(height: 15),
             RegistrationInputField(
                 labelText: 'Email Address',
                 hintText: 'Please enter your email address',
                 icon: Icons.email_outlined,
                 controller: _emailController),
-            // TextFormField(
-            //   onChanged: (value) {
-            //     setState(() {
-            //       emailAddress = value;
-            //     });
-            //   },
-            //   decoration: InputDecoration(
-            //     labelText: 'Email',
-            //     filled: true,
-            //     fillColor: Colors.grey[200],
-            //     border: OutlineInputBorder(
-            //       borderRadius: BorderRadius.circular(10.0),
-            //     ),
-            //   ),
-            //   validator: (value) {
-            //     if (value!.isEmpty) {
-            //       return 'Please enter an email';
-            //     }
-            //     return null;
-            //   },
-            // ),
-            //const SizedBox(height: 15),
             RegistrationInputField(
                 labelText: 'Password',
                 hintText: 'Please enter your password',
                 obscureText: true,
                 icon: Icons.lock_outline,
                 controller: _passwordController),
-            // TextFormField(
-            //   onChanged: (value) {
-            //     setState(() {
-            //       password = value;
-            //     });
-            //   },
-            //   obscureText: true,
-            //   decoration: InputDecoration(
-            //     labelText: 'Password',
-            //     filled: true,
-            //     fillColor: Colors.grey[200],
-            //     border: OutlineInputBorder(
-            //       borderRadius: BorderRadius.circular(10.0),
-            //     ),
-            //   ),
-            //   validator: (value) {
-            //     if (value!.isEmpty) {
-            //       return 'Please enter a password';
-            //     }
-            //     return null;
-            //   },
-            // ),
-            //const SizedBox(height: 15),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

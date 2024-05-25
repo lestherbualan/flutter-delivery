@@ -20,27 +20,36 @@ class MyApp extends StatelessWidget {
   Future<dynamic> getUserDB(AsyncSnapshot snapshot) async {
     try {
       final ref = FirebaseDatabase.instance.ref();
-      final user = await ref.child('user/${snapshot.data?.uid}').get();
-      final userData = user.value;
+      const maxRetries = 5;
+      const delayBetweenRetries = Duration(seconds: 2);
+      int retries = 0;
 
-      if (userData == null || userData is! Map<Object?, Object?>) {
-        print('userData is null or not a Map<Object?, Object?>');
-        return;
+      while (retries < maxRetries) {
+        final user = await ref.child('user/${snapshot.data?.uid}').get();
+        final userData = user.value;
+
+        if (userData != null && userData is Map<Object?, Object?>) {
+          // Convert the keys and values to the desired types
+          final Map<String, dynamic> userDataMap = {};
+          userData.forEach((key, value) {
+            if (key is String) {
+              final dynamicKey = key;
+              final dynamicValue = value;
+              userDataMap[dynamicKey] = dynamicValue;
+            }
+          });
+
+          bool isRider = userDataMap['isRider'];
+
+          return isRider;
+        }
+
+        print('userData is null or not a Map<Object?, Object?>, retrying...');
+        retries++;
+        await Future.delayed(delayBetweenRetries);
       }
 
-      // Convert the keys and values to the desired types
-      final Map<String, dynamic> userDataMap = {};
-      userData.forEach((key, value) {
-        if (key is String) {
-          final dynamicKey = key;
-          final dynamicValue = value;
-          userDataMap[dynamicKey] = dynamicValue;
-        }
-      });
-
-      bool isRider = userDataMap['isRider'];
-
-      return isRider;
+      print('Failed to fetch user data after $maxRetries retries.');
     } catch (e) {
       print('Error fetching user data: $e');
     }
@@ -52,7 +61,13 @@ class MyApp extends StatelessWidget {
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (BuildContext context, AsyncSnapshot<User?> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator(); // Show loading indicator while checking authentication state
+          return const MaterialApp(
+            home: Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(), // Show loading indicator while checking authentication state
+              ),
+            ),
+          );
         }
         if (snapshot.hasData && snapshot.data != null) {
           // User is logged in, navigate to dashboard screen
@@ -60,7 +75,13 @@ class MyApp extends StatelessWidget {
             future: getUserDB(snapshot),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return const CircularProgressIndicator();
+                return const MaterialApp(
+                  home: Scaffold(
+                    body: Center(
+                      child: CircularProgressIndicator(), // Show loading indicator while checking authentication state
+                    ),
+                  ),
+                );
               } else {
                 if (snapshot.hasData && snapshot.data!) {
                   print(snapshot.data!);
