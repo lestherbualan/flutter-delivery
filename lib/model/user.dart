@@ -8,6 +8,8 @@ class UserModel {
   final String? contactNumber;
   final String? dateOfBirth;
   final String? gender;
+  final bool? online;
+  final double? driverRating;
 
   UserModel({
     required this.uid,
@@ -19,6 +21,8 @@ class UserModel {
     this.contactNumber,
     this.dateOfBirth,
     this.gender,
+    this.online,
+    this.driverRating,
   });
 
   Map<String, dynamic> toJson() {
@@ -27,12 +31,13 @@ class UserModel {
       'username': username,
       'emailAddress': emailAddress,
       'isRider': isRider,
-      'profilePictureUrl':
-          profilePictureUrl, // Include profile picture URL in JSON
+      'profilePictureUrl': profilePictureUrl, // Include profile picture URL in JSON
       'displayName': displayName,
       'contactNumber': contactNumber,
       'dateOfBirth': dateOfBirth,
       'gender': gender,
+      'online': online,
+      'driverRating': driverRating,
     };
   }
 }

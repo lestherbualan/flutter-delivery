@@ -11,19 +11,22 @@ class Order {
   double netWeight;
   String? key;
   String? driverId;
-  Order(
-      {required this.startingGeoPoint,
-      required this.endingGeoPoint,
-      required this.distance,
-      required this.uid,
-      required this.status,
-      required this.date,
-      required this.vehicleType,
-      required this.name,
-      required this.isScheduled,
-      required this.netWeight,
-      this.key,
-      this.driverId});
+  int rate;
+  Order({
+    required this.startingGeoPoint,
+    required this.endingGeoPoint,
+    required this.distance,
+    required this.uid,
+    required this.status,
+    required this.date,
+    required this.vehicleType,
+    required this.name,
+    required this.isScheduled,
+    required this.netWeight,
+    this.key,
+    this.driverId,
+    required this.rate,
+  });
   Map<String, dynamic> toJson() => {
         'startingGeoPoint': startingGeoPoint,
         'endingGeoPoint': endingGeoPoint,
@@ -37,5 +40,6 @@ class Order {
         'netWeight': netWeight,
         'key': key,
         'driverId': driverId,
+        'rate': rate,
       };
 }

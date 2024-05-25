@@ -2,6 +2,7 @@ import 'package:delivery/authentication_screen/login_screen.dart';
 import 'package:delivery/dashboard_screen/profile_screen.dart';
 import 'package:delivery/map_app/map_initializer.dart';
 import 'package:delivery/model/order.dart';
+import 'package:delivery/model/proposal.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -29,6 +30,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   late final MapInitializer _mapInitializer;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   DatabaseReference ref = FirebaseDatabase.instance.ref("order").push();
+  final DatabaseReference _userRef = FirebaseDatabase.instance.ref('user');
+  final DatabaseReference _proposalRef = FirebaseDatabase.instance.ref('proposal').push();
+  List<Map<dynamic, dynamic>> _userList = [];
 
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
@@ -43,6 +47,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   double distance = 0.0;
   String vehicleType = '';
   double? netWeight;
+  int rate = 25;
 
   Color _motorBG = Colors.white;
   Color _carBG = Colors.white;
@@ -61,14 +66,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
   double? selectedValue;
 
   // Function to update data received from MapDisplay
-  void updateMapData(
-      String start, String end, double dist, GeoPoint long, GeoPoint lat) {
+  void updateMapData(String start, String end, double dist, GeoPoint long, GeoPoint lat) {
     setState(() {
       startingPoint = start;
       endPoint = end;
       distance = dist;
       startingGeopoint = long;
       endingGeopoint = lat;
+      rate = (rate + (5 * distance)).toInt();
     });
   }
 
@@ -102,12 +107,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future insertOrder(Order order) async {
-    await ref
-        .set(order.toJson())
-        .then((value) => {print(ref.key)})
-        .catchError((onError) => {print(onError)});
+    await ref.set(order.toJson()).then((value) => {print(ref.key)}).catchError((onError) => {print(onError)});
 
     return ref.key;
+  }
+
+  Future insertProposal(Proposal proposal) async {
+    await _proposalRef
+        .set(proposal.toJson())
+        .then((value) => {print(_proposalRef.key)})
+        .catchError((onError) => {print(onError)});
+
+    return _proposalRef.key;
   }
 
   dropDownCallback(double? selectedValue) {
@@ -119,13 +130,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future insertReview(Review review) async {
-    DatabaseReference reviewRef =
-        FirebaseDatabase.instance.ref("review").push();
+    DatabaseReference reviewRef = FirebaseDatabase.instance.ref("review").push();
+    int counter = 0;
+    List driverReviewList = [];
+    await reviewRef.set(review.toJson()).then((value) async {
+      print(reviewRef.key);
+      DatabaseReference newReviewRef = FirebaseDatabase.instance.ref("review");
+      final reviewSnapshot = await newReviewRef.get();
+      Map<dynamic, dynamic> reviews = reviewSnapshot.value as Map<dynamic, dynamic>;
 
-    await reviewRef
-        .set(review.toJson())
-        .then((value) => {print(reviewRef.key)})
-        .catchError((onError) => {print(onError)});
+      reviews.forEach((key, value) {
+        if (value['driverId'] == review.driverId) {
+          driverReviewList.add(value['rating']);
+          counter++;
+        }
+      });
+      int totalRating = driverReviewList.reduce((value, element) => value + element);
+
+      double calculatedRating = totalRating / counter;
+      calculatedRating = double.parse(calculatedRating.toStringAsFixed(2));
+
+      DatabaseReference driver = FirebaseDatabase.instance.ref("user/${review.driverId}");
+      driver.update({'driverRating': calculatedRating});
+    }).catchError((onError) => {print(onError)});
   }
 
   Future getImageUrlFromFireStore() async {
@@ -137,6 +164,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
   }
 
+  Future<void> _fetchUserList() async {
+    DataSnapshot snapshot = await _userRef.get();
+    _userRef.onValue.listen((event) {
+      if (event.snapshot.exists) {
+        Map<dynamic, dynamic>? data = event.snapshot.value as Map<dynamic, dynamic>?;
+        if (data != null) {
+          List<Map<dynamic, dynamic>> userList = [];
+          data.forEach((key, value) {
+            if (value['isRider'] == true && value['online'] == true) {
+              userList.add(Map<dynamic, dynamic>.from(value));
+            }
+          });
+          userList.sort((a, b) => b['driverRating'].compareTo(a['driverRating']));
+          setState(() {
+            _userList = userList;
+          });
+        }
+      } else {
+        print('No data available.');
+      }
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -145,6 +195,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       onUpdate: updateMapData,
     );
     getImageUrlFromFireStore();
+    _fetchUserList();
   }
 
   @override
@@ -171,9 +222,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   child: CircleAvatar(
                     radius: 25,
                     backgroundColor: Colors.transparent,
-                    backgroundImage: imageFileUrl.isNotEmpty
-                        ? NetworkImage(imageFileUrl)
-                        : null,
+                    backgroundImage: imageFileUrl.isNotEmpty ? NetworkImage(imageFileUrl) : null,
                   ),
                 ),
               ),
@@ -193,8 +242,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         color: Colors.grey.withOpacity(0.5),
                         spreadRadius: 2,
                         blurRadius: 3,
-                        offset:
-                            const Offset(0, 2), // changes position of shadow
+                        offset: const Offset(0, 2), // changes position of shadow
                       ),
                     ],
                   ),
@@ -211,31 +259,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(
-                                builder: (context) => ProfileScreen()),
+                            MaterialPageRoute(builder: (context) => ProfileScreen()),
                           );
                         },
                       ),
-                      ListTile(
-                        leading: const Icon(
-                          Icons.calendar_month_outlined,
-                          size: 25.0,
-                          color: Colors.black,
-                        ),
-                        title: const Text(
-                          'Scheduled Delivery',
-                          style: TextStyle(fontSize: 12.0),
-                        ),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => ScheduleDeliveryScreen()),
-                          );
-                          // Implement action for dropdown item 2
-                          toggleDropdownVisibility(); // Close dropdown after action
-                        },
-                      ),
+                      // ListTile(
+                      //   leading: const Icon(
+                      //     Icons.calendar_month_outlined,
+                      //     size: 25.0,
+                      //     color: Colors.black,
+                      //   ),
+                      //   title: const Text(
+                      //     'Scheduled Delivery',
+                      //     style: TextStyle(fontSize: 12.0),
+                      //   ),
+                      //   onTap: () {
+                      //     Navigator.push(
+                      //       context,
+                      //       MaterialPageRoute(builder: (context) => ScheduleDeliveryScreen()),
+                      //     );
+                      //     // Implement action for dropdown item 2
+                      //     toggleDropdownVisibility(); // Close dropdown after action
+                      //   },
+                      // ),
                       ListTile(
                         leading: const Icon(
                           Icons.logout_outlined,
@@ -250,9 +296,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           await _auth.signOut().then((value) => {
                                 Navigator.pushReplacement(
                                   context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const LoginScreen()),
+                                  MaterialPageRoute(builder: (context) => const LoginScreen()),
                                 )
                               });
                         },
@@ -294,19 +338,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     color: Colors.black,
                                   ),
                                 ),
-                                padding: const EdgeInsets.only(
-                                    top: 11.0, bottom: 11.0),
+                                padding: const EdgeInsets.only(top: 11.0, bottom: 11.0),
                                 child: Center(
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        startingPoint.isNotEmpty
-                                            ? startingPoint
-                                            : 'Starting Location',
-                                        style: const TextStyle(
-                                            color: Colors.black),
+                                        startingPoint.isNotEmpty ? startingPoint : 'Starting Location',
+                                        style: const TextStyle(color: Colors.black),
                                       ),
                                     ],
                                   ),
@@ -321,19 +360,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     color: Colors.black,
                                   ),
                                 ),
-                                padding: const EdgeInsets.only(
-                                    top: 11.0, bottom: 11.0),
+                                padding: const EdgeInsets.only(top: 11.0, bottom: 11.0),
                                 child: Center(
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        endPoint.isNotEmpty
-                                            ? endPoint
-                                            : 'Ending Location',
-                                        style: const TextStyle(
-                                            color: Colors.black),
+                                        endPoint.isNotEmpty ? endPoint : 'Ending Location',
+                                        style: const TextStyle(color: Colors.black),
                                       ),
                                     ],
                                   ),
@@ -503,16 +537,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 ),
                               ),
                               items: items
-                                  .map(
-                                      (double item) => DropdownMenuItem<double>(
-                                            value: item,
-                                            child: Text(
-                                              '$item kg',
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                              ),
-                                            ),
-                                          ))
+                                  .map((double item) => DropdownMenuItem<double>(
+                                        value: item,
+                                        child: Text(
+                                          '$item kg',
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ))
                                   .toList(),
                               value: netWeight,
                               onChanged: (double? value) {
@@ -521,8 +554,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 });
                               },
                               buttonStyleData: ButtonStyleData(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 16),
+                                padding: const EdgeInsets.symmetric(horizontal: 16),
                                 height: 40,
                                 width: 180,
                                 decoration: BoxDecoration(
@@ -540,8 +572,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ),
                         ),
                         Container(
-                          width: MediaQuery.of(context).size.width *
-                              0.4, // Adjust width as needed
+                          width: MediaQuery.of(context).size.width * 0.4, // Adjust width as needed
                           decoration: BoxDecoration(
                             color: Colors.white60,
                             borderRadius: BorderRadius.circular(10),
@@ -549,18 +580,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               color: Colors.black,
                             ),
                           ),
-                          padding:
-                              const EdgeInsets.only(top: 11.0, bottom: 11.0),
-                          child: const Center(
+                          padding: const EdgeInsets.only(top: 11.0, bottom: 11.0),
+                          child: Center(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  '70 PHP',
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 25.0,
-                                      fontWeight: FontWeight.bold),
+                                  //(rate * (distance.round())).toString(),
+                                  rate.toString(),
+                                  style: const TextStyle(color: Colors.black, fontSize: 25.0, fontWeight: FontWeight.bold),
                                 ),
                               ],
                             ),
@@ -584,193 +612,210 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       endingGeopoint.latitude != 0 &&
                                       endingGeopoint.longitude != 0)) {
                                 Order order = Order(
-                                  name: user?.displayName ?? "No Name",
-                                  date: DateTime.now().toString(),
-                                  startingGeoPoint: {
-                                    'location': startingPoint,
-                                    'longitude':
-                                        startingGeopoint.longitude.toString(),
-                                    'latitude':
-                                        startingGeopoint.latitude.toString()
-                                  },
-                                  endingGeoPoint: {
-                                    'location': endPoint,
-                                    'longitude':
-                                        endingGeopoint.longitude.toString(),
-                                    'latitude':
-                                        endingGeopoint.latitude.toString()
-                                  },
-                                  distance: distance.toString(),
-                                  status: 'ACTIVE',
-                                  uid: user?.uid ?? "No UID",
-                                  vehicleType: vehicleType,
-                                  isScheduled: false,
-                                  netWeight: netWeight!,
-                                  driverId: '',
-                                );
-                                insertOrder(order).then((value) async {
+                                    name: user?.displayName ?? "No Name",
+                                    date: DateTime.now().toString(),
+                                    startingGeoPoint: {
+                                      'location': startingPoint,
+                                      'longitude': startingGeopoint.longitude.toString(),
+                                      'latitude': startingGeopoint.latitude.toString()
+                                    },
+                                    endingGeoPoint: {
+                                      'location': endPoint,
+                                      'longitude': endingGeopoint.longitude.toString(),
+                                      'latitude': endingGeopoint.latitude.toString()
+                                    },
+                                    distance: distance.toString(),
+                                    status: 'PROPOSE',
+                                    uid: user?.uid ?? "No UID",
+                                    vehicleType: vehicleType,
+                                    isScheduled: false,
+                                    netWeight: netWeight!,
+                                    driverId: '',
+                                    rate: (rate * (distance.round())).toInt());
+                                insertOrder(order).then((orderKey) async {
                                   showDialog(
                                     context: context,
                                     barrierDismissible: false,
                                     builder: (BuildContext context) {
-                                      return const AlertDialog(
-                                        content: Row(
-                                          children: [
-                                            CircularProgressIndicator(),
-                                            SizedBox(width: 20),
-                                            Text(
-                                                "Waiting for driver to accept..."),
-                                          ],
+                                      DatabaseReference userRef = FirebaseDatabase.instance.ref('user');
+
+                                      return AlertDialog(
+                                        title: const Text('Available Drivers'),
+                                        content: Container(
+                                          width: double.maxFinite,
+                                          child: ListView.builder(
+                                            itemCount: _userList.length,
+                                            itemBuilder: (BuildContext context, int index) {
+                                              final drivers = _userList[index];
+                                              return ListTile(
+                                                leading: CircleAvatar(
+                                                  backgroundImage:
+                                                      drivers['profilePictureUrl'] != null && drivers['profilePictureUrl'] != ''
+                                                          ? NetworkImage(drivers['profilePictureUrl'])
+                                                          : null,
+                                                ),
+                                                title: Text(drivers['displayName']),
+                                                subtitle: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    //Text(drivers['emailAddress']),
+                                                    Text('Rating: ${drivers['driverRating']}'),
+                                                  ],
+                                                ),
+                                                onTap: () {
+                                                  Proposal proposal = Proposal(uid: drivers['uid'], orderId: orderKey);
+                                                  insertProposal(proposal).then((value) {
+                                                    //Navigator.pop(context);
+                                                    DatabaseReference orderReference =
+                                                        FirebaseDatabase.instance.ref('order/$orderKey');
+                                                    orderReference.onValue.listen((DatabaseEvent event) {
+                                                      final data = event.snapshot.value;
+                                                      print(data);
+                                                      if (data != null && data is Map<Object?, Object?>) {
+                                                        final dynamic status = data['status'];
+                                                        dynamic driverId = drivers['uid'];
+                                                        dynamic orderId = data['key'];
+                                                        dynamic userId = user?.uid;
+                                                        String commentText = '';
+                                                        if (status != null) {
+                                                          print(status);
+                                                          if (status == 'PROPOSE') {
+                                                            showDialog(
+                                                              context: context,
+                                                              barrierDismissible: false,
+                                                              builder: (BuildContext context) {
+                                                                return const AlertDialog(
+                                                                  content: Row(
+                                                                    children: [
+                                                                      CircularProgressIndicator(),
+                                                                      SizedBox(width: 20),
+                                                                      Text("Waiting for the driver to accept"),
+                                                                    ],
+                                                                  ),
+                                                                );
+                                                              },
+                                                            );
+                                                          }
+                                                          if (status == 'ACCEPTED') {
+                                                            print('driver id here');
+                                                            print(data);
+                                                            Navigator.pop(context);
+                                                            showDialog(
+                                                              context: context,
+                                                              barrierDismissible: false,
+                                                              builder: (BuildContext context) {
+                                                                return const AlertDialog(
+                                                                  content: Row(
+                                                                    children: [
+                                                                      CircularProgressIndicator(),
+                                                                      SizedBox(width: 20),
+                                                                      Text("Driver is on the way ..."),
+                                                                    ],
+                                                                  ),
+                                                                );
+                                                              },
+                                                            );
+                                                          }
+                                                          if (status == 'COMPLETED') {
+                                                            Navigator.pop(context);
+                                                            ScaffoldMessenger.of(context).showSnackBar(
+                                                              const SnackBar(content: Text('Order is complete!')),
+                                                            );
+                                                            // Show the rating pop-up here
+                                                            showDialog(
+                                                              context: context,
+                                                              barrierDismissible: false,
+                                                              builder: (BuildContext context) {
+                                                                int rating = 0; // Initialize the rating variable
+
+                                                                return AlertDialog(
+                                                                  title: const Text('Rate the driver'),
+                                                                  content: Column(
+                                                                    mainAxisSize: MainAxisSize.min,
+                                                                    children: [
+                                                                      const Text('Please rate the driver for this order:'),
+                                                                      // Star rating widget
+                                                                      RatingBar.builder(
+                                                                        initialRating: rating.toDouble(),
+                                                                        minRating: 1,
+                                                                        direction: Axis.horizontal,
+                                                                        allowHalfRating: false,
+                                                                        itemCount: 5,
+                                                                        itemSize: 40,
+                                                                        itemBuilder: (context, _) => const Icon(
+                                                                          Icons.star,
+                                                                          color: Colors.amber,
+                                                                        ),
+                                                                        onRatingUpdate: (value) {
+                                                                          rating = value.toInt(); // Update the rating value
+                                                                        },
+                                                                      ),
+                                                                      const SizedBox(height: 20),
+                                                                      // Text input for comments
+                                                                      TextFormField(
+                                                                        onChanged: (value) {
+                                                                          setState(() {
+                                                                            commentText = value;
+                                                                          });
+                                                                        },
+                                                                        decoration: const InputDecoration(
+                                                                          hintText: 'Add your comments (optional)',
+                                                                          border: OutlineInputBorder(),
+                                                                        ),
+                                                                        maxLines: null,
+                                                                        keyboardType: TextInputType.multiline,
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                  actions: <Widget>[
+                                                                    TextButton(
+                                                                      onPressed: () async {
+                                                                        Review review = Review(
+                                                                          driverId: driverId?.toString() ?? 'Unknown Driver',
+                                                                          orderId: orderId ?? 'Unknown Order',
+                                                                          rating: double.parse(rating?.toString() ?? '0.0'),
+                                                                          userId: userId ?? 'Unknown User',
+                                                                          message: commentText ?? 'No comment provided',
+                                                                        );
+                                                                        await insertReview(review).then((value) {
+                                                                          Navigator.pop(context);
+                                                                          Navigator.push(
+                                                                            context,
+                                                                            MaterialPageRoute(
+                                                                                builder: (context) => const DashboardScreen()),
+                                                                          );
+                                                                          //Navigator.pop(context);
+                                                                        });
+                                                                      },
+                                                                      child: const Text('Submit'),
+                                                                    ),
+                                                                  ],
+                                                                );
+                                                              },
+                                                            );
+                                                          }
+                                                        } else {
+                                                          print("Status not found in data.");
+                                                        }
+                                                      } else {
+                                                        print("Data is null or not in the expected format.");
+                                                      }
+                                                    });
+                                                  });
+                                                },
+                                              );
+                                            },
+                                          ),
                                         ),
                                       );
                                     },
                                   );
-                                  DatabaseReference orderReference =
-                                      FirebaseDatabase.instance
-                                          .ref('order/${value}');
-
-                                  orderReference.onValue
-                                      .listen((DatabaseEvent event) {
-                                    final data = event.snapshot.value;
-                                    if (data != null &&
-                                        data is Map<Object?, Object?>) {
-                                      final dynamic status = data['status'];
-                                      dynamic driverId = data['driverId'];
-                                      dynamic orderId = data['key'];
-                                      dynamic userId = user?.uid;
-                                      String commentText = '';
-                                      if (status != null) {
-                                        print(status);
-                                        if (status == 'ACCEPTED') {
-                                          Navigator.pop(context);
-                                          showDialog(
-                                            context: context,
-                                            barrierDismissible: false,
-                                            builder: (BuildContext context) {
-                                              return const AlertDialog(
-                                                content: Row(
-                                                  children: [
-                                                    CircularProgressIndicator(),
-                                                    SizedBox(width: 20),
-                                                    Text(
-                                                        "Driver is on the way ..."),
-                                                  ],
-                                                ),
-                                              );
-                                            },
-                                          );
-                                        }
-                                        if (status == 'COMPLETED') {
-                                          Navigator.pop(context);
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            const SnackBar(
-                                                content:
-                                                    Text('Order is complete!')),
-                                          );
-                                          // Show the rating pop-up here
-                                          showDialog(
-                                            context: context,
-                                            barrierDismissible: false,
-                                            builder: (BuildContext context) {
-                                              int rating =
-                                                  0; // Initialize the rating variable
-
-                                              return AlertDialog(
-                                                title: const Text(
-                                                    'Rate the driver'),
-                                                content: Column(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    const Text(
-                                                        'Please rate the driver for this order:'),
-                                                    // Star rating widget
-                                                    RatingBar.builder(
-                                                      initialRating:
-                                                          rating.toDouble(),
-                                                      minRating: 1,
-                                                      direction:
-                                                          Axis.horizontal,
-                                                      allowHalfRating: false,
-                                                      itemCount: 5,
-                                                      itemSize: 40,
-                                                      itemBuilder:
-                                                          (context, _) =>
-                                                              const Icon(
-                                                        Icons.star,
-                                                        color: Colors.amber,
-                                                      ),
-                                                      onRatingUpdate: (value) {
-                                                        rating = value
-                                                            .toInt(); // Update the rating value
-                                                      },
-                                                    ),
-                                                    const SizedBox(height: 20),
-                                                    // Text input for comments
-                                                    TextFormField(
-                                                      onChanged: (value) {
-                                                        setState(() {
-                                                          commentText = value;
-                                                        });
-                                                      },
-                                                      decoration:
-                                                          const InputDecoration(
-                                                        hintText:
-                                                            'Add your comments (optional)',
-                                                        border:
-                                                            OutlineInputBorder(),
-                                                      ),
-                                                      maxLines: null,
-                                                      keyboardType:
-                                                          TextInputType
-                                                              .multiline,
-                                                    ),
-                                                  ],
-                                                ),
-                                                actions: <Widget>[
-                                                  TextButton(
-                                                    onPressed: () async {
-                                                      Review review = Review(
-                                                        driverId: driverId
-                                                                ?.toString() ??
-                                                            'Unknown Driver',
-                                                        orderId: orderId ??
-                                                            'Unknown Order',
-                                                        rating: double.parse(
-                                                            rating?.toString() ??
-                                                                '0.0'),
-                                                        userId: userId ??
-                                                            'Unknown User',
-                                                        message: commentText ??
-                                                            'No comment provided',
-                                                      );
-                                                      await insertReview(review)
-                                                          .then((value) {
-                                                        Navigator.pop(context);
-                                                      });
-                                                    },
-                                                    child: const Text('Submit'),
-                                                  ),
-                                                ],
-                                              );
-                                            },
-                                          );
-                                        }
-                                      } else {
-                                        print("Status not found in data.");
-                                      }
-                                    } else {
-                                      print(
-                                          "Data is null or not in the expected format.");
-                                    }
-                                  });
+                                  // here
                                 });
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    content:
-                                        Text('Please fill in required data'),
+                                    content: Text('Please fill in required data'),
                                     duration: Duration(milliseconds: 500),
                                   ),
                                 );
@@ -790,8 +835,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(
-                            width: 10), // Add spacing between buttons
+                        const SizedBox(width: 10), // Add spacing between buttons
                         OutlinedButton(
                           onPressed: () {
                             _selectDateAndTime();
@@ -799,8 +843,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           style: TextButton.styleFrom(
                             backgroundColor: Colors.white,
                             foregroundColor: Colors.black54,
-                            padding:
-                                const EdgeInsets.only(top: 15.0, bottom: 15.0),
+                            padding: const EdgeInsets.only(top: 15.0, bottom: 15.0),
                           ),
                           child: const Icon(
                             Icons.timer_outlined,
