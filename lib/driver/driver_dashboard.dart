@@ -129,12 +129,15 @@ class _DriverDashboardState extends State<DriverDashboard> {
   }
 
   Future getImageUrlFromFireStore() async {
-    Reference ref = _storage.ref().child('profile_pictures/${user?.uid}.jpg');
-
-    String imageUrl = await ref.getDownloadURL();
-    setState(() {
-      imageFileUrl = imageUrl;
-    });
+    try {
+      Reference ref = _storage.ref().child('profile_pictures/${user?.uid}.jpg');
+      String imageUrl = await ref.getDownloadURL();
+      setState(() {
+        imageFileUrl = imageUrl;
+      });
+    } catch (e) {
+      print("Error retrieving profile photo, it doesnt exist!");
+    }
   }
 
   Future getTotalEarning() async {
@@ -313,7 +316,8 @@ class _DriverDashboardState extends State<DriverDashboard> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text('Date: ${formatter.format(DateTime.parse(orderInfo.date))}'),
-                                Text('Weight: ${orderInfo.netWeight}kg      Vehicle Type: ${orderInfo.vehicleType}'),
+                                Text(
+                                    'Weight: ${orderInfo.netWeight}kg      Vehicle Type: ${orderInfo.vehicleType}   Rate: ${orderInfo.rate}'),
                                 // Add more fields as needed
                               ],
                             ),

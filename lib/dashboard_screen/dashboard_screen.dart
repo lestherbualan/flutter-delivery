@@ -612,26 +612,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       endingGeopoint.latitude != 0 &&
                                       endingGeopoint.longitude != 0)) {
                                 Order order = Order(
-                                    name: user?.displayName ?? "No Name",
-                                    date: DateTime.now().toString(),
-                                    startingGeoPoint: {
-                                      'location': startingPoint,
-                                      'longitude': startingGeopoint.longitude.toString(),
-                                      'latitude': startingGeopoint.latitude.toString()
-                                    },
-                                    endingGeoPoint: {
-                                      'location': endPoint,
-                                      'longitude': endingGeopoint.longitude.toString(),
-                                      'latitude': endingGeopoint.latitude.toString()
-                                    },
-                                    distance: distance.toString(),
-                                    status: 'PROPOSE',
-                                    uid: user?.uid ?? "No UID",
-                                    vehicleType: vehicleType,
-                                    isScheduled: false,
-                                    netWeight: netWeight!,
-                                    driverId: '',
-                                    rate: (rate * (distance.round())).toInt());
+                                  name: user?.displayName ?? "No Name",
+                                  date: DateTime.now().toString(),
+                                  startingGeoPoint: {
+                                    'location': startingPoint,
+                                    'longitude': startingGeopoint.longitude.toString(),
+                                    'latitude': startingGeopoint.latitude.toString()
+                                  },
+                                  endingGeoPoint: {
+                                    'location': endPoint,
+                                    'longitude': endingGeopoint.longitude.toString(),
+                                    'latitude': endingGeopoint.latitude.toString()
+                                  },
+                                  distance: distance.toString(),
+                                  status: 'PROPOSE',
+                                  uid: user?.uid ?? "No UID",
+                                  vehicleType: vehicleType,
+                                  isScheduled: false,
+                                  netWeight: netWeight!,
+                                  driverId: '',
+                                  rate: rate,
+                                );
                                 insertOrder(order).then((orderKey) async {
                                   showDialog(
                                     context: context,
