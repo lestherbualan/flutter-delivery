@@ -21,6 +21,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final TextEditingController _websiteController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
+  final TextEditingController _driverSelfRate = TextEditingController();
+
   final FirebaseStorage _storage = FirebaseStorage.instance;
   User? user = FirebaseAuth.instance.currentUser;
   final DatabaseReference userRef = FirebaseDatabase.instance.ref('user');
@@ -57,6 +59,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     setState(() {
       _emailController.text = currentUser['emailAddress'];
       _displayNameController.text = currentUser['displayName'];
+      _driverSelfRate.text = currentUser['driverSelfRating'];
       _usernameController.text = user?.email ?? '';
       _phoneController.text = user?.phoneNumber ?? '';
     });
@@ -193,12 +196,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         icon: Icons.person_3_outlined,
                         controller: _displayNameController,
                       ),
-                      ProfileInputField(
-                        labelText: 'Phone number',
-                        hintText: 'Please enter your phone number',
-                        icon: Icons.phone_outlined,
-                        controller: _phoneController,
+                      Visibility(
+                        visible: currentUser['isRider'],
+                        child: ProfileInputField(
+                          labelText: 'Rate per Request',
+                          hintText: 'If empty, default will be 0',
+                          icon: Icons.attach_money_outlined,
+                          controller: _driverSelfRate,
+                        ),
                       ),
+                      // ProfileInputField(
+                      //   labelText: 'Phone number',
+                      //   hintText: 'Please enter your phone number',
+                      //   icon: Icons.phone_outlined,
+                      //   controller: _phoneController,
+                      // ),
                       ProfileInputField(
                         labelText: 'User name',
                         hintText: 'Please enter your user name',
@@ -295,15 +307,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           currentUserRef.update({
                             'emailAddress': _emailController.value.text,
                             'displayName': _displayNameController.value.text,
+                            'driverSelfRating': _driverSelfRate.value.text,
                           });
 
                           user?.updateDisplayName(_displayNameController.value.text);
-                          user?.updatePhoneNumber(_phoneController.value.text as PhoneAuthCredential);
-
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (context) => const DashboardScreen()),
-                          );
+                          Navigator.pop(context);
                         },
                         child: const Text('Save'),
                         style: ElevatedButton.styleFrom(

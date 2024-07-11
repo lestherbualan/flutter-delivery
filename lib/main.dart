@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart'; // Import FirebaseAuth
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:showcaseview/showcaseview.dart';
 import './authentication_screen/login_screen.dart';
 import './dashboard_screen/dashboard_screen.dart'; // Import the dashboard screen file
 
@@ -86,20 +87,31 @@ class MyApp extends StatelessWidget {
                 if (snapshot.hasData && snapshot.data!) {
                   print(snapshot.data!);
                   // User is authenticated in your database
-                  return const MaterialApp(
-                    title: 'Driver',
-                    home: DriverDashboard(),
-                  );
+                  return ShowCaseWidget(
+                      builder: (context) => const MaterialApp(
+                            title: 'Driver',
+                            home: DriverDashboard(),
+                          ));
+                  // return const MaterialApp(
+                  //   title: 'Driver',
+                  //   home: DriverDashboard(),
+                  // );
                   // return MaterialApp(
                   //   title: 'Driver',
                   //   home: ProfileScreen(),
                   // );
                 } else {
                   // User is not authenticated in your database
-                  return const MaterialApp(
-                    title: 'Your App Title',
-                    home: DashboardScreen(),
-                  );
+                  return ShowCaseWidget(
+                      builder: (context) => const MaterialApp(
+                            title: 'Your App Title',
+                            home: DashboardScreen(),
+                          ));
+
+                  // return const MaterialApp(
+                  //   title: 'Your App Title',
+                  //   home: DashboardScreen(),
+                  // );
                   // return MaterialApp(
                   //   title: 'Driver',
                   //   home: ProfileScreen(),

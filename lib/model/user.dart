@@ -10,6 +10,8 @@ class UserModel {
   final String? gender;
   final bool? online;
   final double? driverRating;
+  final String? driverSelfRating;
+  final bool? firstOpen;
 
   UserModel({
     required this.uid,
@@ -23,6 +25,8 @@ class UserModel {
     this.gender,
     this.online,
     this.driverRating,
+    this.driverSelfRating,
+    this.firstOpen,
   });
 
   Map<String, dynamic> toJson() {
@@ -38,6 +42,8 @@ class UserModel {
       'gender': gender,
       'online': online,
       'driverRating': driverRating,
+      'driverSelfRating': driverSelfRating,
+      'firstOpen': firstOpen
     };
   }
 }
