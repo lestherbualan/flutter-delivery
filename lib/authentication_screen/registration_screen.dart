@@ -190,6 +190,7 @@ class _RegistrationFormState extends State<RegistrationForm> {
                         displayName: _fullNameController.value.text,
                         online: true,
                         driverRating: 0,
+                        firstOpen: true,
                       );
 
                       insertUser(user).then((value) {

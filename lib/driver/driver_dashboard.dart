@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
+import 'package:showcaseview/showcaseview.dart';
 
 import '../authentication_screen/login_screen.dart';
 
@@ -38,6 +39,11 @@ class _DriverDashboardState extends State<DriverDashboard> {
   final FirebaseStorage _storage = FirebaseStorage.instance;
   double completedCounter = 0;
   DateFormat formatter = DateFormat('yyyy-MM-dd hh:mm a');
+
+  final GlobalKey _one = GlobalKey();
+  final GlobalKey _two = GlobalKey();
+  final GlobalKey _three = GlobalKey();
+  final GlobalKey _four = GlobalKey();
 
   void toggleDropdownVisibility() {
     setState(() {
@@ -167,6 +173,13 @@ class _DriverDashboardState extends State<DriverDashboard> {
     fetchProposal();
   }
 
+  Future _fetchCurrentUserData() async {
+    DatabaseReference currentUserRef = FirebaseDatabase.instance.ref('user/${user?.uid}');
+    DataSnapshot currentUserSnapshot = await currentUserRef.get();
+
+    return currentUserSnapshot.value;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -183,6 +196,16 @@ class _DriverDashboardState extends State<DriverDashboard> {
     //     userStatusRef.onDisconnect().set({'online': false});
     //   }
     // });
+    _fetchCurrentUserData().then((dynamic value) {
+      print(value);
+      if (value['firstOpen'] == true) {
+        Future.delayed(const Duration(seconds: 3), () async {
+          ShowCaseWidget.of(context).startShowCase([_one, _two, _three, _four]);
+          DatabaseReference currentUserRef = FirebaseDatabase.instance.ref('user/${user?.uid}');
+          currentUserRef.update({'firstOpen': false});
+        });
+      }
+    });
   }
 
   @override
@@ -220,16 +243,25 @@ class _DriverDashboardState extends State<DriverDashboard> {
                             onTap: () {
                               toggleDropdownVisibility();
                             },
-                            child: Container(
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.white,
-                              ),
-                              padding: const EdgeInsets.all(8),
-                              child: CircleAvatar(
-                                radius: 25,
-                                backgroundColor: Colors.transparent,
-                                backgroundImage: imageFileUrl.isNotEmpty ? NetworkImage(imageFileUrl) : null,
+                            child: Showcase(
+                              targetPadding: const EdgeInsets.all(1),
+                              key: _four,
+                              title: 'Menu',
+                              description: "If you want to edit your profile or logout in this app, you can do it here.",
+                              tooltipBackgroundColor: Theme.of(context).primaryColor,
+                              textColor: Colors.white,
+                              targetShapeBorder: const CircleBorder(),
+                              child: Container(
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.white,
+                                ),
+                                padding: const EdgeInsets.all(8),
+                                child: CircleAvatar(
+                                  radius: 25,
+                                  backgroundColor: Colors.transparent,
+                                  backgroundImage: imageFileUrl.isNotEmpty ? NetworkImage(imageFileUrl) : null,
+                                ),
                               ),
                             ),
                           ),
@@ -242,57 +274,73 @@ class _DriverDashboardState extends State<DriverDashboard> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Expanded(
-                          child: Card(
-                            margin: const EdgeInsets.all(5.0),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: <Widget>[
-                                  const Text(
-                                    'Earned',
-                                    style: TextStyle(
-                                      fontSize: 18.0,
-                                      fontWeight: FontWeight.bold,
+                          child: Showcase(
+                            targetPadding: const EdgeInsets.all(1),
+                            key: _one,
+                            title: 'Total Earning',
+                            description: "Here shows the total earning of the order you completed.",
+                            tooltipBackgroundColor: Theme.of(context).primaryColor,
+                            textColor: Colors.white,
+                            child: Card(
+                              margin: const EdgeInsets.all(5.0),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: <Widget>[
+                                    const Text(
+                                      'Earned',
+                                      style: TextStyle(
+                                        fontSize: 18.0,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(height: 10.0),
-                                  Text(
-                                    completedCounter.toString(),
-                                    style: const TextStyle(
-                                      fontSize: 24.0,
-                                      fontWeight: FontWeight.bold,
+                                    const SizedBox(height: 10.0),
+                                    Text(
+                                      completedCounter.toString(),
+                                      style: const TextStyle(
+                                        fontSize: 24.0,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ),
                         ),
                         Expanded(
-                          child: Card(
-                            margin: const EdgeInsets.all(5.0),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: <Widget>[
-                                  const Text(
-                                    'Pending Request',
-                                    style: TextStyle(
-                                      fontSize: 18.0,
-                                      fontWeight: FontWeight.bold,
+                          child: Showcase(
+                            targetPadding: const EdgeInsets.all(1),
+                            key: _two,
+                            title: 'Number of Pending Requests',
+                            description: "Here shows the number of booking currently assigned to you.",
+                            tooltipBackgroundColor: Theme.of(context).primaryColor,
+                            textColor: Colors.white,
+                            child: Card(
+                              margin: const EdgeInsets.all(5.0),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: <Widget>[
+                                    const Text(
+                                      'Pending Request',
+                                      style: TextStyle(
+                                        fontSize: 18.0,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(height: 10.0),
-                                  Text(
-                                    orderList.length.toString(),
-                                    style: const TextStyle(
-                                      fontSize: 24.0,
-                                      fontWeight: FontWeight.bold,
+                                    const SizedBox(height: 10.0),
+                                    Text(
+                                      orderList.length.toString(),
+                                      style: const TextStyle(
+                                        fontSize: 24.0,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ),
@@ -306,29 +354,38 @@ class _DriverDashboardState extends State<DriverDashboard> {
                     ),
                     const SizedBox(height: 8),
                     Expanded(
-                      child: ListView.builder(
-                        itemCount: orderList.length,
-                        itemBuilder: (context, index) {
-                          Order orderInfo = orderList[index];
-                          return ListTile(
-                            title: Text('Order from ${orderInfo.name}'),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Date: ${formatter.format(DateTime.parse(orderInfo.date))}'),
-                                Text(
-                                    'Weight: ${orderInfo.netWeight}kg      Vehicle Type: ${orderInfo.vehicleType}   Rate: ${orderInfo.rate}'),
-                                // Add more fields as needed
-                              ],
-                            ),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => DriverActions(orderInformation: orderInfo)),
-                              );
-                            },
-                          );
-                        },
+                      child: Showcase(
+                        targetPadding: const EdgeInsets.all(1),
+                        key: _three,
+                        title: 'Bookings',
+                        description:
+                            "Here shows all the lists of bookings currently assigned to use. You can view it to see its information.",
+                        tooltipBackgroundColor: Theme.of(context).primaryColor,
+                        textColor: Colors.white,
+                        child: ListView.builder(
+                          itemCount: orderList.length,
+                          itemBuilder: (context, index) {
+                            Order orderInfo = orderList[index];
+                            return ListTile(
+                              title: Text('Order from ${orderInfo.name}'),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Date: ${formatter.format(DateTime.parse(orderInfo.date))}'),
+                                  Text(
+                                      'Weight: ${orderInfo.netWeight}kg      Vehicle Type: ${orderInfo.vehicleType}   Rate: ${orderInfo.rate}'),
+                                  // Add more fields as needed
+                                ],
+                              ),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => DriverActions(orderInformation: orderInfo)),
+                                );
+                              },
+                            );
+                          },
+                        ),
                       ),
                     ),
                   ],
@@ -340,7 +397,7 @@ class _DriverDashboardState extends State<DriverDashboard> {
                     right: 10, // Adjust position as needed
                     child: Container(
                       width: 180,
-                      height: 150,
+                      height: 120,
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(10),
@@ -364,7 +421,7 @@ class _DriverDashboardState extends State<DriverDashboard> {
                             title: const Text('Profile'),
                             onTap: () {
                               // Implement action for dropdown item 1
-                              Navigator.pushReplacement(
+                              Navigator.push(
                                 context,
                                 MaterialPageRoute(builder: (context) => ProfileScreen()),
                               );
@@ -379,7 +436,7 @@ class _DriverDashboardState extends State<DriverDashboard> {
                             ),
                             title: const Text(
                               'Logout',
-                              style: TextStyle(fontSize: 12.0),
+                              //style: TextStyle(fontSize: 12.0),
                             ),
                             onTap: () async {
                               await _auth.signOut().then((value) {

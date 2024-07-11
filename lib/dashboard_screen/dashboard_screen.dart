@@ -15,8 +15,10 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import '../delivery/schedule_delivery_screen.dart';
 import '../home_screen/home_screen.dart';
 import 'package:delivery/map_app/map_display.dart';
+import 'package:showcaseview/showcaseview.dart';
 
 import '../model/review.dart';
+import '../model/user.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -55,6 +57,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   String imageFileUrl = '';
   final FirebaseStorage _storage = FirebaseStorage.instance;
+
+  final GlobalKey _one = GlobalKey();
+  final GlobalKey _two = GlobalKey();
+  final GlobalKey _three = GlobalKey();
+  final GlobalKey _four = GlobalKey();
+  final GlobalKey _five = GlobalKey();
+  final GlobalKey _six = GlobalKey();
+  final GlobalKey _seven = GlobalKey();
 
   final List<double> items = [
     1,
@@ -187,6 +197,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
   }
 
+  Future _fetchCurrentUserData() async {
+    DatabaseReference currentUserRef = FirebaseDatabase.instance.ref('user/${user?.uid}');
+    DataSnapshot currentUserSnapshot = await currentUserRef.get();
+
+    return currentUserSnapshot.value;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -196,6 +213,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
     getImageUrlFromFireStore();
     _fetchUserList();
+
+    _fetchCurrentUserData().then((dynamic value) {
+      if (value['firstOpen'] == true) {
+        Future.delayed(const Duration(seconds: 3), () async {
+          ShowCaseWidget.of(context).startShowCase([_one, _two, _three, _four, _five, _six, _seven]);
+          DatabaseReference currentUserRef = FirebaseDatabase.instance.ref('user/${user?.uid}');
+          currentUserRef.update({'firstOpen': false});
+        });
+      }
+    });
   }
 
   @override
@@ -213,16 +240,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 onTap: () {
                   toggleDropdownVisibility();
                 },
-                child: Container(
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white,
-                  ),
-                  padding: const EdgeInsets.all(3),
-                  child: CircleAvatar(
-                    radius: 25,
-                    backgroundColor: Colors.transparent,
-                    backgroundImage: imageFileUrl.isNotEmpty ? NetworkImage(imageFileUrl) : null,
+                child: Showcase(
+                  targetPadding: const EdgeInsets.all(1),
+                  key: _seven,
+                  title: 'Menu',
+                  description: "If you want to edit your profile or logout in this app, you can do it here.",
+                  tooltipBackgroundColor: Theme.of(context).primaryColor,
+                  textColor: Colors.white,
+                  targetShapeBorder: const CircleBorder(),
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                    ),
+                    padding: const EdgeInsets.all(3),
+                    child: CircleAvatar(
+                      radius: 25,
+                      backgroundColor: Colors.transparent,
+                      backgroundImage: imageFileUrl.isNotEmpty ? NetworkImage(imageFileUrl) : null,
+                    ),
                   ),
                 ),
               ),
@@ -233,7 +269,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 right: 10, // Adjust position as needed
                 child: Container(
                   width: 180,
-                  height: 200,
+                  height: 120,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(10),
@@ -290,7 +326,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                         title: const Text(
                           'Logout',
-                          style: TextStyle(fontSize: 12.0),
+                          //style: TextStyle(fontSize: 12.0),
                         ),
                         onTap: () async {
                           await _auth.signOut().then((value) => {
@@ -329,54 +365,79 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Container(
-                                // Adjust width as needed
-                                decoration: BoxDecoration(
-                                  color: Colors.white60,
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(
-                                    color: Colors.black,
+                              Showcase(
+                                targetPadding: const EdgeInsets.all(1),
+                                key: _one,
+                                title: 'Pick Up Point Address',
+                                description: "Here shows the address of the first pin you choose as pick-up point.",
+                                tooltipBackgroundColor: Theme.of(context).primaryColor,
+                                textColor: Colors.white,
+                                //targetShapeBorder: const CircleBorder(),
+                                child: Container(
+                                  // Adjust width as needed
+                                  decoration: BoxDecoration(
+                                    color: Colors.white60,
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                      color: Colors.black,
+                                    ),
                                   ),
-                                ),
-                                padding: const EdgeInsets.only(top: 11.0, bottom: 11.0),
-                                child: Center(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        startingPoint.isNotEmpty ? startingPoint : 'Starting Location',
-                                        style: const TextStyle(color: Colors.black),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.white60,
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                padding: const EdgeInsets.only(top: 11.0, bottom: 11.0),
-                                child: Center(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        endPoint.isNotEmpty ? endPoint : 'Ending Location',
-                                        style: const TextStyle(color: Colors.black),
-                                      ),
-                                    ],
+                                  padding: const EdgeInsets.only(top: 11.0, bottom: 11.0),
+                                  child: Center(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          startingPoint.isNotEmpty ? startingPoint : 'Starting Location',
+                                          style: const TextStyle(color: Colors.black),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
                               const SizedBox(height: 2),
-                              Text(
-                                'Distance: ${distance.toStringAsFixed(2)} km',
-                                style: const TextStyle(color: Colors.black),
+                              Showcase(
+                                targetPadding: const EdgeInsets.all(1),
+                                key: _two,
+                                title: 'Drop off Point Address',
+                                description: "Here shows the address of the last pin you choose as drop off.",
+                                tooltipBackgroundColor: Theme.of(context).primaryColor,
+                                textColor: Colors.white,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white60,
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  padding: const EdgeInsets.only(top: 11.0, bottom: 11.0),
+                                  child: Center(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          endPoint.isNotEmpty ? endPoint : 'Ending Location',
+                                          style: const TextStyle(color: Colors.black),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Showcase(
+                                targetPadding: const EdgeInsets.all(1),
+                                key: _three,
+                                title: 'Travel Distance',
+                                description: "Here shows the distance in kilometer for the rider to deliver.",
+                                tooltipBackgroundColor: Theme.of(context).primaryColor,
+                                textColor: Colors.white,
+                                child: Text(
+                                  'Distance: ${distance.toStringAsFixed(2)} km',
+                                  style: const TextStyle(color: Colors.black),
+                                ),
                               ),
                             ],
                           ),
@@ -388,134 +449,142 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       height: 10,
                     ), //
                     Expanded(
-                      child: ListView(
-                        scrollDirection: Axis.horizontal,
-                        children: <Widget>[
-                          Container(
-                            width: 160,
-                            height: 80,
-                            margin: const EdgeInsets.only(right: 10.0),
-                            decoration: BoxDecoration(
-                              color: _motorBG,
-                              borderRadius: const BorderRadius.all(
-                                Radius.circular(10),
+                      child: Showcase(
+                        targetPadding: const EdgeInsets.all(1),
+                        key: _four,
+                        title: 'Vehicle Type',
+                        description: "You can select your prefered vehicle depending on the item you want to be delivered",
+                        tooltipBackgroundColor: Theme.of(context).primaryColor,
+                        textColor: Colors.white,
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          children: <Widget>[
+                            Container(
+                              width: 160,
+                              height: 80,
+                              margin: const EdgeInsets.only(right: 10.0),
+                              decoration: BoxDecoration(
+                                color: _motorBG,
+                                borderRadius: const BorderRadius.all(
+                                  Radius.circular(10),
+                                ),
+                                border: Border.all(
+                                  color: Colors.black,
+                                ),
                               ),
-                              border: Border.all(
-                                color: Colors.black,
-                              ),
-                            ),
-                            child: Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  IconButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        if (_motorBG == Colors.white) {
-                                          _motorBG = Colors.orange;
-                                          _carBG = Colors.white;
-                                          _bikeBG = Colors.white;
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    IconButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          if (_motorBG == Colors.white) {
+                                            _motorBG = Colors.orange;
+                                            _carBG = Colors.white;
+                                            _bikeBG = Colors.white;
 
-                                          vehicleType = 'MOTOR';
-                                        } else {
-                                          _motorBG = Colors.white;
-                                        }
-                                      });
-                                    },
-                                    icon: Image.asset(
-                                      'assets/images/Motorcycle.png',
-                                      width: 150.0,
-                                      height: 90.0,
-                                    ),
-                                  )
-                                ],
+                                            vehicleType = 'MOTOR';
+                                          } else {
+                                            _motorBG = Colors.white;
+                                          }
+                                        });
+                                      },
+                                      icon: Image.asset(
+                                        'assets/images/Motorcycle.png',
+                                        width: 150.0,
+                                        height: 90.0,
+                                      ),
+                                    )
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                          Container(
-                            width: 160,
-                            height: 80,
-                            margin: const EdgeInsets.only(right: 10.0),
-                            decoration: BoxDecoration(
-                              color: _carBG,
-                              borderRadius: const BorderRadius.all(
-                                Radius.circular(10),
+                            Container(
+                              width: 160,
+                              height: 80,
+                              margin: const EdgeInsets.only(right: 10.0),
+                              decoration: BoxDecoration(
+                                color: _carBG,
+                                borderRadius: const BorderRadius.all(
+                                  Radius.circular(10),
+                                ),
+                                border: Border.all(
+                                  color: Colors.black,
+                                ),
                               ),
-                              border: Border.all(
-                                color: Colors.black,
-                              ),
-                            ),
-                            child: Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  IconButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        if (_carBG == Colors.white) {
-                                          _carBG = Colors.orange;
-                                          _bikeBG = Colors.white;
-                                          _motorBG = Colors.white;
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    IconButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          if (_carBG == Colors.white) {
+                                            _carBG = Colors.orange;
+                                            _bikeBG = Colors.white;
+                                            _motorBG = Colors.white;
 
-                                          vehicleType = 'CAR';
-                                        } else {
-                                          _carBG = Colors.white;
-                                        }
-                                      });
-                                    },
-                                    icon: Image.asset(
-                                      'assets/images/Car.png',
-                                      width: 150.0,
-                                      height: 90.0,
-                                    ),
-                                  )
-                                ],
+                                            vehicleType = 'CAR';
+                                          } else {
+                                            _carBG = Colors.white;
+                                          }
+                                        });
+                                      },
+                                      icon: Image.asset(
+                                        'assets/images/Car.png',
+                                        width: 150.0,
+                                        height: 90.0,
+                                      ),
+                                    )
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                          Container(
-                            width: 160,
-                            height: 80,
-                            margin: const EdgeInsets.only(right: 10.0),
-                            decoration: BoxDecoration(
-                              color: _bikeBG,
-                              borderRadius: const BorderRadius.all(
-                                Radius.circular(10),
+                            Container(
+                              width: 160,
+                              height: 80,
+                              margin: const EdgeInsets.only(right: 10.0),
+                              decoration: BoxDecoration(
+                                color: _bikeBG,
+                                borderRadius: const BorderRadius.all(
+                                  Radius.circular(10),
+                                ),
+                                border: Border.all(
+                                  color: Colors.black,
+                                ),
                               ),
-                              border: Border.all(
-                                color: Colors.black,
-                              ),
-                            ),
-                            child: Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  IconButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        if (_bikeBG == Colors.white) {
-                                          _bikeBG = Colors.orange;
-                                          _carBG = Colors.white;
-                                          _motorBG = Colors.white;
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    IconButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          if (_bikeBG == Colors.white) {
+                                            _bikeBG = Colors.orange;
+                                            _carBG = Colors.white;
+                                            _motorBG = Colors.white;
 
-                                          vehicleType = 'BIKE';
-                                        } else {
-                                          _bikeBG = Colors.white;
-                                        }
-                                      });
-                                    },
-                                    icon: Image.asset(
-                                      'assets/images/Bicycle.png',
-                                      width: 150.0,
-                                      height: 90.0,
-                                    ),
-                                  )
-                                ],
+                                            vehicleType = 'BIKE';
+                                          } else {
+                                            _bikeBG = Colors.white;
+                                          }
+                                        });
+                                      },
+                                      icon: Image.asset(
+                                        'assets/images/Bicycle.png',
+                                        width: 150.0,
+                                        height: 90.0,
+                                      ),
+                                    )
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                          // Add more containers as needed
-                        ],
+                            // Add more containers as needed
+                          ],
+                        ),
                       ),
                     ),
                     const SizedBox(
@@ -524,73 +593,90 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        SizedBox(
-                          height: 60, // Adjust this value to reduce the height
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton2<double>(
-                              isExpanded: true,
-                              hint: Text(
-                                'Select Package Weight in kg',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Theme.of(context).hintColor,
-                                ),
-                              ),
-                              items: items
-                                  .map((double item) => DropdownMenuItem<double>(
-                                        value: item,
-                                        child: Text(
-                                          '$item kg',
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                      ))
-                                  .toList(),
-                              value: netWeight,
-                              onChanged: (double? value) {
-                                setState(() {
-                                  netWeight = value;
-                                });
-                              },
-                              buttonStyleData: ButtonStyleData(
-                                padding: const EdgeInsets.symmetric(horizontal: 16),
-                                height: 40,
-                                width: 180,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(14),
-                                  border: Border.all(
-                                    color: Colors.black,
+                        Showcase(
+                          targetPadding: const EdgeInsets.all(1),
+                          key: _five,
+                          title: 'Package Weight',
+                          description:
+                              "It's important that we know how much the item weight. You can select your item's estimated weight here.",
+                          tooltipBackgroundColor: Theme.of(context).primaryColor,
+                          textColor: Colors.white,
+                          child: SizedBox(
+                            height: 60, // Adjust this value to reduce the height
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton2<double>(
+                                isExpanded: true,
+                                hint: Text(
+                                  'Select Package Weight in kg',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Theme.of(context).hintColor,
                                   ),
-                                  color: Colors.white60,
                                 ),
-                              ),
-                              menuItemStyleData: const MenuItemStyleData(
-                                height: 40,
+                                items: items
+                                    .map((double item) => DropdownMenuItem<double>(
+                                          value: item,
+                                          child: Text(
+                                            '$item kg',
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ))
+                                    .toList(),
+                                value: netWeight,
+                                onChanged: (double? value) {
+                                  setState(() {
+                                    netWeight = value;
+                                  });
+                                },
+                                buttonStyleData: ButtonStyleData(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                                  height: 40,
+                                  width: 180,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(14),
+                                    border: Border.all(
+                                      color: Colors.black,
+                                    ),
+                                    color: Colors.white60,
+                                  ),
+                                ),
+                                menuItemStyleData: const MenuItemStyleData(
+                                  height: 40,
+                                ),
                               ),
                             ),
                           ),
                         ),
-                        Container(
-                          width: MediaQuery.of(context).size.width * 0.4, // Adjust width as needed
-                          decoration: BoxDecoration(
-                            color: Colors.white60,
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color: Colors.black,
+                        Showcase(
+                          targetPadding: const EdgeInsets.all(1),
+                          key: _six,
+                          title: 'Amount payable',
+                          description: "Rate is calculated depending on how far the item to be delivered.",
+                          tooltipBackgroundColor: Theme.of(context).primaryColor,
+                          textColor: Colors.white,
+                          child: Container(
+                            width: MediaQuery.of(context).size.width * 0.4, // Adjust width as needed
+                            decoration: BoxDecoration(
+                              color: Colors.white60,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: Colors.black,
+                              ),
                             ),
-                          ),
-                          padding: const EdgeInsets.only(top: 11.0, bottom: 11.0),
-                          child: Center(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  //(rate * (distance.round())).toString(),
-                                  rate.toString(),
-                                  style: const TextStyle(color: Colors.black, fontSize: 25.0, fontWeight: FontWeight.bold),
-                                ),
-                              ],
+                            padding: const EdgeInsets.only(top: 11.0, bottom: 11.0),
+                            child: Center(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    //(rate * (distance.round())).toString(),
+                                    rate.toString(),
+                                    style: const TextStyle(color: Colors.black, fontSize: 25.0, fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -839,7 +925,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         const SizedBox(width: 10), // Add spacing between buttons
                         OutlinedButton(
                           onPressed: () {
-                            _selectDateAndTime();
+                            //_selectDateAndTime();
+                            ShowCaseWidget.of(context).startShowCase([_one, _two, _three, _four, _five, _six, _seven]);
                           },
                           style: TextButton.styleFrom(
                             backgroundColor: Colors.white,
