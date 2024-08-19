@@ -65,12 +65,10 @@ class LoginScreen extends StatelessWidget {
                             print(_passwordController.value.text);
                           } on FirebaseAuthException catch (e) {
                             if (e.code == 'user-not-found') {
-                              // ignore: use_build_context_synchronously
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(content: Text('No user found for that email.')),
                               );
                             } else if (e.code == 'wrong-password') {
-                              // ignore: use_build_context_synchronously
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(content: Text('Wrong password provided for that user.')),
                               );

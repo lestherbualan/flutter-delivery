@@ -191,6 +191,7 @@ class _RegistrationFormState extends State<RegistrationForm> {
                         online: true,
                         driverRating: 0,
                         firstOpen: true,
+                        driverSelfRating: '0',
                       );
 
                       insertUser(user).then((value) {

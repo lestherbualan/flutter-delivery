@@ -1,21 +1,21 @@
 class Review {
-  String driverId;
+  String reviewerId;
   String? message;
   String orderId;
   double rating;
-  String userId;
+  String revieweeId;
   Review({
-    required this.driverId,
+    required this.reviewerId,
     this.message,
     required this.orderId,
     required this.rating,
-    required this.userId,
+    required this.revieweeId,
   });
   Map<String, dynamic> toJson() => {
-        'driverId': driverId,
+        'driverId': reviewerId,
         'message': message,
         'orderId': orderId,
         'rating': rating,
-        'userId': userId,
+        'userId': revieweeId,
       };
 }

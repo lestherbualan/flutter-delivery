@@ -1,6 +1,6 @@
 class Order {
-  Map<String, dynamic> startingGeoPoint;
-  Map<String, dynamic> endingGeoPoint;
+  Map<Object?, Object?> startingGeoPoint;
+  Map<Object?, Object?> endingGeoPoint;
   String distance;
   String uid;
   String status;
@@ -42,4 +42,21 @@ class Order {
         'driverId': driverId,
         'rate': rate,
       };
+  factory Order.fromMap(Map<String, dynamic> data) {
+    return Order(
+      startingGeoPoint: data['startingGeoPoint']! as Map<Object?, Object?>,
+      endingGeoPoint: data['endingGeoPoint'] as Map<Object?, Object?>,
+      distance: data['distance'],
+      uid: data['uid'],
+      status: data['status'],
+      date: data['date'],
+      vehicleType: data['vehicleType'],
+      name: data['name'],
+      isScheduled: data['isScheduled'],
+      netWeight: double.parse(data['netWeight'].toString()),
+      key: data['key'],
+      driverId: data['driverId'],
+      rate: data['rate'],
+    );
+  }
 }

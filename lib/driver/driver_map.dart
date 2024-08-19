@@ -1,7 +1,9 @@
 import 'package:delivery/driver/driver_dashboard.dart';
+import 'package:delivery/model/review.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:delivery/model/order.dart';
@@ -32,8 +34,8 @@ class _DriverMapState extends State<DriverMap> {
     Future.delayed(const Duration(milliseconds: 500), () {
       widget.controller.addMarker(
         GeoPoint(
-          latitude: double.parse(widget.orderInformation.startingGeoPoint['latitude']),
-          longitude: double.parse(widget.orderInformation.startingGeoPoint['longitude']),
+          latitude: double.parse(widget.orderInformation.startingGeoPoint['latitude'].toString()),
+          longitude: double.parse(widget.orderInformation.startingGeoPoint['longitude'].toString()),
         ),
         markerIcon: const MarkerIcon(
           icon: Icon(
@@ -47,8 +49,8 @@ class _DriverMapState extends State<DriverMap> {
     Future.delayed(const Duration(milliseconds: 500), () {
       widget.controller.addMarker(
         GeoPoint(
-          latitude: double.parse(widget.orderInformation.endingGeoPoint['latitude']),
-          longitude: double.parse(widget.orderInformation.endingGeoPoint['longitude']),
+          latitude: double.parse(widget.orderInformation.endingGeoPoint['latitude'].toString()),
+          longitude: double.parse(widget.orderInformation.endingGeoPoint['longitude'].toString()),
         ),
         markerIcon: const MarkerIcon(
           icon: Icon(
@@ -62,12 +64,12 @@ class _DriverMapState extends State<DriverMap> {
     Future.delayed(const Duration(milliseconds: 500), () {
       widget.controller.drawRoad(
         GeoPoint(
-          latitude: double.parse(widget.orderInformation.startingGeoPoint['latitude']),
-          longitude: double.parse(widget.orderInformation.startingGeoPoint['longitude']),
+          latitude: double.parse(widget.orderInformation.startingGeoPoint['latitude'].toString()),
+          longitude: double.parse(widget.orderInformation.startingGeoPoint['longitude'].toString()),
         ),
         GeoPoint(
-          latitude: double.parse(widget.orderInformation.endingGeoPoint['latitude']),
-          longitude: double.parse(widget.orderInformation.endingGeoPoint['longitude']),
+          latitude: double.parse(widget.orderInformation.endingGeoPoint['latitude'].toString()),
+          longitude: double.parse(widget.orderInformation.endingGeoPoint['longitude'].toString()),
         ),
         roadType: RoadType.bike,
         roadOption: const RoadOption(
@@ -81,6 +83,32 @@ class _DriverMapState extends State<DriverMap> {
     if (widget.orderInformation.status == 'ACCEPTED') {
       containerColor = Color.fromARGB(255, 22, 198, 113);
     }
+  }
+
+  Future insertReview(Review review) async {
+    DatabaseReference reviewRef = FirebaseDatabase.instance.ref("review").push();
+    int counter = 0;
+    List driverReviewList = [];
+    await reviewRef.set(review.toJson()).then((value) async {
+      print(reviewRef.key);
+      DatabaseReference newReviewRef = FirebaseDatabase.instance.ref("review");
+      final reviewSnapshot = await newReviewRef.get();
+      Map<dynamic, dynamic> reviews = reviewSnapshot.value as Map<dynamic, dynamic>;
+
+      reviews.forEach((key, value) {
+        if (value['driverId'] == review.reviewerId) {
+          driverReviewList.add(value['rating']);
+          counter++;
+        }
+      });
+      int totalRating = driverReviewList.reduce((value, element) => value + element);
+
+      double calculatedRating = totalRating / counter;
+      calculatedRating = double.parse(calculatedRating.toStringAsFixed(2));
+
+      DatabaseReference driver = FirebaseDatabase.instance.ref("user/${review.reviewerId}");
+      driver.update({'driverRating': calculatedRating});
+    }).catchError((onError) => {print(onError)});
   }
 
   void _acceptOrder() async {
@@ -307,12 +335,77 @@ class _DriverMapState extends State<DriverMap> {
                           Expanded(
                             child: TextButton(
                               onPressed: () {
+                                int rating = 0;
+                                String commentText = '';
                                 _completeOrder();
                                 Navigator.pop(context);
                                 Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(builder: (context) => const DriverDashboard()),
                                 );
+                                showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: const Text('Rate your Customer'),
+                                        content: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Text('We value our riders as we value our customer. Send a review :'),
+                                            // Star rating widget
+                                            RatingBar.builder(
+                                              initialRating: rating.toDouble(),
+                                              minRating: 1,
+                                              direction: Axis.horizontal,
+                                              allowHalfRating: false,
+                                              itemCount: 5,
+                                              itemSize: 40,
+                                              itemBuilder: (context, _) => const Icon(
+                                                Icons.star,
+                                                color: Colors.amber,
+                                              ),
+                                              onRatingUpdate: (value) {
+                                                rating = value.toInt(); // Update the rating value
+                                              },
+                                            ),
+                                            const SizedBox(height: 20),
+                                            // Text input for comments
+                                            TextFormField(
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  commentText = value;
+                                                });
+                                              },
+                                              decoration: const InputDecoration(
+                                                hintText: 'Add your comments (optional)',
+                                                border: OutlineInputBorder(),
+                                              ),
+                                              maxLines: null,
+                                              keyboardType: TextInputType.multiline,
+                                            ),
+                                          ],
+                                        ),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            onPressed: () async {
+                                              print(widget.orderInformation.uid);
+                                              Review review = Review(
+                                                reviewerId: user?.uid ?? 'Unknown Driver',
+                                                orderId: 'Unknown Order',
+                                                rating: double.parse(rating?.toString() ?? '0.0'),
+                                                revieweeId: widget.orderInformation.uid ?? 'Unknown User',
+                                                message: commentText ?? 'No comment provided',
+                                              );
+                                              await insertReview(review).then((value) {
+                                                Navigator.pop(context);
+                                                //Navigator.pop(context);
+                                              });
+                                            },
+                                            child: const Text('Submit'),
+                                          ),
+                                        ],
+                                      );
+                                    });
                               },
                               style: TextButton.styleFrom(
                                 backgroundColor: Colors.white,
