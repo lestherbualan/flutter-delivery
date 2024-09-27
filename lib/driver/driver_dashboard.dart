@@ -74,6 +74,7 @@ class _DriverDashboardState extends State<DriverDashboard> {
                 isScheduled: orderData['isScheduled'],
                 netWeight: double.parse(orderData['netWeight'].toString()),
                 rate: orderData['rate'],
+                isRated: orderData['isRated'] ? true : false,
               );
               orderList.add(order);
             });
@@ -115,6 +116,7 @@ class _DriverDashboardState extends State<DriverDashboard> {
                     isScheduled: orderData['isScheduled'],
                     netWeight: double.parse(orderData['netWeight'].toString()),
                     rate: orderData['rate'],
+                    isRated: orderData['isRated'] ? true : false,
                   );
                   orderList.add(order);
                 });

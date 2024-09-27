@@ -4,7 +4,7 @@ import 'package:delivery/map_app/map_controller.dart';
 
 class MapDisplay extends StatefulWidget {
   final MapController controller;
-  final MapTapController tapController;
+   final MapTapController tapController;
   List<GeoPoint> pointsRoad = [];
   final Function(String, String, double, GeoPoint, GeoPoint) onUpdate;
 
@@ -106,6 +106,7 @@ class _MapDisplayState extends State<MapDisplay> {
     return Stack(
       children: [
         OSMFlutter(
+          mapIsLoading: const Center(child: CircularProgressIndicator()),
           controller: widget.tapController.controller,
           osmOption: OSMOption(
             zoomOption: const ZoomOption(

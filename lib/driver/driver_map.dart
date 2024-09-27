@@ -24,6 +24,7 @@ class DriverMap extends StatefulWidget {
 
 class _DriverMapState extends State<DriverMap> {
   DatabaseReference ref = FirebaseDatabase.instance.ref("order");
+  DatabaseReference proposalRef = FirebaseDatabase.instance.ref("proposal");
   bool accepted = false;
   Color containerColor = Colors.blue;
   User? user = FirebaseAuth.instance.currentUser;
@@ -126,6 +127,36 @@ class _DriverMapState extends State<DriverMap> {
     await ref.update({
       '${widget.orderInformation.key}/status': 'COMPLETED',
     });
+
+    setState(() {
+      containerColor = Colors.lightBlue; // Change container color to light blue
+    });
+  }
+
+  void _cancelOrder() async {
+    await ref.update({
+      '${widget.orderInformation.key}/status': 'CANCELED',
+    });
+
+    DataSnapshot snapshot = await proposalRef.get();
+    if (snapshot.exists) {
+      Map<dynamic, dynamic> proposals = snapshot.value as Map<dynamic, dynamic>;
+
+      // Iterate through the proposals to find the matching orderId
+      proposals.forEach((key, value) {
+        // Assuming 'orderId' is a field in your proposal records
+        if (value['orderId'] == widget.orderInformation.key) {
+          // Remove the item if orderId matches
+          proposalRef.child(key).remove().then((_) {
+            print("Proposal with orderId ${widget.orderInformation.key} removed successfully");
+          }).catchError((error) {
+            print("Failed to remove proposal: $error");
+          });
+        }
+      });
+    } else {
+      print("No proposals found.");
+    }
 
     setState(() {
       containerColor = Colors.lightBlue; // Change container color to light blue
@@ -426,7 +457,11 @@ class _DriverMapState extends State<DriverMap> {
                             child: TextButton(
                               onPressed: () {
                                 // Handle cancellation logic
-                                Navigator.pop(context);
+                                _cancelOrder();
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const DriverDashboard()),
+                                );
                               },
                               style: TextButton.styleFrom(
                                 backgroundColor: Colors.white,

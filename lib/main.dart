@@ -8,13 +8,21 @@ import 'package:flutter/material.dart';
 import 'package:showcaseview/showcaseview.dart';
 import './authentication_screen/login_screen.dart';
 import './dashboard_screen/dashboard_screen.dart'; // Import the dashboard screen file
+import 'package:provider/provider.dart';
+
+import 'commons/sharedData.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => SharedData(),
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

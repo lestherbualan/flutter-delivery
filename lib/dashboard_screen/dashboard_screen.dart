@@ -1,5 +1,7 @@
 import 'package:delivery/authentication_screen/login_screen.dart';
 import 'package:delivery/dashboard_screen/profile_screen.dart';
+import 'package:delivery/dashboard_screen/search_screen.dart';
+import 'package:delivery/map_app/map_controller.dart';
 import 'package:delivery/map_app/map_initializer.dart';
 import 'package:delivery/model/order.dart';
 import 'package:delivery/model/proposal.dart';
@@ -12,6 +14,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+// import 'package:provider/provider.dart';
+// import '../commons/sharedData.dart';
 import '../delivery/schedule_delivery_screen.dart';
 import '../home_screen/home_screen.dart';
 import 'package:delivery/map_app/map_display.dart';
@@ -30,6 +34,8 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   User? user = FirebaseAuth.instance.currentUser;
   late final MapInitializer _mapInitializer;
+  late final MapDisplay _mapDisplay;
+  late final MapTapController _mapTapController;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   DatabaseReference ref = FirebaseDatabase.instance.ref("order").push();
   final DatabaseReference _userRef = FirebaseDatabase.instance.ref('user');
@@ -78,6 +84,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   int? _activeChip;
   int _rateFilterState = 0;
   int _chargeFilterState = 0;
+  late GeoPoint sharedVar;
 
   // Function to update data received from MapDisplay
   void updateMapData(String start, String end, double dist, GeoPoint long, GeoPoint lat) {
@@ -92,30 +99,59 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future _selectDateAndTime() async {
+    final DateTime now = DateTime.now();
     final DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime.now(),
+      initialDate: now,
+      firstDate: now,
       lastDate: DateTime(2100),
     );
+
     if (pickedDate != null) {
+      TimeOfDay initialTime = TimeOfDay.now();
+
+      // If the selected date is not today, allow any time to be picked.
+      if (pickedDate != DateTime(now.year, now.month, now.day)) {
+        initialTime = const TimeOfDay(hour: 0, minute: 0); // Reset to midnight for other dates.
+      }
+
       final TimeOfDay? pickedTime = await showTimePicker(
         context: context,
-        initialTime: TimeOfDay.now(),
+        initialTime: initialTime,
       );
+
       if (pickedTime != null) {
+        // If the selected date is today and the time is in the past, reject the selection.
+        if (pickedDate == DateTime(now.year, now.month, now.day) &&
+            (pickedTime.hour < now.hour || (pickedTime.hour == now.hour && pickedTime.minute <= now.minute))) {
+          // Show an error or return null
+          print('Cannot select a time that has passed today');
+          const snackBar = SnackBar(
+            content: Text('Cannot select a time that has passed today'),
+            duration: Duration(seconds: 3),
+            backgroundColor: Colors.red, // Optional customization
+          );
+
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+          return;
+        }
+
         setState(() {
           selectedDate = pickedDate;
           selectedTime = pickedTime;
-          print(selectedDate);
-          print(selectedTime);
         });
+
+        // Combine date and time
+        selectedDate = selectedDate!.add(Duration(
+          hours: selectedTime!.hour,
+          minutes: selectedTime!.minute,
+        ));
+
+        print(selectedDate);
+        print(selectedTime);
+
+        return selectedDate;
       }
-      selectedDate = selectedDate!.add(Duration(
-        hours: selectedTime!.hour,
-        minutes: selectedTime!.minute,
-      ));
-      return selectedDate;
     }
   }
 
@@ -216,10 +252,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
+    // sharedVar = context.read<SharedData>().sharedVariable;
     // Initialize MapInitializer widget here
     _mapInitializer = MapInitializer(
       onUpdate: updateMapData,
     );
+
     getImageUrlFromFireStore();
     _fetchUserList();
 
@@ -232,6 +270,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
         });
       }
     });
+    // _mapDisplay = MapDisplay(
+    //     controller: MapController(initMapWithUserPosition: UserTrackingOption(enableTracking: true)), onUpdate: updateMapData);
+    // _mapTapController = MapTapController(_mapDisplay.tapController.controller);
+    // _mapTapController.controller.addMarker(
+    //   sharedVar,
+    //   markerIcon: const MarkerIcon(
+    //     icon: Icon(
+    //       Icons.person_pin_circle,
+    //       color: Colors.redAccent,
+    //       size: 48,
+    //     ),
+    //   ),
+    // );
   }
 
   @override
@@ -396,25 +447,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 tooltipBackgroundColor: Theme.of(context).primaryColor,
                                 textColor: Colors.white,
                                 //targetShapeBorder: const CircleBorder(),
-                                child: Container(
-                                  // Adjust width as needed
-                                  decoration: BoxDecoration(
-                                    color: Colors.white60,
-                                    borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(
-                                      color: Colors.black,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    print('ello');
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => const SearchScreen()),
+                                    );
+                                  },
+                                  child: Container(
+                                    // Adjust width as needed
+                                    decoration: BoxDecoration(
+                                      color: Colors.white60,
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(
+                                        color: Colors.black,
+                                      ),
                                     ),
-                                  ),
-                                  padding: const EdgeInsets.only(top: 11.0, bottom: 11.0),
-                                  child: Center(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          startingPoint.isNotEmpty ? startingPoint : 'Starting Location',
-                                          style: const TextStyle(color: Colors.black),
-                                        ),
-                                      ],
+                                    padding: const EdgeInsets.only(top: 11.0, bottom: 11.0),
+                                    child: Center(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            startingPoint.isNotEmpty ? startingPoint : 'Starting Location',
+                                            style: const TextStyle(color: Colors.black),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -750,6 +810,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   netWeight: netWeight!,
                                   driverId: '',
                                   rate: rate,
+                                  isRated: false,
                                 );
                                 insertOrder(order).then((orderKey) async {
                                   showDialog(
@@ -968,6 +1029,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                                         },
                                                                       );
                                                                     }
+                                                                    if (status == 'CANCELED') {
+                                                                      print('driver id here');
+                                                                      print(data);
+                                                                      Navigator.pop(context);
+                                                                      showDialog(
+                                                                        context: context,
+                                                                        barrierDismissible: false,
+                                                                        builder: (BuildContext context) {
+                                                                          return const AlertDialog(
+                                                                            content: Row(
+                                                                              children: [
+                                                                                CircularProgressIndicator(),
+                                                                                SizedBox(width: 20),
+                                                                                Text("Driver canceled the request!"),
+                                                                              ],
+                                                                            ),
+                                                                          );
+                                                                        },
+                                                                      );
+                                                                      Future.delayed(const Duration(seconds: 2), () {
+                                                                        Navigator.pop(context); // Close the loading dialog
+                                                                        Navigator.pop(context);
+                                                                      });
+                                                                    }
                                                                     if (status == 'COMPLETED') {
                                                                       Navigator.pop(context);
                                                                       ScaffoldMessenger.of(context).showSnackBar(
@@ -1071,7 +1156,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         );
                                       });
                                     },
-                                  );
+                                  ).then((value) {
+                                    print('dialog is closed');
+                                  });
                                   // here
                                 });
                               } else {
@@ -1122,6 +1209,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 netWeight: netWeight!,
                                 driverId: '',
                                 rate: rate,
+                                isRated: false,
                               );
 
                               insertOrder(order).then((orderKey) {
@@ -1343,6 +1431,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                             //ShowCaseWidget.of(context).startShowCase([_one, _two, _three, _four, _five, _six, _seven]);
                           },
+                          // onPressed: () {
+                          //   print(sharedVar);
+                          // },
                           style: TextButton.styleFrom(
                             backgroundColor: Colors.white,
                             foregroundColor: Colors.black54,
