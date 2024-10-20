@@ -64,6 +64,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   String imageFileUrl = '';
   final FirebaseStorage _storage = FirebaseStorage.instance;
 
+  // keys for the user guide.
   final GlobalKey _one = GlobalKey();
   final GlobalKey _two = GlobalKey();
   final GlobalKey _three = GlobalKey();
@@ -98,6 +99,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
   }
 
+  // Logic for schedule order function e.g limit the user to use date and time that already passed.
   Future _selectDateAndTime() async {
     final DateTime now = DateTime.now();
     final DateTime? pickedDate = await showDatePicker(
@@ -161,12 +163,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
   }
 
+  // Function to push the data to firebase.
   Future insertOrder(Order order) async {
     await ref.set(order.toJson()).then((value) => {print(ref.key)}).catchError((onError) => {print(onError)});
 
     return ref.key;
   }
 
+  // Function for pushing data to proposal table. this function is reused for basic order and scheduled order.
   Future insertProposal(Proposal proposal) async {
     await _proposalRef
         .set(proposal.toJson())
@@ -184,6 +188,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  // Function for the user to add review for the driver.
   Future insertReview(Review review) async {
     DatabaseReference reviewRef = FirebaseDatabase.instance.ref("review").push();
     int counter = 0;
@@ -219,6 +224,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     });
   }
 
+  // Getting the drivers that are online after the class is initialized.
+  // see initState() function
   Future<void> _fetchUserList() async {
     DataSnapshot snapshot = await _userRef.get();
     _userRef.onValue.listen((event) {
@@ -261,6 +268,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     getImageUrlFromFireStore();
     _fetchUserList();
 
+    // getting current user that are logged for the user guide purposes.
     _fetchCurrentUserData().then((dynamic value) {
       if (value['firstOpen'] == true) {
         Future.delayed(const Duration(seconds: 3), () async {
@@ -270,19 +278,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         });
       }
     });
-    // _mapDisplay = MapDisplay(
-    //     controller: MapController(initMapWithUserPosition: UserTrackingOption(enableTracking: true)), onUpdate: updateMapData);
-    // _mapTapController = MapTapController(_mapDisplay.tapController.controller);
-    // _mapTapController.controller.addMarker(
-    //   sharedVar,
-    //   markerIcon: const MarkerIcon(
-    //     icon: Icon(
-    //       Icons.person_pin_circle,
-    //       color: Colors.redAccent,
-    //       size: 48,
-    //     ),
-    //   ),
-    // );
   }
 
   @override
@@ -343,8 +338,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ],
                   ),
                   child: Column(
+                    // Profile Avatar dropdown happens here, each children refers to all items inside dropdown.
                     children: [
-                      // Add your dropdown items here
                       ListTile(
                         leading: const Icon(
                           Icons.person_2_outlined,
@@ -373,25 +368,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           );
                         },
                       ),
-                      // ListTile(
-                      //   leading: const Icon(
-                      //     Icons.calendar_month_outlined,
-                      //     size: 25.0,
-                      //     color: Colors.black,
-                      //   ),
-                      //   title: const Text(
-                      //     'Scheduled Delivery',
-                      //     style: TextStyle(fontSize: 12.0),
-                      //   ),
-                      //   onTap: () {
-                      //     Navigator.push(
-                      //       context,
-                      //       MaterialPageRoute(builder: (context) => ScheduleDeliveryScreen()),
-                      //     );
-                      //     // Implement action for dropdown item 2
-                      //     toggleDropdownVisibility(); // Close dropdown after action
-                      //   },
-                      // ),
                       ListTile(
                         leading: const Icon(
                           Icons.logout_outlined,
@@ -415,7 +391,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ),
               ),
-            // rectangular container
+            // rectangular container view happens here.
             Positioned(
               left: 0,
               right: 0,
@@ -439,6 +415,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              // Showcase classes are refered to those user guide on the first open of the app.
                               Showcase(
                                 targetPadding: const EdgeInsets.all(1),
                                 key: _one,
@@ -456,7 +433,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     );
                                   },
                                   child: Container(
-                                    // Adjust width as needed
                                     decoration: BoxDecoration(
                                       color: Colors.white60,
                                       borderRadius: BorderRadius.circular(10),
@@ -779,6 +755,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                     Row(
                       children: [
+                        // Order Now button. Design and logic is here
                         Expanded(
                           // Order Now Button occupies all available space
                           child: OutlinedButton(
@@ -812,6 +789,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   rate: rate,
                                   isRated: false,
                                 );
+                                // By clicking Order Now button, this function triggers calling the insertOrder function.
                                 insertOrder(order).then((orderKey) async {
                                   showDialog(
                                     context: context,
@@ -820,8 +798,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       DatabaseReference userRef = FirebaseDatabase.instance.ref('user');
 
                                       return StatefulBuilder(builder: (context, setState) {
+                                        // Showing the available driver pop up
                                         return AlertDialog(
-                                          title: const Text('Available Drivers'),
+                                          title: const Text('Available Riders'),
                                           content: Container(
                                             width: double.maxFinite,
                                             child: Stack(
@@ -835,11 +814,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                         child: ActionChip(
                                                           avatar: _rateFilterState == 1
                                                               ? const Icon(
-                                                                  Icons.arrow_upward_outlined,
+                                                                  Icons.arrow_downward_outlined,
                                                                   color: Colors.black,
                                                                 )
                                                               : const Icon(
-                                                                  Icons.arrow_downward_outlined,
+                                                                  Icons.arrow_upward_outlined,
                                                                   color: Colors.black,
                                                                 ),
                                                           label: const Text('Rating'),
@@ -889,11 +868,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                         child: ActionChip(
                                                           avatar: _chargeFilterState == 1
                                                               ? const Icon(
-                                                                  Icons.arrow_upward_outlined,
+                                                                  Icons.arrow_downward_outlined,
                                                                   color: Colors.black,
                                                                 )
                                                               : const Icon(
-                                                                  Icons.arrow_downward_outlined,
+                                                                  Icons.arrow_upward_outlined,
                                                                   color: Colors.black,
                                                                 ),
                                                           label: const Text('Charge'),
@@ -1185,8 +1164,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ),
                         ),
                         const SizedBox(width: 10), // Add spacing between buttons
+                        // Scheduled Order Button. Design and logic is here
                         OutlinedButton(
                           onPressed: () {
+                            // Select Date Function for schedule function. For Reference, see _selectDateAndTime function above.
                             _selectDateAndTime().then((dateTime) {
                               Order order = Order(
                                 name: user?.displayName ?? "No Name",
@@ -1211,7 +1192,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 rate: rate,
                                 isRated: false,
                               );
-
+                              // By clicking Schedule Order button, this function triggers calling the insertOrder function. See insertOrder function above.
                               insertOrder(order).then((orderKey) {
                                 showDialog(
                                   context: context,
@@ -1221,7 +1202,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                                     return StatefulBuilder(builder: (context, setState) {
                                       return AlertDialog(
-                                        title: const Text('Available Drivers'),
+                                        title: const Text('Available Riders'),
                                         content: Container(
                                           width: double.maxFinite,
                                           child: Stack(
@@ -1428,12 +1409,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 );
                               });
                             });
-
-                            //ShowCaseWidget.of(context).startShowCase([_one, _two, _three, _four, _five, _six, _seven]);
                           },
-                          // onPressed: () {
-                          //   print(sharedVar);
-                          // },
                           style: TextButton.styleFrom(
                             backgroundColor: Colors.white,
                             foregroundColor: Colors.black54,

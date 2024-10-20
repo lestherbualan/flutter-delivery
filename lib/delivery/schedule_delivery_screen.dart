@@ -166,9 +166,6 @@ class _ScheduleDeliveryScreenState extends State<ScheduleDeliveryScreen> {
                           DatabaseReference proposalRef = FirebaseDatabase.instance.ref("proposal/${orderKey[index]}");
                           orderRef.remove();
                           proposalRef.remove();
-
-                          // print(order);
-                          // print(orderKey[index]);
                         },
                       ),
                     ],
@@ -196,7 +193,6 @@ class _ScheduleDeliveryScreenState extends State<ScheduleDeliveryScreen> {
                 ),
                 onTap: () {
                   // Add your onTap logic here
-                  //print('Tapped on item $index');
                   String commentText = '';
                   if (order.status == 'COMPLETED') {
                     showDialog(

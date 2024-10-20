@@ -66,6 +66,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Stream builder for observing the state of authentication
+    // If user still have session available in the device, the app automatically redirects to dashboard (depends if user or driver)
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (BuildContext context, AsyncSnapshot<User?> snapshot) {
@@ -100,14 +102,6 @@ class MyApp extends StatelessWidget {
                             title: 'Driver',
                             home: DriverDashboard(),
                           ));
-                  // return const MaterialApp(
-                  //   title: 'Driver',
-                  //   home: DriverDashboard(),
-                  // );
-                  // return MaterialApp(
-                  //   title: 'Driver',
-                  //   home: ProfileScreen(),
-                  // );
                 } else {
                   // User is not authenticated in your database
                   return ShowCaseWidget(
@@ -115,15 +109,6 @@ class MyApp extends StatelessWidget {
                             title: 'Your App Title',
                             home: DashboardScreen(),
                           ));
-
-                  // return const MaterialApp(
-                  //   title: 'Your App Title',
-                  //   home: DashboardScreen(),
-                  // );
-                  // return MaterialApp(
-                  //   title: 'Driver',
-                  //   home: ProfileScreen(),
-                  // );
                 }
               }
             },

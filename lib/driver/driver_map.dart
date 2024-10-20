@@ -429,7 +429,6 @@ class _DriverMapState extends State<DriverMap> {
                                               );
                                               await insertReview(review).then((value) {
                                                 Navigator.pop(context);
-                                                //Navigator.pop(context);
                                               });
                                             },
                                             child: const Text('Submit'),

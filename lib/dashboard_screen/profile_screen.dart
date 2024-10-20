@@ -205,12 +205,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           controller: _driverSelfRate,
                         ),
                       ),
-                      // ProfileInputField(
-                      //   labelText: 'Phone number',
-                      //   hintText: 'Please enter your phone number',
-                      //   icon: Icons.phone_outlined,
-                      //   controller: _phoneController,
-                      // ),
                       ProfileInputField(
                         labelText: 'User name',
                         hintText: 'Please enter your user name',
@@ -225,12 +219,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         controller: _passwordController,
                       ),
                       const SizedBox(height: 20),
-                      // OutlinedButton(
-                      //   onPressed: () {
-                      //     print(user?.photoURL);
-                      //   },
-                      //   child: Text('hello'),
-                      // ),
                       OutlinedButton(
                         onPressed: () {
                           final TextEditingController _loginEmailController = TextEditingController();
@@ -341,6 +329,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 }
 
+// Custom class for Input fields to customize capturing data using controller and some basic design.
 class ProfileInputField extends StatelessWidget {
   final String labelText;
   final String hintText;

@@ -40,7 +40,7 @@ class _DriverDashboardState extends State<DriverDashboard> {
   double completedCounter = 0;
   DateFormat formatter = DateFormat('yyyy-MM-dd hh:mm a');
 
-  final GlobalKey _one = GlobalKey();
+  // final GlobalKey _one = GlobalKey(); remove earned
   final GlobalKey _two = GlobalKey();
   final GlobalKey _three = GlobalKey();
   final GlobalKey _four = GlobalKey();
@@ -185,24 +185,15 @@ class _DriverDashboardState extends State<DriverDashboard> {
   @override
   void initState() {
     super.initState();
-    //fetchData();
     fetchProposal();
     getImageUrlFromFireStore();
     setOnlineStatus();
 
-    // connectedRef.onValue.listen((event) {
-    //   final Object isConnected = event.snapshot.value ?? false;
-
-    //   if (isConnected != null) {
-    //     userStatusRef.set({'online': true});
-    //     userStatusRef.onDisconnect().set({'online': false});
-    //   }
-    // });
     _fetchCurrentUserData().then((dynamic value) {
       print(value);
       if (value['firstOpen'] == true) {
         Future.delayed(const Duration(seconds: 3), () async {
-          ShowCaseWidget.of(context).startShowCase([_one, _two, _three, _four]);
+          ShowCaseWidget.of(context).startShowCase([_two, _three, _four]); // removed _one
           DatabaseReference currentUserRef = FirebaseDatabase.instance.ref('user/${user?.uid}');
           currentUserRef.update({'firstOpen': false});
         });
@@ -216,6 +207,7 @@ class _DriverDashboardState extends State<DriverDashboard> {
       backgroundColor: const Color(0xFFEDE1D5),
       body: SafeArea(
         child: Material(
+          color: const Color(0xFFEDE1D5),
           child: Stack(
             children: [
               Column(
@@ -254,7 +246,7 @@ class _DriverDashboardState extends State<DriverDashboard> {
                             child: Container(
                               decoration: const BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: Colors.white,
+                                color: Color(0xFFEDE1D5),
                               ),
                               padding: const EdgeInsets.all(8),
                               child: CircleAvatar(
@@ -271,76 +263,75 @@ class _DriverDashboardState extends State<DriverDashboard> {
                   const SizedBox(height: 8),
                   // dashboard money counter card
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Showcase(
-                          targetPadding: const EdgeInsets.all(1),
-                          key: _one,
-                          title: 'Total Earning',
-                          description: "Here shows the total earning of the order you completed.",
-                          tooltipBackgroundColor: Theme.of(context).primaryColor,
-                          textColor: Colors.white,
-                          child: Card(
-                            margin: const EdgeInsets.all(5.0),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: <Widget>[
-                                  const Text(
-                                    'Earned',
-                                    style: TextStyle(
-                                      fontSize: 18.0,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                      // Expanded(
+                      //   child: Showcase(
+                      //     targetPadding: const EdgeInsets.all(1),
+                      //     key: _one,
+                      //     title: 'Total Earning',
+                      //     description: "Here shows the total earning of the order you completed.",
+                      //     tooltipBackgroundColor: Theme.of(context).primaryColor,
+                      //     textColor: Colors.white,
+                      //     child: Card(
+                      //       margin: const EdgeInsets.all(5.0),
+                      //       child: Padding(
+                      //         padding: const EdgeInsets.all(16.0),
+                      //         child: Column(
+                      //           mainAxisSize: MainAxisSize.min,
+                      //           children: <Widget>[
+                      //             const Text(
+                      //               'Earned',
+                      //               style: TextStyle(
+                      //                 fontSize: 18.0,
+                      //                 fontWeight: FontWeight.bold,
+                      //               ),
+                      //             ),
+                      //             const SizedBox(height: 10.0),
+                      //             Text(
+                      //               completedCounter.toString(),
+                      //               style: const TextStyle(
+                      //                 fontSize: 24.0,
+                      //                 fontWeight: FontWeight.bold,
+                      //               ),
+                      //             ),
+                      //           ],
+                      //         ),
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
+                      Showcase(
+                        targetPadding: const EdgeInsets.all(1),
+                        key: _two,
+                        title: 'Number of Pending Requests',
+                        description: "Here shows the number of booking currently assigned to you.",
+                        tooltipBackgroundColor: Theme.of(context).primaryColor,
+                        textColor: Colors.white,
+                        child: Card(
+                          margin: const EdgeInsets.all(5.0),
+                          color: const Color.fromARGB(255, 250, 247, 245),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                const Text(
+                                  'Pending Request',
+                                  style: TextStyle(
+                                    fontSize: 18.0,
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                  const SizedBox(height: 10.0),
-                                  Text(
-                                    completedCounter.toString(),
-                                    style: const TextStyle(
-                                      fontSize: 24.0,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                ),
+                                const SizedBox(height: 10.0),
+                                Text(
+                                  orderList.length.toString(),
+                                  style: const TextStyle(
+                                    fontSize: 24.0,
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Showcase(
-                          targetPadding: const EdgeInsets.all(1),
-                          key: _two,
-                          title: 'Number of Pending Requests',
-                          description: "Here shows the number of booking currently assigned to you.",
-                          tooltipBackgroundColor: Theme.of(context).primaryColor,
-                          textColor: Colors.white,
-                          child: Card(
-                            margin: const EdgeInsets.all(5.0),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: <Widget>[
-                                  const Text(
-                                    'Pending Request',
-                                    style: TextStyle(
-                                      fontSize: 18.0,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 10.0),
-                                  Text(
-                                    orderList.length.toString(),
-                                    style: const TextStyle(
-                                      fontSize: 24.0,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
