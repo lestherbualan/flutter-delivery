@@ -27,7 +27,7 @@ class LoginScreen extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: Image.asset(
-                    'assets/images/authlogo.jpeg', // Replace with your image path
+                    'assets/images/authlogo.jpg', // Replace with your image path
                     height: 250, // Adjust height as needed
                     width: double.infinity,
                     fit: BoxFit.fill,

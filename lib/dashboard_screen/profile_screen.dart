@@ -138,7 +138,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       height: 250,
                       decoration: const BoxDecoration(
                         image: DecorationImage(
-                          image: AssetImage('assets/images/authlogo.jpeg'),
+                          image: AssetImage('assets/images/authlogo.jpg'),
                           fit: BoxFit.fill,
                         ),
                       ),
@@ -187,13 +187,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ProfileInputField(
                         labelText: 'Your email',
                         hintText: 'Please enter your email',
-                        icon: Icons.email_outlined,
+                        icon: const Padding(
+                          padding: EdgeInsets.only(left: 10),
+                          child: Icon(Icons.email_outlined),
+                        ),
                         controller: _emailController,
                       ),
                       ProfileInputField(
                         labelText: 'Display Name',
                         hintText: 'Please enter your name',
-                        icon: Icons.person_3_outlined,
+                        icon: const Padding(
+                          padding: EdgeInsets.only(left: 10),
+                          child: Icon(Icons.person_3_outlined),
+                        ),
                         controller: _displayNameController,
                       ),
                       Visibility(
@@ -201,20 +207,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         child: ProfileInputField(
                           labelText: 'Rate per Request',
                           hintText: 'If empty, default will be 0',
-                          icon: Icons.attach_money_outlined,
+                          icon: Padding(
+                              padding: EdgeInsets.only(left: 10),
+                              child: SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: Image.asset(
+                                  'assets/images/peso.png',
+                                  fit: BoxFit.contain, // Ensures proper scaling
+                                  color: Color.fromARGB(255, 65, 64, 64),
+                                ),
+                              )),
                           controller: _driverSelfRate,
                         ),
                       ),
                       ProfileInputField(
                         labelText: 'User name',
                         hintText: 'Please enter your user name',
-                        icon: Icons.person_outline,
+                        icon: const Padding(padding: EdgeInsets.only(left: 10), child: Icon(Icons.person_outline)),
                         controller: _usernameController,
                       ),
                       ProfileInputField(
                         labelText: 'Password',
                         hintText: 'Please enter your password',
-                        icon: Icons.lock_outline,
+                        icon: const Padding(padding: EdgeInsets.only(left: 10), child: Icon(Icons.lock_outline)),
                         obscureText: true,
                         controller: _passwordController,
                       ),
@@ -241,13 +257,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           ProfileInputField(
                                             labelText: 'Email',
                                             hintText: 'Please enter your email',
-                                            icon: Icons.email_outlined,
+                                            icon: const Icon(Icons.email_outlined),
                                             controller: _loginEmailController,
                                           ),
                                           ProfileInputField(
                                             labelText: 'Password',
                                             hintText: 'Please enter your password',
-                                            icon: Icons.lock_outline,
+                                            icon: const Icon(Icons.lock_outline),
                                             obscureText: true,
                                             controller: _loginPasswordController,
                                           ),
@@ -333,7 +349,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 class ProfileInputField extends StatelessWidget {
   final String labelText;
   final String hintText;
-  final IconData icon;
+  final Widget icon;
   final bool obscureText;
   final TextEditingController controller;
 
@@ -355,7 +371,11 @@ class ProfileInputField extends StatelessWidget {
         decoration: InputDecoration(
           labelText: labelText,
           hintText: hintText,
-          prefixIcon: Icon(icon),
+          prefixIcon: icon,
+          prefixIconConstraints: const BoxConstraints(
+            maxHeight: 50, // Set the height constraint
+            maxWidth: 50, // Set the width constraint
+          ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
           ),

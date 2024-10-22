@@ -226,7 +226,7 @@ class _DriverDashboardState extends State<DriverDashboard> {
                               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                             const Text(
-                              'Here is the list of orders:',
+                              'Here is the list of delivery request:',
                               style: TextStyle(fontSize: 16),
                             ),
                           ],
@@ -263,7 +263,7 @@ class _DriverDashboardState extends State<DriverDashboard> {
                   const SizedBox(height: 8),
                   // dashboard money counter card
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       // Expanded(
                       //   child: Showcase(

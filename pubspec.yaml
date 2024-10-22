@@ -39,8 +39,9 @@ flutter:
     - assets/images/Bicycle.png
     - assets/images/Car.png
     - assets/images/Motorcycle.png
-    - assets/images/authlogo.jpeg
+    - assets/images/authlogo.jpg
     - assets/images/user.png
+    - assets/images/peso.png
 
 fonts:
   family: Montserrat
@@ -50,4 +51,4 @@ fonts:
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/images/icon.jpeg"
+  image_path: "assets/images/icon.jpg"
