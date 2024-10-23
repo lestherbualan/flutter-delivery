@@ -301,37 +301,42 @@ class _DriverDashboardState extends State<DriverDashboard> {
                       //     ),
                       //   ),
                       // ),
-                      Showcase(
-                        targetPadding: const EdgeInsets.all(1),
-                        key: _two,
-                        title: 'Number of Pending Requests',
-                        description: "Here shows the number of booking currently assigned to you.",
-                        tooltipBackgroundColor: Theme.of(context).primaryColor,
-                        textColor: Colors.white,
-                        child: Card(
-                          margin: const EdgeInsets.all(5.0),
-                          color: const Color.fromARGB(255, 250, 247, 245),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                const Text(
-                                  'Pending Request',
-                                  style: TextStyle(
-                                    fontSize: 18.0,
-                                    fontWeight: FontWeight.bold,
+                      Expanded(
+                        child: Showcase(
+                          targetPadding: const EdgeInsets.all(1),
+                          key: _two,
+                          title: 'Number of Pending Requests',
+                          description: "Here shows the number of booking currently assigned to you.",
+                          tooltipBackgroundColor: Theme.of(context).primaryColor,
+                          textColor: Colors.white,
+                          child: Card(
+                            margin: const EdgeInsets.all(5.0),
+                            color: const Color.fromARGB(255, 250, 247, 245),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  Container(
+                                    alignment: Alignment.topLeft,
+                                    child: const Text(
+                                      'Pending Request',
+                                      style: TextStyle(
+                                        fontSize: 18.0,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 10.0),
-                                Text(
-                                  orderList.length.toString(),
-                                  style: const TextStyle(
-                                    fontSize: 24.0,
-                                    fontWeight: FontWeight.bold,
+                                  const SizedBox(height: 10.0),
+                                  Text(
+                                    orderList.length.toString(),
+                                    style: const TextStyle(
+                                      fontSize: 28.0,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ),
