@@ -186,7 +186,9 @@ class _ScheduleDeliveryScreenState extends State<ScheduleDeliveryScreen> {
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Status: ${order.status}'),
+                    Text(
+                      'Status: ${order.status == 'COMPLETED' ? 'Delivered' : order.status == 'PROPOSE' ? 'Pending Request' : order.status}',
+                    ),
                     Text('Schedule: ${order.date}'),
                     if (!order.isRated) const Text('Not yet Rated')
                   ],

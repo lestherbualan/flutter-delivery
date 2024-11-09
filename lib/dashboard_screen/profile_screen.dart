@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:delivery/dashboard_screen/dashboard_screen.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -34,6 +35,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _isUsernameDirty = false;
   bool _isPasswordDirty = false;
 
+  List<String>? items;
+  String? vehicleType;
+
   Future getImageUrlFromFireStore() async {
     Reference ref = _storage.ref().child('profile_pictures/${user?.uid}.jpg');
 
@@ -61,7 +65,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _displayNameController.text = currentUser['displayName'];
       _driverSelfRate.text = currentUser['driverSelfRating'];
       _usernameController.text = user?.email ?? '';
-      _phoneController.text = user?.phoneNumber ?? '';
+      _phoneController.text = currentUser['contactNumber'] ?? '';
+      vehicleType = currentUser['vehicle'] ?? '';
     });
   }
 
@@ -117,6 +122,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
+
+    items = ['Bike', 'Motorcycle', 'Car'];
 
     getImageUrlFromFireStore();
     getUserFromRealTimeDB();
@@ -202,6 +209,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         controller: _displayNameController,
                       ),
+                      ProfileInputField(
+                        labelText: 'Phone Number',
+                        hintText: 'Please enter your contact number',
+                        icon: const Padding(
+                          padding: EdgeInsets.only(left: 10),
+                          child: Icon(Icons.phone_android_outlined),
+                        ),
+                        controller: _phoneController,
+                      ),
                       Visibility(
                         visible: currentUser['isRider'],
                         child: ProfileInputField(
@@ -221,18 +237,78 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           controller: _driverSelfRate,
                         ),
                       ),
-                      ProfileInputField(
-                        labelText: 'User name',
-                        hintText: 'Please enter your user name',
-                        icon: const Padding(padding: EdgeInsets.only(left: 10), child: Icon(Icons.person_outline)),
-                        controller: _usernameController,
+                      Visibility(
+                        visible: currentUser['isRider'],
+                        child: SizedBox(
+                          height: 60, // Adjust this value to reduce the height
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              DropdownButtonHideUnderline(
+                                child: DropdownButton2<String>(
+                                  isExpanded: true,
+                                  hint: Text(
+                                    'Select your vehicle',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Theme.of(context).hintColor,
+                                    ),
+                                  ),
+                                  items: items!
+                                      .map((String item) => DropdownMenuItem<String>(
+                                            value: item,
+                                            child: Text(
+                                              item,
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                          ))
+                                      .toList(),
+                                  value: vehicleType == null ? vehicleType : 'Motorcycle',
+                                  onChanged: (String? value) {
+                                    setState(() {
+                                      vehicleType = value!;
+                                    });
+                                  },
+                                  buttonStyleData: ButtonStyleData(
+                                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                                    height: 60,
+                                    width: 180,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(14),
+                                      border: Border.all(
+                                        color: Colors.black,
+                                      ),
+                                      color: Colors.white60,
+                                    ),
+                                  ),
+                                  menuItemStyleData: const MenuItemStyleData(
+                                    height: 40,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                      ProfileInputField(
-                        labelText: 'Password',
-                        hintText: 'Please enter your password',
-                        icon: const Padding(padding: EdgeInsets.only(left: 10), child: Icon(Icons.lock_outline)),
-                        obscureText: true,
-                        controller: _passwordController,
+                      Visibility(
+                          visible: false,
+                          child: ProfileInputField(
+                            labelText: 'User name',
+                            hintText: 'Please enter your user name',
+                            icon: const Padding(padding: EdgeInsets.only(left: 10), child: Icon(Icons.person_outline)),
+                            controller: _usernameController,
+                          )),
+                      Visibility(
+                        visible: false,
+                        child: ProfileInputField(
+                          labelText: 'Password',
+                          hintText: 'Please enter your password',
+                          icon: const Padding(padding: EdgeInsets.only(left: 10), child: Icon(Icons.lock_outline)),
+                          obscureText: true,
+                          controller: _passwordController,
+                        ),
                       ),
                       const SizedBox(height: 20),
                       OutlinedButton(
@@ -308,11 +384,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                           checkImageUpdate();
 
-                          currentUserRef.update({
-                            'emailAddress': _emailController.value.text,
-                            'displayName': _displayNameController.value.text,
-                            'driverSelfRating': _driverSelfRate.value.text,
-                          });
+                          if (currentUser['isRider']) {
+                            currentUserRef.update({
+                              'emailAddress': _emailController.value.text,
+                              'displayName': _displayNameController.value.text,
+                              'driverSelfRating': _driverSelfRate.value.text,
+                              'contactNumber': _phoneController.value.text != '' ? _phoneController.value.text : '',
+                              'vehicle': vehicleType ?? ''
+                            });
+                          } else {
+                            currentUserRef.update({
+                              'emailAddress': _emailController.value.text,
+                              'displayName': _displayNameController.value.text,
+                              'driverSelfRating': _driverSelfRate.value.text,
+                              'contactNumber': _phoneController.value.text != '' ? _phoneController.value.text : '',
+                            });
+                          }
 
                           user?.updateDisplayName(_displayNameController.value.text);
                           Navigator.pop(context);
