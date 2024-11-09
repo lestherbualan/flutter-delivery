@@ -424,33 +424,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 tooltipBackgroundColor: Theme.of(context).primaryColor,
                                 textColor: Colors.white,
                                 //targetShapeBorder: const CircleBorder(),
-                                child: GestureDetector(
-                                  onTap: () {
-                                    print('ello');
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(builder: (context) => const SearchScreen()),
-                                    );
-                                  },
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.white60,
-                                      borderRadius: BorderRadius.circular(10),
-                                      border: Border.all(
-                                        color: Colors.black,
-                                      ),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white60,
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                      color: Colors.black,
                                     ),
-                                    padding: const EdgeInsets.only(top: 11.0, bottom: 11.0),
-                                    child: Center(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            startingPoint.isNotEmpty ? startingPoint : 'Starting Location',
-                                            style: const TextStyle(color: Colors.black),
-                                          ),
-                                        ],
-                                      ),
+                                  ),
+                                  padding: const EdgeInsets.only(top: 11.0, bottom: 11.0),
+                                  child: Center(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          startingPoint.isNotEmpty ? startingPoint : 'Starting Location',
+                                          style: const TextStyle(color: Colors.black),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ),
@@ -1045,12 +1036,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                                           int rating = 0; // Initialize the rating variable
 
                                                                           return AlertDialog(
-                                                                            title: const Text('Rate the driver'),
+                                                                            title: const Text('Rate the Rider'),
                                                                             content: Column(
                                                                               mainAxisSize: MainAxisSize.min,
                                                                               children: [
                                                                                 const Text(
-                                                                                    'Please rate the driver for this order:'),
+                                                                                    'Please rate the rider for this order:'),
                                                                                 // Star rating widget
                                                                                 RatingBar.builder(
                                                                                   initialRating: rating.toDouble(),

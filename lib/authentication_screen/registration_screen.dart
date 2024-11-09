@@ -45,10 +45,13 @@ class _RegistrationFormState extends State<RegistrationForm> {
     "Female",
   ];
 
+  final RegExp _gmailRegex = RegExp(r'^[\w-\.]+@gmail\.com$');
+
   final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
 
   Future<void> insertUser(UserModel user) async {
     DatabaseReference ref = FirebaseDatabase.instance.ref("user/${user.uid}");
@@ -61,9 +64,7 @@ class _RegistrationFormState extends State<RegistrationForm> {
     setState(() {
       if (pickedImage != null) {
         _image = File(pickedImage.path);
-      } else {
-        print('No image selected.');
-      }
+      } else {}
     });
   }
 
@@ -80,7 +81,6 @@ class _RegistrationFormState extends State<RegistrationForm> {
       // Update user profile with the image URL (optional)
       // You may store this URL in Firestore or Realtime Database along with user details
     } catch (e) {
-      print("Error uploading profile picture: $e");
       // Handle upload error
     }
   }
@@ -91,9 +91,7 @@ class _RegistrationFormState extends State<RegistrationForm> {
     setState(() {
       if (pickedFile != null) {
         _image = File(pickedFile.path);
-      } else {
-        print('No image selected.');
-      }
+      } else {}
     });
   }
 
@@ -137,10 +135,24 @@ class _RegistrationFormState extends State<RegistrationForm> {
                 icon: Icons.person_2_outlined,
                 controller: _usernameController),
             RegistrationInputField(
-                labelText: 'Email Address',
-                hintText: 'Please enter your email address',
-                icon: Icons.email_outlined,
-                controller: _emailController),
+                labelText: 'Phone Number',
+                hintText: 'Please enter your phone number',
+                icon: Icons.phone_android_outlined,
+                controller: _phoneController),
+            RegistrationInputField(
+              labelText: 'Email Address',
+              hintText: 'Please enter your email address',
+              icon: Icons.email_outlined,
+              controller: _emailController,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter an email address';
+                } else if (!_gmailRegex.hasMatch(value)) {
+                  return 'Please enter a valid Gmail address';
+                }
+                return null;
+              },
+            ),
             RegistrationInputField(
                 labelText: 'Password',
                 hintText: 'Please enter your password',
@@ -192,12 +204,10 @@ class _RegistrationFormState extends State<RegistrationForm> {
                         driverRating: 0,
                         firstOpen: true,
                         driverSelfRating: '0',
+                        contactNumber: _phoneController.value.text == '' ? _phoneController.value.text : '',
                       );
 
-                      insertUser(user).then((value) {
-                        print('registration complete');
-                        print(imageUrl);
-                      });
+                      insertUser(user).then((value) {});
                     });
                     // Registration successful, show pop-up
                     showDialog(
@@ -227,9 +237,12 @@ class _RegistrationFormState extends State<RegistrationForm> {
                         const SnackBar(content: Text('The account already exists for that email.')),
                       );
                     }
-                  } catch (e) {
-                    print(e);
-                  }
+                  } catch (e) {}
+                } else {
+                  final errorMessage = (_formKey.currentState!.validate()) as String;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(errorMessage)),
+                  );
                 }
               },
               child: const Padding(
@@ -256,20 +269,22 @@ class RegistrationInputField extends StatelessWidget {
   final IconData icon;
   final bool obscureText;
   final TextEditingController controller;
+  final String? Function(String?)? validator;
 
-  const RegistrationInputField({
-    required this.labelText,
-    required this.hintText,
-    required this.icon,
-    this.obscureText = false,
-    required this.controller,
-  });
+  const RegistrationInputField(
+      {required this.labelText,
+      required this.hintText,
+      required this.icon,
+      this.obscureText = false,
+      required this.controller,
+      this.validator});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: TextField(
+      child: TextFormField(
+        validator: validator,
         controller: controller,
         obscureText: obscureText,
         decoration: InputDecoration(
