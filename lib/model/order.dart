@@ -13,6 +13,7 @@ class Order {
   String? driverId;
   int rate;
   bool isRated;
+  String? noteToRider;
   Order({
     required this.startingGeoPoint,
     required this.endingGeoPoint,
@@ -28,6 +29,7 @@ class Order {
     this.driverId,
     required this.rate,
     required this.isRated,
+    this.noteToRider,
   });
   Map<String, dynamic> toJson() => {
         'startingGeoPoint': startingGeoPoint,
@@ -44,6 +46,7 @@ class Order {
         'driverId': driverId,
         'rate': rate,
         'isRated': isRated,
+        'noteToRider': noteToRider
       };
   factory Order.fromMap(Map<String, dynamic> data) {
     return Order(
@@ -61,6 +64,7 @@ class Order {
       driverId: data['driverId'],
       rate: data['rate'],
       isRated: data['isRated'],
+      noteToRider: data['noteToRider'],
     );
   }
 }

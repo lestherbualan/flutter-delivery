@@ -72,7 +72,7 @@ class _ScheduleDeliveryScreenState extends State<ScheduleDeliveryScreen> {
       Map<dynamic, dynamic> reviews = reviewSnapshot.value as Map<dynamic, dynamic>;
 
       reviews.forEach((key, value) {
-        if (value['driverId'] == review.reviewerId) {
+        if (value['driverId'] == review.driverId) {
           driverReviewList.add(value['rating']);
           counter++;
         }
@@ -82,7 +82,7 @@ class _ScheduleDeliveryScreenState extends State<ScheduleDeliveryScreen> {
       double calculatedRating = totalRating / counter;
       calculatedRating = double.parse(calculatedRating.toStringAsFixed(2));
 
-      DatabaseReference driver = FirebaseDatabase.instance.ref("user/${review.reviewerId}");
+      DatabaseReference driver = FirebaseDatabase.instance.ref("user/${review.customerId}");
       driver.update({'driverRating': calculatedRating});
     }).catchError((onError) => {print(onError)});
   }
@@ -182,7 +182,7 @@ class _ScheduleDeliveryScreenState extends State<ScheduleDeliveryScreen> {
                           ? Colors.redAccent
                           : null,
               child: ListTile(
-                title: Text('Driver Name: ${driver?['displayName'] ?? 'No Driver Assigned'}'),
+                title: Text('Rider Name: ${driver?['displayName'] ?? 'No Driver Assigned'}'),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -255,11 +255,15 @@ class _ScheduleDeliveryScreenState extends State<ScheduleDeliveryScreen> {
                                 orderRef.update({'isRated': true});
 
                                 Review review = Review(
-                                  reviewerId: driver?['uid'] ?? 'Unknown Driver',
+                                  reviewerUserType: 'Customer',
+                                  driverId: driver?['uid'] ?? 'Unknown Driver',
+                                  driverName: driver?['displayName'],
                                   orderId: orderKey[index],
                                   rating: double.parse(rating.toString()),
-                                  revieweeId: user?.uid ?? 'Unknown User',
+                                  customerId: user?.uid ?? 'Unknown User',
+                                  customerName: user?.displayName ?? '',
                                   message: commentText,
+                                  timestamp: DateTime.now().toString(),
                                 );
 
                                 await insertReview(review).then((val) {

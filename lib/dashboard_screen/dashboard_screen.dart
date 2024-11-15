@@ -1,4 +1,5 @@
 import 'package:delivery/authentication_screen/login_screen.dart';
+import 'package:delivery/commons/review_screen.dart';
 import 'package:delivery/dashboard_screen/profile_screen.dart';
 import 'package:delivery/dashboard_screen/search_screen.dart';
 import 'package:delivery/map_app/map_controller.dart';
@@ -56,6 +57,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   String vehicleType = '';
   double? netWeight;
   int rate = 25;
+  String? noteToRider;
 
   Color _motorBG = Colors.white;
   Color _carBG = Colors.white;
@@ -200,7 +202,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       Map<dynamic, dynamic> reviews = reviewSnapshot.value as Map<dynamic, dynamic>;
 
       reviews.forEach((key, value) {
-        if (value['driverId'] == review.reviewerId) {
+        if (value['driverId'] == review.driverId) {
           driverReviewList.add(value['rating']);
           counter++;
         }
@@ -210,7 +212,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       double calculatedRating = totalRating / counter;
       calculatedRating = double.parse(calculatedRating.toStringAsFixed(2));
 
-      DatabaseReference driver = FirebaseDatabase.instance.ref("user/${review.reviewerId}");
+      DatabaseReference driver = FirebaseDatabase.instance.ref("user/${review.driverId}");
       driver.update({'driverRating': calculatedRating});
     }).catchError((onError) => {print(onError)});
   }
@@ -235,6 +237,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           List<Map<dynamic, dynamic>> userList = [];
           data.forEach((key, value) {
             if (value['isRider'] == true && value['online'] == true) {
+              //if(value['vehicle'] == )
               userList.add(Map<dynamic, dynamic>.from(value));
             }
           });
@@ -324,7 +327,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 right: 10, // Adjust position as needed
                 child: Container(
                   width: 180,
-                  height: 180,
+                  height: 240,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(10),
@@ -370,6 +373,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                       ListTile(
                         leading: const Icon(
+                          Icons.calendar_month_outlined,
+                          size: 25.0,
+                          color: Colors.black,
+                        ),
+                        title: const Text('Reviews'),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => ReviewScreen()),
+                          );
+                        },
+                      ),
+                      ListTile(
+                        leading: const Icon(
                           Icons.logout_outlined,
                           size: 25.0,
                           color: Colors.black,
@@ -392,374 +409,860 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ),
             // rectangular container view happens here.
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              height: 400,
-              child: Container(
-                padding: const EdgeInsets.all(10),
-                decoration: const BoxDecoration(
-                  color: Color(0xFFEDE1D5),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(10.0),
-                    topRight: Radius.circular(10.0),
+            DraggableScrollableSheet(
+              initialChildSize: 0.55,
+              minChildSize: 0.2,
+              maxChildSize: 0.55,
+              snap: true,
+              builder: (context, scrollController) => SingleChildScrollView(
+                controller: scrollController,
+                child: Container(
+                  height: 455,
+                  padding: const EdgeInsets.all(10),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFEDE1D5),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(10.0),
+                      topRight: Radius.circular(10.0),
+                    ),
                   ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Showcase classes are refered to those user guide on the first open of the app.
-                              Showcase(
-                                targetPadding: const EdgeInsets.all(1),
-                                key: _one,
-                                title: 'Pick Up Point Address',
-                                description: "Here shows the address of the first pin you choose as pick-up point.",
-                                tooltipBackgroundColor: Theme.of(context).primaryColor,
-                                textColor: Colors.white,
-                                //targetShapeBorder: const CircleBorder(),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.white60,
-                                    borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  padding: const EdgeInsets.only(top: 11.0, bottom: 11.0),
-                                  child: Center(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          startingPoint.isNotEmpty ? startingPoint : 'Starting Location',
-                                          style: const TextStyle(color: Colors.black),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Showcase(
-                                targetPadding: const EdgeInsets.all(1),
-                                key: _two,
-                                title: 'Drop off Point Address',
-                                description: "Here shows the address of the last pin you choose as drop off.",
-                                tooltipBackgroundColor: Theme.of(context).primaryColor,
-                                textColor: Colors.white,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.white60,
-                                    borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  padding: const EdgeInsets.only(top: 11.0, bottom: 11.0),
-                                  child: Center(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          endPoint.isNotEmpty ? endPoint : 'Ending Location',
-                                          style: const TextStyle(color: Colors.black),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Showcase(
-                                targetPadding: const EdgeInsets.all(1),
-                                key: _three,
-                                title: 'Travel Distance',
-                                description: "Here shows the distance in kilometer for the rider to deliver.",
-                                tooltipBackgroundColor: Theme.of(context).primaryColor,
-                                textColor: Colors.white,
-                                child: Text(
-                                  'Distance: ${distance.toStringAsFixed(2)} km',
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Showcase classes are refered to those user guide on the first open of the app.
+                      Showcase(
+                        targetPadding: const EdgeInsets.all(1),
+                        key: _one,
+                        title: 'Pick Up Point Address',
+                        description: "Here shows the address of the first pin you choose as pick-up point.",
+                        tooltipBackgroundColor: Theme.of(context).primaryColor,
+                        textColor: Colors.white,
+                        //targetShapeBorder: const CircleBorder(),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white60,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: Colors.black,
+                            ),
+                          ),
+                          padding: const EdgeInsets.only(top: 11.0, bottom: 11.0),
+                          child: Center(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  startingPoint.isNotEmpty ? startingPoint : 'Starting Location',
                                   style: const TextStyle(color: Colors.black),
                                 ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Showcase(
+                        targetPadding: const EdgeInsets.all(1),
+                        key: _two,
+                        title: 'Drop off Point Address',
+                        description: "Here shows the address of the last pin you choose as drop off.",
+                        tooltipBackgroundColor: Theme.of(context).primaryColor,
+                        textColor: Colors.white,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white60,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: Colors.black,
+                            ),
+                          ),
+                          padding: const EdgeInsets.only(top: 11.0, bottom: 11.0),
+                          child: Center(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  endPoint.isNotEmpty ? endPoint : 'Ending Location',
+                                  style: const TextStyle(color: Colors.black),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Showcase(
+                        targetPadding: const EdgeInsets.all(1),
+                        key: _three,
+                        title: 'Travel Distance',
+                        description: "Here shows the distance in kilometer for the rider to deliver.",
+                        tooltipBackgroundColor: Theme.of(context).primaryColor,
+                        textColor: Colors.white,
+                        child: Text(
+                          'Distance: ${distance.toStringAsFixed(2)} km',
+                          style: const TextStyle(color: Colors.black),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Expanded(
+                        child: Showcase(
+                          targetPadding: const EdgeInsets.all(1),
+                          key: _four,
+                          title: 'Vehicle Type',
+                          description: "You can select your prefered vehicle depending on the item you want to be delivered",
+                          tooltipBackgroundColor: Theme.of(context).primaryColor,
+                          textColor: Colors.white,
+                          child: ListView(
+                            shrinkWrap: true,
+                            scrollDirection: Axis.horizontal,
+                            children: <Widget>[
+                              Container(
+                                width: 160,
+                                height: 80,
+                                margin: const EdgeInsets.only(right: 10.0),
+                                decoration: BoxDecoration(
+                                  color: _motorBG,
+                                  borderRadius: const BorderRadius.all(
+                                    Radius.circular(10),
+                                  ),
+                                  border: Border.all(
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                child: Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Transform.scale(
+                                        scale: 1.9,
+                                        child: IconButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              if (_motorBG == Colors.white) {
+                                                _motorBG = Colors.orange;
+                                                _carBG = Colors.white;
+                                                _bikeBG = Colors.white;
+
+                                                vehicleType = 'Motorcycle';
+                                              } else {
+                                                _motorBG = Colors.white;
+                                              }
+                                            });
+                                          },
+                                          icon: Image.asset(
+                                            'assets/images/Motorcycle.png',
+                                            width: 150.0,
+                                            height: 90.0,
+                                          ),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
                               ),
+                              Container(
+                                width: 160,
+                                height: 80,
+                                margin: const EdgeInsets.only(right: 10.0),
+                                decoration: BoxDecoration(
+                                  color: _carBG,
+                                  borderRadius: const BorderRadius.all(
+                                    Radius.circular(10),
+                                  ),
+                                  border: Border.all(
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                child: Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Transform.scale(
+                                        scale: 1.5,
+                                        child: IconButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              if (_carBG == Colors.white) {
+                                                _carBG = Colors.orange;
+                                                _bikeBG = Colors.white;
+                                                _motorBG = Colors.white;
+
+                                                vehicleType = 'Car';
+                                              } else {
+                                                _carBG = Colors.white;
+                                              }
+                                            });
+                                          },
+                                          icon: Image.asset(
+                                            'assets/images/Car.png',
+                                            width: 170.0,
+                                            height: 105.0,
+                                          ),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                width: 160,
+                                height: 80,
+                                margin: const EdgeInsets.only(right: 10.0),
+                                decoration: BoxDecoration(
+                                  color: _bikeBG,
+                                  borderRadius: const BorderRadius.all(
+                                    Radius.circular(10),
+                                  ),
+                                  border: Border.all(
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                child: Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Transform.scale(
+                                        scale: 1.3,
+                                        child: IconButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              if (_bikeBG == Colors.white) {
+                                                _bikeBG = Colors.orange;
+                                                _carBG = Colors.white;
+                                                _motorBG = Colors.white;
+
+                                                vehicleType = 'Bike';
+                                              } else {
+                                                _bikeBG = Colors.white;
+                                              }
+                                            });
+                                          },
+                                          icon: Image.asset(
+                                            'assets/images/Bicycle.png',
+                                            width: 150.0,
+                                            height: 90.0,
+                                          ),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              // Add more containers as needed
                             ],
                           ),
                         ),
-                      ],
-                    ),
-
-                    const SizedBox(
-                      height: 10,
-                    ), //
-                    Expanded(
-                      child: Showcase(
-                        targetPadding: const EdgeInsets.all(1),
-                        key: _four,
-                        title: 'Vehicle Type',
-                        description: "You can select your prefered vehicle depending on the item you want to be delivered",
-                        tooltipBackgroundColor: Theme.of(context).primaryColor,
-                        textColor: Colors.white,
-                        child: ListView(
-                          scrollDirection: Axis.horizontal,
-                          children: <Widget>[
-                            Container(
-                              width: 160,
-                              height: 80,
-                              margin: const EdgeInsets.only(right: 10.0),
-                              decoration: BoxDecoration(
-                                color: _motorBG,
-                                borderRadius: const BorderRadius.all(
-                                  Radius.circular(10),
-                                ),
-                                border: Border.all(
-                                  color: Colors.black,
-                                ),
-                              ),
-                              child: Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Transform.scale(
-                                      scale: 1.9,
-                                      child: IconButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            if (_motorBG == Colors.white) {
-                                              _motorBG = Colors.orange;
-                                              _carBG = Colors.white;
-                                              _bikeBG = Colors.white;
-
-                                              vehicleType = 'MOTOR';
-                                            } else {
-                                              _motorBG = Colors.white;
-                                            }
-                                          });
-                                        },
-                                        icon: Image.asset(
-                                          'assets/images/Motorcycle.png',
-                                          width: 150.0,
-                                          height: 90.0,
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Container(
-                              width: 160,
-                              height: 80,
-                              margin: const EdgeInsets.only(right: 10.0),
-                              decoration: BoxDecoration(
-                                color: _carBG,
-                                borderRadius: const BorderRadius.all(
-                                  Radius.circular(10),
-                                ),
-                                border: Border.all(
-                                  color: Colors.black,
-                                ),
-                              ),
-                              child: Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Transform.scale(
-                                      scale: 1.5,
-                                      child: IconButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            if (_carBG == Colors.white) {
-                                              _carBG = Colors.orange;
-                                              _bikeBG = Colors.white;
-                                              _motorBG = Colors.white;
-
-                                              vehicleType = 'CAR';
-                                            } else {
-                                              _carBG = Colors.white;
-                                            }
-                                          });
-                                        },
-                                        icon: Image.asset(
-                                          'assets/images/Car.png',
-                                          width: 170.0,
-                                          height: 105.0,
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Container(
-                              width: 160,
-                              height: 80,
-                              margin: const EdgeInsets.only(right: 10.0),
-                              decoration: BoxDecoration(
-                                color: _bikeBG,
-                                borderRadius: const BorderRadius.all(
-                                  Radius.circular(10),
-                                ),
-                                border: Border.all(
-                                  color: Colors.black,
-                                ),
-                              ),
-                              child: Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Transform.scale(
-                                      scale: 1.3,
-                                      child: IconButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            if (_bikeBG == Colors.white) {
-                                              _bikeBG = Colors.orange;
-                                              _carBG = Colors.white;
-                                              _motorBG = Colors.white;
-
-                                              vehicleType = 'BIKE';
-                                            } else {
-                                              _bikeBG = Colors.white;
-                                            }
-                                          });
-                                        },
-                                        icon: Image.asset(
-                                          'assets/images/Bicycle.png',
-                                          width: 150.0,
-                                          height: 90.0,
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
-                            // Add more containers as needed
-                          ],
-                        ),
                       ),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ), // Adjust spacing between ListView and buttons
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Showcase(
-                          targetPadding: const EdgeInsets.all(1),
-                          key: _five,
-                          title: 'Package Weight',
-                          description:
-                              "It's important that we know how much the item weight. You can select your item's estimated weight here.",
-                          tooltipBackgroundColor: Theme.of(context).primaryColor,
-                          textColor: Colors.white,
-                          child: SizedBox(
-                            height: 60, // Adjust this value to reduce the height
-                            child: DropdownButtonHideUnderline(
-                              child: DropdownButton2<double>(
-                                isExpanded: true,
-                                hint: Text(
-                                  'Select Package Weight in kg',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Theme.of(context).hintColor,
-                                  ),
-                                ),
-                                items: items
-                                    .map((double item) => DropdownMenuItem<double>(
-                                          value: item,
-                                          child: Text(
-                                            '$item kg',
-                                            style: const TextStyle(
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                        ))
-                                    .toList(),
-                                value: netWeight,
-                                onChanged: (double? value) {
-                                  setState(() {
-                                    netWeight = value;
-                                  });
-                                },
-                                buttonStyleData: ButtonStyleData(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                                  height: 40,
-                                  width: 180,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(14),
-                                    border: Border.all(
-                                      color: Colors.black,
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Showcase(
+                            targetPadding: const EdgeInsets.all(1),
+                            key: _five,
+                            title: 'Package Weight',
+                            description:
+                                "It's important that we know how much the item weight. You can select your item's estimated weight here.",
+                            tooltipBackgroundColor: Theme.of(context).primaryColor,
+                            textColor: Colors.white,
+                            child: SizedBox(
+                              height: 60, // Adjust this value to reduce the height
+                              child: DropdownButtonHideUnderline(
+                                child: DropdownButton2<double>(
+                                  isExpanded: true,
+                                  hint: Text(
+                                    'Select Package Weight in kg',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Theme.of(context).hintColor,
                                     ),
-                                    color: Colors.white60,
                                   ),
-                                ),
-                                menuItemStyleData: const MenuItemStyleData(
-                                  height: 40,
+                                  items: items
+                                      .map((double item) => DropdownMenuItem<double>(
+                                            value: item,
+                                            child: Text(
+                                              '$item kg',
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                          ))
+                                      .toList(),
+                                  value: netWeight,
+                                  onChanged: (double? value) {
+                                    setState(() {
+                                      netWeight = value;
+                                    });
+                                  },
+                                  buttonStyleData: ButtonStyleData(
+                                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                                    height: 40,
+                                    width: 180,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(14),
+                                      border: Border.all(
+                                        color: Colors.black,
+                                      ),
+                                      color: Colors.white60,
+                                    ),
+                                  ),
+                                  menuItemStyleData: const MenuItemStyleData(
+                                    height: 40,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                        Showcase(
-                          targetPadding: const EdgeInsets.all(1),
-                          key: _six,
-                          title: 'Amount payable',
-                          description: "Rate is calculated depending on how far the item to be delivered.",
-                          tooltipBackgroundColor: Theme.of(context).primaryColor,
-                          textColor: Colors.white,
-                          child: Container(
-                            width: MediaQuery.of(context).size.width * 0.4, // Adjust width as needed
-                            decoration: BoxDecoration(
-                              color: Colors.white60,
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(
-                                color: Colors.black,
+                          Showcase(
+                            targetPadding: const EdgeInsets.all(1),
+                            key: _six,
+                            title: 'Amount payable',
+                            description: "Rate is calculated depending on how far the item to be delivered.",
+                            tooltipBackgroundColor: Theme.of(context).primaryColor,
+                            textColor: Colors.white,
+                            child: Container(
+                              width: MediaQuery.of(context).size.width * 0.4, // Adjust width as needed
+                              decoration: BoxDecoration(
+                                color: Colors.white60,
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: Colors.black,
+                                ),
+                              ),
+                              padding: const EdgeInsets.only(top: 11.0, bottom: 11.0),
+                              child: Center(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      //(rate * (distance.round())).toString(),
+                                      rate.toString(),
+                                      style: const TextStyle(color: Colors.black, fontSize: 25.0, fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                            padding: const EdgeInsets.only(top: 11.0, bottom: 11.0),
-                            child: Center(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    //(rate * (distance.round())).toString(),
-                                    rate.toString(),
-                                    style: const TextStyle(color: Colors.black, fontSize: 25.0, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          String? note;
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text('Note to your Rider'),
+                                content: TextFormField(
+                                  onChanged: (value) {
+                                    setState(() {
+                                      note = value;
+                                    });
+                                  },
+                                  decoration: const InputDecoration(
+                                    hintText: 'Add note',
+                                    border: OutlineInputBorder(),
+                                  ),
+                                  maxLines: null,
+                                  keyboardType: TextInputType.multiline,
+                                ),
+                                actions: <Widget>[
+                                  TextButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        noteToRider = note;
+                                      });
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text('Confirm'),
                                   ),
                                 ],
-                              ),
+                              );
+                            },
+                          );
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white60,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: Colors.black,
+                            ),
+                          ),
+                          padding: const EdgeInsets.only(top: 5.0, bottom: 5.0),
+                          child: Padding(
+                            padding: EdgeInsets.only(left: 15.0, right: 15.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Text(
+                                      'Note for your rider (Optional)',
+                                      style: TextStyle(color: Colors.black),
+                                    ),
+                                    Visibility(
+                                      visible: noteToRider?.isNotEmpty ?? false,
+                                      child: Container(
+                                        margin: const EdgeInsets.only(left: 5.0),
+                                        decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.red[300]),
+                                        width: 10,
+                                        height: 10,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const Icon(
+                                  Icons.edit,
+                                  size: 25.0,
+                                  color: Colors.grey,
+                                ),
+                              ],
                             ),
                           ),
                         ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    Row(
-                      children: [
-                        // Order Now button. Design and logic is here
-                        Expanded(
-                          // Order Now Button occupies all available space
-                          child: OutlinedButton(
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        children: [
+                          Expanded(
+                            // Order Now Button occupies all available space
+                            child: OutlinedButton(
+                              onPressed: () {
+                                if (vehicleType.isNotEmpty &&
+                                    netWeight != null &&
+                                    (startingGeopoint.latitude != 0 &&
+                                        startingGeopoint.longitude != 0 &&
+                                        endingGeopoint.latitude != 0 &&
+                                        endingGeopoint.longitude != 0)) {
+                                  Order order = Order(
+                                    name: user?.displayName ?? "No Name",
+                                    date: DateTime.now().toString(),
+                                    startingGeoPoint: {
+                                      'location': startingPoint,
+                                      'longitude': startingGeopoint.longitude.toString(),
+                                      'latitude': startingGeopoint.latitude.toString()
+                                    },
+                                    endingGeoPoint: {
+                                      'location': endPoint,
+                                      'longitude': endingGeopoint.longitude.toString(),
+                                      'latitude': endingGeopoint.latitude.toString()
+                                    },
+                                    distance: distance.toString(),
+                                    status: 'PROPOSE',
+                                    uid: user?.uid ?? "No UID",
+                                    vehicleType: vehicleType,
+                                    isScheduled: false,
+                                    netWeight: netWeight!,
+                                    driverId: '',
+                                    rate: rate,
+                                    isRated: false,
+                                    noteToRider: noteToRider,
+                                  );
+                                  // By clicking Order Now button, this function triggers calling the insertOrder function.
+                                  insertOrder(order).then((orderKey) async {
+                                    showDialog(
+                                      context: context,
+                                      barrierDismissible: false,
+                                      builder: (BuildContext context) {
+                                        DatabaseReference userRef = FirebaseDatabase.instance.ref('user');
+
+                                        return StatefulBuilder(builder: (context, setState) {
+                                          // Showing the available driver pop up
+                                          return AlertDialog(
+                                            title: const Text('Available Riders'),
+                                            content: Container(
+                                              width: double.maxFinite,
+                                              child: Stack(
+                                                children: [
+                                                  Padding(
+                                                    padding: const EdgeInsets.only(top: 8.0),
+                                                    child: Row(
+                                                      children: [
+                                                        Padding(
+                                                          padding: const EdgeInsets.only(left: 5, right: 5),
+                                                          child: ActionChip(
+                                                            avatar: _rateFilterState == 1
+                                                                ? const Icon(
+                                                                    Icons.arrow_downward_outlined,
+                                                                    color: Colors.black,
+                                                                  )
+                                                                : const Icon(
+                                                                    Icons.arrow_upward_outlined,
+                                                                    color: Colors.black,
+                                                                  ),
+                                                            label: const Text('Rating'),
+                                                            backgroundColor:
+                                                                _activeChip == 0 ? Colors.transparent : Colors.transparent,
+                                                            onPressed: () {
+                                                              setState(() {
+                                                                _activeChip = 0;
+                                                                if (_rateFilterState == 0) {
+                                                                  _userList.sort((a, b) {
+                                                                    // Ensure that both maps have the 'driverSelfRating' key before comparing
+                                                                    if (a.containsKey('driverRating') &&
+                                                                        b.containsKey('driverRating')) {
+                                                                      return b['driverRating'].compareTo(a['driverRating']);
+                                                                    } else if (a.containsKey('driverRating')) {
+                                                                      return -1; // a comes before b if only a has driverSelfRating
+                                                                    } else if (b.containsKey('driverRating')) {
+                                                                      return 1; // b comes before a if only b has driverSelfRating
+                                                                    } else {
+                                                                      return 0; // both are equal if neither has driverSelfRating
+                                                                    }
+                                                                  });
+                                                                  _rateFilterState = 1;
+                                                                } else if (_rateFilterState == 1) {
+                                                                  _userList.sort((a, b) {
+                                                                    // Ensure that both maps have the 'driverRating' key before comparing
+                                                                    if (a.containsKey('driverRating') &&
+                                                                        b.containsKey('driverRating')) {
+                                                                      return a['driverRating'].compareTo(b['driverRating']);
+                                                                    } else if (a.containsKey('driverRating')) {
+                                                                      return -1; // a comes before b if only a has driverRating
+                                                                    } else if (b.containsKey('driverRating')) {
+                                                                      return 1; // b comes before a if only b has driverRating
+                                                                    } else {
+                                                                      return 0; // both are equal if neither has driverRating
+                                                                    }
+                                                                  });
+                                                                  _rateFilterState = 0;
+                                                                }
+                                                              });
+                                                              print(_userList);
+                                                            },
+                                                          ),
+                                                        ),
+                                                        Padding(
+                                                          padding: const EdgeInsets.only(left: 5, right: 5),
+                                                          child: ActionChip(
+                                                            avatar: _chargeFilterState == 1
+                                                                ? const Icon(
+                                                                    Icons.arrow_downward_outlined,
+                                                                    color: Colors.black,
+                                                                  )
+                                                                : const Icon(
+                                                                    Icons.arrow_upward_outlined,
+                                                                    color: Colors.black,
+                                                                  ),
+                                                            label: const Text('Charge'),
+                                                            backgroundColor:
+                                                                _activeChip == 1 ? Colors.transparent : Colors.transparent,
+                                                            onPressed: () {
+                                                              print(_chargeFilterState);
+                                                              setState(() {
+                                                                _activeChip = 1;
+                                                                if (_chargeFilterState == 0) {
+                                                                  _userList.sort((a, b) {
+                                                                    // Ensure that both maps have the 'driverSelfRating' key before comparing
+                                                                    if (a.containsKey('driverSelfRating') &&
+                                                                        b.containsKey('driverSelfRating')) {
+                                                                      return b['driverSelfRating']
+                                                                          .compareTo(a['driverSelfRating']);
+                                                                    } else if (a.containsKey('driverSelfRating')) {
+                                                                      return -1; // a comes before b if only a has driverSelfRating
+                                                                    } else if (b.containsKey('driverSelfRating')) {
+                                                                      return 1; // b comes before a if only b has driverSelfRating
+                                                                    } else {
+                                                                      return 0; // both are equal if neither has driverSelfRating
+                                                                    }
+                                                                  });
+                                                                  _chargeFilterState = 1;
+                                                                } else if (_chargeFilterState == 1) {
+                                                                  _userList.sort((a, b) {
+                                                                    // Ensure that both maps have the 'driverRating' key before comparing
+                                                                    if (a.containsKey('driverSelfRating') &&
+                                                                        b.containsKey('driverSelfRating')) {
+                                                                      return a['driverSelfRating']
+                                                                          .compareTo(b['driverSelfRating']);
+                                                                    } else if (a.containsKey('driverSelfRating')) {
+                                                                      return -1; // a comes before b if only a has driverRating
+                                                                    } else if (b.containsKey('driverSelfRating')) {
+                                                                      return 1; // b comes before a if only b has driverRating
+                                                                    } else {
+                                                                      return 0; // both are equal if neither has driverRating
+                                                                    }
+                                                                  });
+                                                                  _chargeFilterState = 0;
+                                                                }
+                                                              });
+                                                            },
+                                                          ),
+                                                        )
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  Padding(
+                                                    padding: const EdgeInsets.only(top: 50.0),
+                                                    child: SizedBox(
+                                                      width: double.maxFinite,
+                                                      child: ListView.builder(
+                                                        itemCount: _userList.length,
+                                                        itemBuilder: (BuildContext context, int index) {
+                                                          dynamic drivers;
+                                                          print(order.vehicleType);
+                                                          print(_userList[index]['vehicle']);
+                                                          if (_userList[index]['vehicle'] == order.vehicleType) {
+                                                            drivers = _userList[index];
+                                                            return ListTile(
+                                                              leading: CircleAvatar(
+                                                                backgroundImage: drivers['profilePictureUrl'] != null &&
+                                                                        drivers['profilePictureUrl'] != ''
+                                                                    ? NetworkImage(drivers['profilePictureUrl'])
+                                                                    : null,
+                                                              ),
+                                                              title: Text(drivers['displayName']),
+                                                              subtitle: Column(
+                                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                                children: [
+                                                                  //Text(drivers['emailAddress']),
+                                                                  Text('Rating : ${drivers['driverRating']}'),
+                                                                  RatingBarIndicator(
+                                                                    rating: double.parse(drivers['driverRating'].toString()),
+                                                                    itemBuilder: (context, index) => const Icon(
+                                                                      Icons.star,
+                                                                      color: Colors.amber,
+                                                                    ),
+                                                                    itemCount: 5,
+                                                                    itemSize: 15.0,
+                                                                    direction: Axis.horizontal,
+                                                                  ),
+                                                                  Text('Charge : ${drivers['driverSelfRating'] ?? 0}')
+                                                                ],
+                                                              ),
+                                                              onTap: () {
+                                                                Proposal proposal =
+                                                                    Proposal(uid: drivers['uid'], orderId: orderKey);
+                                                                insertProposal(proposal).then((value) {
+                                                                  //Navigator.pop(context);
+                                                                  DatabaseReference orderReference =
+                                                                      FirebaseDatabase.instance.ref('order/$orderKey');
+                                                                  orderReference.onValue.listen((DatabaseEvent event) {
+                                                                    final data = event.snapshot.value;
+                                                                    print(data);
+                                                                    if (data != null && data is Map<Object?, Object?>) {
+                                                                      final dynamic status = data['status'];
+                                                                      dynamic driverId = drivers['uid'];
+                                                                      dynamic driverName = drivers['displayName'];
+                                                                      dynamic orderId = data['key'];
+                                                                      dynamic userId = user?.uid;
+                                                                      String commentText = '';
+                                                                      if (status != null) {
+                                                                        print(status);
+                                                                        if (status == 'PROPOSE') {
+                                                                          showDialog(
+                                                                            context: context,
+                                                                            barrierDismissible: false,
+                                                                            builder: (BuildContext context) {
+                                                                              return const AlertDialog(
+                                                                                content: Row(
+                                                                                  children: [
+                                                                                    CircularProgressIndicator(),
+                                                                                    SizedBox(width: 20),
+                                                                                    Text("Waiting for the driver to accept"),
+                                                                                  ],
+                                                                                ),
+                                                                              );
+                                                                            },
+                                                                          );
+                                                                        }
+                                                                        if (status == 'ACCEPTED') {
+                                                                          print('driver id here');
+                                                                          print(data);
+                                                                          Navigator.pop(context);
+                                                                          showDialog(
+                                                                            context: context,
+                                                                            barrierDismissible: false,
+                                                                            builder: (BuildContext context) {
+                                                                              return const AlertDialog(
+                                                                                content: Row(
+                                                                                  children: [
+                                                                                    CircularProgressIndicator(),
+                                                                                    SizedBox(width: 20),
+                                                                                    Text("Driver is on the way ..."),
+                                                                                  ],
+                                                                                ),
+                                                                              );
+                                                                            },
+                                                                          );
+                                                                        }
+                                                                        if (status == 'CANCELED') {
+                                                                          print('driver id here');
+                                                                          print(data);
+                                                                          Navigator.pop(context);
+                                                                          showDialog(
+                                                                            context: context,
+                                                                            barrierDismissible: false,
+                                                                            builder: (BuildContext context) {
+                                                                              return const AlertDialog(
+                                                                                content: Row(
+                                                                                  children: [
+                                                                                    CircularProgressIndicator(),
+                                                                                    SizedBox(width: 20),
+                                                                                    Text("Driver canceled the request!"),
+                                                                                  ],
+                                                                                ),
+                                                                              );
+                                                                            },
+                                                                          );
+                                                                          Future.delayed(const Duration(seconds: 2), () {
+                                                                            Navigator.pop(context); // Close the loading dialog
+                                                                            Navigator.pop(context);
+                                                                          });
+                                                                        }
+                                                                        if (status == 'COMPLETED') {
+                                                                          Navigator.pop(context);
+                                                                          ScaffoldMessenger.of(context).showSnackBar(
+                                                                            const SnackBar(content: Text('Order is complete!')),
+                                                                          );
+                                                                          // Show the rating pop-up here
+                                                                          showDialog(
+                                                                            context: context,
+                                                                            barrierDismissible: false,
+                                                                            builder: (BuildContext context) {
+                                                                              int rating = 0; // Initialize the rating variable
+
+                                                                              return AlertDialog(
+                                                                                title: const Text('Rate the Rider'),
+                                                                                content: Column(
+                                                                                  mainAxisSize: MainAxisSize.min,
+                                                                                  children: [
+                                                                                    const Text(
+                                                                                        'Please rate the rider for this delivery:'),
+                                                                                    // Star rating widget
+                                                                                    RatingBar.builder(
+                                                                                      initialRating: rating.toDouble(),
+                                                                                      minRating: 1,
+                                                                                      direction: Axis.horizontal,
+                                                                                      allowHalfRating: false,
+                                                                                      itemCount: 5,
+                                                                                      itemSize: 40,
+                                                                                      itemBuilder: (context, _) => const Icon(
+                                                                                        Icons.star,
+                                                                                        color: Colors.amber,
+                                                                                      ),
+                                                                                      onRatingUpdate: (value) {
+                                                                                        rating = value
+                                                                                            .toInt(); // Update the rating value
+                                                                                      },
+                                                                                    ),
+                                                                                    const SizedBox(height: 20),
+                                                                                    // Text input for comments
+                                                                                    TextFormField(
+                                                                                      onChanged: (value) {
+                                                                                        setState(() {
+                                                                                          commentText = value;
+                                                                                        });
+                                                                                      },
+                                                                                      decoration: const InputDecoration(
+                                                                                        hintText: 'Add your comments (optional)',
+                                                                                        border: OutlineInputBorder(),
+                                                                                      ),
+                                                                                      maxLines: null,
+                                                                                      keyboardType: TextInputType.multiline,
+                                                                                    ),
+                                                                                  ],
+                                                                                ),
+                                                                                actions: <Widget>[
+                                                                                  TextButton(
+                                                                                    onPressed: () async {
+                                                                                      Review review = Review(
+                                                                                        reviewerUserType: 'Customer',
+                                                                                        driverId: driverId?.toString() ??
+                                                                                            'Unknown Driver',
+                                                                                        driverName: driverName,
+                                                                                        orderId: orderKey ?? 'Unknown Order',
+                                                                                        rating: double.parse(
+                                                                                            rating?.toString() ?? '0.0'),
+                                                                                        customerId: userId ?? 'Unknown User',
+                                                                                        customerName: user!.displayName ?? '',
+                                                                                        message:
+                                                                                            commentText ?? 'No comment provided',
+                                                                                        timestamp: DateTime.now().toString(),
+                                                                                      );
+                                                                                      await insertReview(review).then((value) {
+                                                                                        Navigator.pop(context);
+                                                                                        Navigator.push(
+                                                                                          context,
+                                                                                          MaterialPageRoute(
+                                                                                              builder: (context) =>
+                                                                                                  const DashboardScreen()),
+                                                                                        );
+                                                                                        //Navigator.pop(context);
+                                                                                      });
+                                                                                    },
+                                                                                    child: const Text('Submit'),
+                                                                                  ),
+                                                                                ],
+                                                                              );
+                                                                            },
+                                                                          );
+                                                                        }
+                                                                      } else {
+                                                                        print("Status not found in data.");
+                                                                      }
+                                                                    } else {
+                                                                      print("Data is null or not in the expected format.");
+                                                                    }
+                                                                  });
+                                                                });
+                                                              },
+                                                            );
+                                                          }
+                                                        },
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          );
+                                        });
+                                      },
+                                    ).then((value) {
+                                      print('dialog is closed');
+                                    });
+                                    // here
+                                  });
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Please fill in required data'),
+                                      duration: Duration(milliseconds: 500),
+                                    ),
+                                  );
+                                }
+                              },
+                              style: TextButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                padding: const EdgeInsets.all(15.0),
+                              ),
+                              child: const Text(
+                                'Book Now',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          OutlinedButton(
                             onPressed: () {
-                              if (vehicleType.isNotEmpty &&
-                                  netWeight != null &&
-                                  (startingGeopoint.latitude != 0 &&
-                                      startingGeopoint.longitude != 0 &&
-                                      endingGeopoint.latitude != 0 &&
-                                      endingGeopoint.longitude != 0)) {
+                              // Select Date Function for schedule function. For Reference, see _selectDateAndTime function above.
+                              _selectDateAndTime().then((dateTime) {
                                 Order order = Order(
                                   name: user?.displayName ?? "No Name",
-                                  date: DateTime.now().toString(),
+                                  date: dateTime.toString(),
                                   startingGeoPoint: {
                                     'location': startingPoint,
                                     'longitude': startingGeopoint.longitude.toString(),
@@ -774,648 +1277,254 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   status: 'PROPOSE',
                                   uid: user?.uid ?? "No UID",
                                   vehicleType: vehicleType,
-                                  isScheduled: false,
+                                  isScheduled: true,
                                   netWeight: netWeight!,
                                   driverId: '',
                                   rate: rate,
                                   isRated: false,
+                                  noteToRider: noteToRider,
                                 );
-                                // By clicking Order Now button, this function triggers calling the insertOrder function.
-                                insertOrder(order).then((orderKey) async {
-                                  showDialog(
-                                    context: context,
-                                    barrierDismissible: false,
-                                    builder: (BuildContext context) {
-                                      DatabaseReference userRef = FirebaseDatabase.instance.ref('user');
+                                // By clicking Schedule Order button, this function triggers calling the insertOrder function. See insertOrder function above.
+                                if (dateTime != null) {
+                                  insertOrder(order).then((orderKey) {
+                                    showDialog(
+                                      context: context,
+                                      barrierDismissible: false,
+                                      builder: (BuildContext context) {
+                                        DatabaseReference userRef = FirebaseDatabase.instance.ref('user');
 
-                                      return StatefulBuilder(builder: (context, setState) {
-                                        // Showing the available driver pop up
-                                        return AlertDialog(
-                                          title: const Text('Available Riders'),
-                                          content: Container(
-                                            width: double.maxFinite,
-                                            child: Stack(
-                                              children: [
-                                                Padding(
-                                                  padding: const EdgeInsets.only(top: 8.0),
-                                                  child: Row(
-                                                    children: [
-                                                      Padding(
-                                                        padding: const EdgeInsets.only(left: 5, right: 5),
-                                                        child: ActionChip(
-                                                          avatar: _rateFilterState == 1
-                                                              ? const Icon(
-                                                                  Icons.arrow_downward_outlined,
-                                                                  color: Colors.black,
-                                                                )
-                                                              : const Icon(
-                                                                  Icons.arrow_upward_outlined,
-                                                                  color: Colors.black,
-                                                                ),
-                                                          label: const Text('Rating'),
-                                                          backgroundColor:
-                                                              _activeChip == 0 ? Colors.transparent : Colors.transparent,
-                                                          onPressed: () {
-                                                            setState(() {
-                                                              _activeChip = 0;
-                                                              if (_rateFilterState == 0) {
-                                                                _userList.sort((a, b) {
-                                                                  // Ensure that both maps have the 'driverSelfRating' key before comparing
-                                                                  if (a.containsKey('driverRating') &&
-                                                                      b.containsKey('driverRating')) {
-                                                                    return b['driverRating'].compareTo(a['driverRating']);
-                                                                  } else if (a.containsKey('driverRating')) {
-                                                                    return -1; // a comes before b if only a has driverSelfRating
-                                                                  } else if (b.containsKey('driverRating')) {
-                                                                    return 1; // b comes before a if only b has driverSelfRating
-                                                                  } else {
-                                                                    return 0; // both are equal if neither has driverSelfRating
-                                                                  }
-                                                                });
-                                                                _rateFilterState = 1;
-                                                              } else if (_rateFilterState == 1) {
-                                                                _userList.sort((a, b) {
-                                                                  // Ensure that both maps have the 'driverRating' key before comparing
-                                                                  if (a.containsKey('driverRating') &&
-                                                                      b.containsKey('driverRating')) {
-                                                                    return a['driverRating'].compareTo(b['driverRating']);
-                                                                  } else if (a.containsKey('driverRating')) {
-                                                                    return -1; // a comes before b if only a has driverRating
-                                                                  } else if (b.containsKey('driverRating')) {
-                                                                    return 1; // b comes before a if only b has driverRating
-                                                                  } else {
-                                                                    return 0; // both are equal if neither has driverRating
-                                                                  }
-                                                                });
-                                                                _rateFilterState = 0;
-                                                              }
-                                                            });
-                                                            print(_userList);
-                                                          },
-                                                        ),
-                                                      ),
-                                                      Padding(
-                                                        padding: const EdgeInsets.only(left: 5, right: 5),
-                                                        child: ActionChip(
-                                                          avatar: _chargeFilterState == 1
-                                                              ? const Icon(
-                                                                  Icons.arrow_downward_outlined,
-                                                                  color: Colors.black,
-                                                                )
-                                                              : const Icon(
-                                                                  Icons.arrow_upward_outlined,
-                                                                  color: Colors.black,
-                                                                ),
-                                                          label: const Text('Charge'),
-                                                          backgroundColor:
-                                                              _activeChip == 1 ? Colors.transparent : Colors.transparent,
-                                                          onPressed: () {
-                                                            print(_chargeFilterState);
-                                                            setState(() {
-                                                              _activeChip = 1;
-                                                              if (_chargeFilterState == 0) {
-                                                                _userList.sort((a, b) {
-                                                                  // Ensure that both maps have the 'driverSelfRating' key before comparing
-                                                                  if (a.containsKey('driverSelfRating') &&
-                                                                      b.containsKey('driverSelfRating')) {
-                                                                    return b['driverSelfRating'].compareTo(a['driverSelfRating']);
-                                                                  } else if (a.containsKey('driverSelfRating')) {
-                                                                    return -1; // a comes before b if only a has driverSelfRating
-                                                                  } else if (b.containsKey('driverSelfRating')) {
-                                                                    return 1; // b comes before a if only b has driverSelfRating
-                                                                  } else {
-                                                                    return 0; // both are equal if neither has driverSelfRating
-                                                                  }
-                                                                });
-                                                                _chargeFilterState = 1;
-                                                              } else if (_chargeFilterState == 1) {
-                                                                _userList.sort((a, b) {
-                                                                  // Ensure that both maps have the 'driverRating' key before comparing
-                                                                  if (a.containsKey('driverSelfRating') &&
-                                                                      b.containsKey('driverSelfRating')) {
-                                                                    return a['driverSelfRating'].compareTo(b['driverSelfRating']);
-                                                                  } else if (a.containsKey('driverSelfRating')) {
-                                                                    return -1; // a comes before b if only a has driverRating
-                                                                  } else if (b.containsKey('driverSelfRating')) {
-                                                                    return 1; // b comes before a if only b has driverRating
-                                                                  } else {
-                                                                    return 0; // both are equal if neither has driverRating
-                                                                  }
-                                                                });
-                                                                _chargeFilterState = 0;
-                                                              }
-                                                            });
-                                                          },
-                                                        ),
-                                                      )
-                                                    ],
-                                                  ),
-                                                ),
-                                                Padding(
-                                                  padding: const EdgeInsets.only(top: 50.0),
-                                                  child: SizedBox(
-                                                    width: double.maxFinite,
-                                                    child: ListView.builder(
-                                                      itemCount: _userList.length,
-                                                      itemBuilder: (BuildContext context, int index) {
-                                                        final drivers = _userList[index];
-                                                        return ListTile(
-                                                          leading: CircleAvatar(
-                                                            backgroundImage: drivers['profilePictureUrl'] != null &&
-                                                                    drivers['profilePictureUrl'] != ''
-                                                                ? NetworkImage(drivers['profilePictureUrl'])
-                                                                : null,
-                                                          ),
-                                                          title: Text(drivers['displayName']),
-                                                          subtitle: Column(
-                                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                                            children: [
-                                                              //Text(drivers['emailAddress']),
-                                                              Text('Rating : ${drivers['driverRating']}'),
-                                                              RatingBarIndicator(
-                                                                rating: double.parse(drivers['driverRating'].toString()),
-                                                                itemBuilder: (context, index) => const Icon(
-                                                                  Icons.star,
-                                                                  color: Colors.amber,
-                                                                ),
-                                                                itemCount: 5,
-                                                                itemSize: 15.0,
-                                                                direction: Axis.horizontal,
-                                                              ),
-                                                              Text('Charge : ${drivers['driverSelfRating'] ?? 0}')
-                                                            ],
-                                                          ),
-                                                          onTap: () {
-                                                            Proposal proposal = Proposal(uid: drivers['uid'], orderId: orderKey);
-                                                            insertProposal(proposal).then((value) {
-                                                              //Navigator.pop(context);
-                                                              DatabaseReference orderReference =
-                                                                  FirebaseDatabase.instance.ref('order/$orderKey');
-                                                              orderReference.onValue.listen((DatabaseEvent event) {
-                                                                final data = event.snapshot.value;
-                                                                print(data);
-                                                                if (data != null && data is Map<Object?, Object?>) {
-                                                                  final dynamic status = data['status'];
-                                                                  dynamic driverId = drivers['uid'];
-                                                                  dynamic orderId = data['key'];
-                                                                  dynamic userId = user?.uid;
-                                                                  String commentText = '';
-                                                                  if (status != null) {
-                                                                    print(status);
-                                                                    if (status == 'PROPOSE') {
-                                                                      showDialog(
-                                                                        context: context,
-                                                                        barrierDismissible: false,
-                                                                        builder: (BuildContext context) {
-                                                                          return const AlertDialog(
-                                                                            content: Row(
-                                                                              children: [
-                                                                                CircularProgressIndicator(),
-                                                                                SizedBox(width: 20),
-                                                                                Text("Waiting for the driver to accept"),
-                                                                              ],
-                                                                            ),
-                                                                          );
-                                                                        },
-                                                                      );
+                                        return StatefulBuilder(builder: (context, setState) {
+                                          return AlertDialog(
+                                            title: const Text('Available Riders'),
+                                            content: Container(
+                                              width: double.maxFinite,
+                                              child: Stack(
+                                                children: [
+                                                  Padding(
+                                                    padding: const EdgeInsets.only(top: 8.0),
+                                                    child: Row(
+                                                      children: [
+                                                        Padding(
+                                                          padding: const EdgeInsets.only(left: 5, right: 5),
+                                                          child: ActionChip(
+                                                            avatar: _rateFilterState == 1
+                                                                ? const Icon(
+                                                                    Icons.arrow_upward_outlined,
+                                                                    color: Colors.black,
+                                                                  )
+                                                                : const Icon(
+                                                                    Icons.arrow_downward_outlined,
+                                                                    color: Colors.black,
+                                                                  ),
+                                                            label: const Text('Rating'),
+                                                            backgroundColor:
+                                                                _activeChip == 0 ? Colors.transparent : Colors.transparent,
+                                                            onPressed: () {
+                                                              setState(() {
+                                                                _activeChip = 0;
+                                                                if (_rateFilterState == 0) {
+                                                                  _userList.sort((a, b) {
+                                                                    // Ensure that both maps have the 'driverSelfRating' key before comparing
+                                                                    if (a.containsKey('driverRating') &&
+                                                                        b.containsKey('driverRating')) {
+                                                                      return b['driverRating'].compareTo(a['driverRating']);
+                                                                    } else if (a.containsKey('driverRating')) {
+                                                                      return -1; // a comes before b if only a has driverSelfRating
+                                                                    } else if (b.containsKey('driverRating')) {
+                                                                      return 1; // b comes before a if only b has driverSelfRating
+                                                                    } else {
+                                                                      return 0; // both are equal if neither has driverSelfRating
                                                                     }
-                                                                    if (status == 'ACCEPTED') {
-                                                                      print('driver id here');
-                                                                      print(data);
-                                                                      Navigator.pop(context);
-                                                                      showDialog(
-                                                                        context: context,
-                                                                        barrierDismissible: false,
-                                                                        builder: (BuildContext context) {
-                                                                          return const AlertDialog(
-                                                                            content: Row(
-                                                                              children: [
-                                                                                CircularProgressIndicator(),
-                                                                                SizedBox(width: 20),
-                                                                                Text("Driver is on the way ..."),
-                                                                              ],
-                                                                            ),
-                                                                          );
-                                                                        },
-                                                                      );
+                                                                  });
+                                                                  _rateFilterState = 1;
+                                                                } else if (_rateFilterState == 1) {
+                                                                  _userList.sort((a, b) {
+                                                                    // Ensure that both maps have the 'driverRating' key before comparing
+                                                                    if (a.containsKey('driverRating') &&
+                                                                        b.containsKey('driverRating')) {
+                                                                      return a['driverRating'].compareTo(b['driverRating']);
+                                                                    } else if (a.containsKey('driverRating')) {
+                                                                      return -1; // a comes before b if only a has driverRating
+                                                                    } else if (b.containsKey('driverRating')) {
+                                                                      return 1; // b comes before a if only b has driverRating
+                                                                    } else {
+                                                                      return 0; // both are equal if neither has driverRating
                                                                     }
-                                                                    if (status == 'CANCELED') {
-                                                                      print('driver id here');
-                                                                      print(data);
-                                                                      Navigator.pop(context);
-                                                                      showDialog(
-                                                                        context: context,
-                                                                        barrierDismissible: false,
-                                                                        builder: (BuildContext context) {
-                                                                          return const AlertDialog(
-                                                                            content: Row(
-                                                                              children: [
-                                                                                CircularProgressIndicator(),
-                                                                                SizedBox(width: 20),
-                                                                                Text("Driver canceled the request!"),
-                                                                              ],
-                                                                            ),
-                                                                          );
-                                                                        },
-                                                                      );
-                                                                      Future.delayed(const Duration(seconds: 2), () {
-                                                                        Navigator.pop(context); // Close the loading dialog
-                                                                        Navigator.pop(context);
-                                                                      });
-                                                                    }
-                                                                    if (status == 'COMPLETED') {
-                                                                      Navigator.pop(context);
-                                                                      ScaffoldMessenger.of(context).showSnackBar(
-                                                                        const SnackBar(content: Text('Order is complete!')),
-                                                                      );
-                                                                      // Show the rating pop-up here
-                                                                      showDialog(
-                                                                        context: context,
-                                                                        barrierDismissible: false,
-                                                                        builder: (BuildContext context) {
-                                                                          int rating = 0; // Initialize the rating variable
-
-                                                                          return AlertDialog(
-                                                                            title: const Text('Rate the Rider'),
-                                                                            content: Column(
-                                                                              mainAxisSize: MainAxisSize.min,
-                                                                              children: [
-                                                                                const Text(
-                                                                                    'Please rate the rider for this order:'),
-                                                                                // Star rating widget
-                                                                                RatingBar.builder(
-                                                                                  initialRating: rating.toDouble(),
-                                                                                  minRating: 1,
-                                                                                  direction: Axis.horizontal,
-                                                                                  allowHalfRating: false,
-                                                                                  itemCount: 5,
-                                                                                  itemSize: 40,
-                                                                                  itemBuilder: (context, _) => const Icon(
-                                                                                    Icons.star,
-                                                                                    color: Colors.amber,
-                                                                                  ),
-                                                                                  onRatingUpdate: (value) {
-                                                                                    rating =
-                                                                                        value.toInt(); // Update the rating value
-                                                                                  },
-                                                                                ),
-                                                                                const SizedBox(height: 20),
-                                                                                // Text input for comments
-                                                                                TextFormField(
-                                                                                  onChanged: (value) {
-                                                                                    setState(() {
-                                                                                      commentText = value;
-                                                                                    });
-                                                                                  },
-                                                                                  decoration: const InputDecoration(
-                                                                                    hintText: 'Add your comments (optional)',
-                                                                                    border: OutlineInputBorder(),
-                                                                                  ),
-                                                                                  maxLines: null,
-                                                                                  keyboardType: TextInputType.multiline,
-                                                                                ),
-                                                                              ],
-                                                                            ),
-                                                                            actions: <Widget>[
-                                                                              TextButton(
-                                                                                onPressed: () async {
-                                                                                  Review review = Review(
-                                                                                    reviewerId:
-                                                                                        driverId?.toString() ?? 'Unknown Driver',
-                                                                                    orderId: orderId ?? 'Unknown Order',
-                                                                                    rating:
-                                                                                        double.parse(rating?.toString() ?? '0.0'),
-                                                                                    revieweeId: userId ?? 'Unknown User',
-                                                                                    message: commentText ?? 'No comment provided',
-                                                                                  );
-                                                                                  await insertReview(review).then((value) {
-                                                                                    Navigator.pop(context);
-                                                                                    Navigator.push(
-                                                                                      context,
-                                                                                      MaterialPageRoute(
-                                                                                          builder: (context) =>
-                                                                                              const DashboardScreen()),
-                                                                                    );
-                                                                                    //Navigator.pop(context);
-                                                                                  });
-                                                                                },
-                                                                                child: const Text('Submit'),
-                                                                              ),
-                                                                            ],
-                                                                          );
-                                                                        },
-                                                                      );
-                                                                    }
-                                                                  } else {
-                                                                    print("Status not found in data.");
-                                                                  }
-                                                                } else {
-                                                                  print("Data is null or not in the expected format.");
+                                                                  });
+                                                                  _rateFilterState = 0;
                                                                 }
                                                               });
-                                                            });
-                                                          },
-                                                        );
-                                                      },
+                                                              print(_userList);
+                                                            },
+                                                          ),
+                                                        ),
+                                                        Padding(
+                                                          padding: const EdgeInsets.only(left: 5, right: 5),
+                                                          child: ActionChip(
+                                                            avatar: _chargeFilterState == 1
+                                                                ? const Icon(
+                                                                    Icons.arrow_upward_outlined,
+                                                                    color: Colors.black,
+                                                                  )
+                                                                : const Icon(
+                                                                    Icons.arrow_downward_outlined,
+                                                                    color: Colors.black,
+                                                                  ),
+                                                            label: const Text('Charge'),
+                                                            backgroundColor:
+                                                                _activeChip == 1 ? Colors.transparent : Colors.transparent,
+                                                            onPressed: () {
+                                                              print(_chargeFilterState);
+                                                              setState(() {
+                                                                _activeChip = 1;
+                                                                if (_chargeFilterState == 0) {
+                                                                  _userList.sort((a, b) {
+                                                                    // Ensure that both maps have the 'driverSelfRating' key before comparing
+                                                                    if (a.containsKey('driverSelfRating') &&
+                                                                        b.containsKey('driverSelfRating')) {
+                                                                      return b['driverSelfRating']
+                                                                          .compareTo(a['driverSelfRating']);
+                                                                    } else if (a.containsKey('driverSelfRating')) {
+                                                                      return -1; // a comes before b if only a has driverSelfRating
+                                                                    } else if (b.containsKey('driverSelfRating')) {
+                                                                      return 1; // b comes before a if only b has driverSelfRating
+                                                                    } else {
+                                                                      return 0; // both are equal if neither has driverSelfRating
+                                                                    }
+                                                                  });
+                                                                  _chargeFilterState = 1;
+                                                                } else if (_chargeFilterState == 1) {
+                                                                  _userList.sort((a, b) {
+                                                                    // Ensure that both maps have the 'driverRating' key before comparing
+                                                                    if (a.containsKey('driverSelfRating') &&
+                                                                        b.containsKey('driverSelfRating')) {
+                                                                      return a['driverSelfRating']
+                                                                          .compareTo(b['driverSelfRating']);
+                                                                    } else if (a.containsKey('driverSelfRating')) {
+                                                                      return -1; // a comes before b if only a has driverRating
+                                                                    } else if (b.containsKey('driverSelfRating')) {
+                                                                      return 1; // b comes before a if only b has driverRating
+                                                                    } else {
+                                                                      return 0; // both are equal if neither has driverRating
+                                                                    }
+                                                                  });
+                                                                  _chargeFilterState = 0;
+                                                                }
+                                                              });
+                                                            },
+                                                          ),
+                                                        )
+                                                      ],
                                                     ),
                                                   ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        );
-                                      });
-                                    },
-                                  ).then((value) {
-                                    print('dialog is closed');
-                                  });
-                                  // here
-                                });
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Please fill in required data'),
-                                    duration: Duration(milliseconds: 500),
-                                  ),
-                                );
-                              }
-                            },
-                            style: TextButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              padding: const EdgeInsets.all(15.0),
-                            ),
-                            child: const Text(
-                              'Book Now',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10), // Add spacing between buttons
-                        // Scheduled Order Button. Design and logic is here
-                        OutlinedButton(
-                          onPressed: () {
-                            // Select Date Function for schedule function. For Reference, see _selectDateAndTime function above.
-                            _selectDateAndTime().then((dateTime) {
-                              Order order = Order(
-                                name: user?.displayName ?? "No Name",
-                                date: dateTime.toString(),
-                                startingGeoPoint: {
-                                  'location': startingPoint,
-                                  'longitude': startingGeopoint.longitude.toString(),
-                                  'latitude': startingGeopoint.latitude.toString()
-                                },
-                                endingGeoPoint: {
-                                  'location': endPoint,
-                                  'longitude': endingGeopoint.longitude.toString(),
-                                  'latitude': endingGeopoint.latitude.toString()
-                                },
-                                distance: distance.toString(),
-                                status: 'PROPOSE',
-                                uid: user?.uid ?? "No UID",
-                                vehicleType: vehicleType,
-                                isScheduled: true,
-                                netWeight: netWeight!,
-                                driverId: '',
-                                rate: rate,
-                                isRated: false,
-                              );
-                              // By clicking Schedule Order button, this function triggers calling the insertOrder function. See insertOrder function above.
-                              if (dateTime != null) {
-                                insertOrder(order).then((orderKey) {
-                                  showDialog(
-                                    context: context,
-                                    barrierDismissible: false,
-                                    builder: (BuildContext context) {
-                                      DatabaseReference userRef = FirebaseDatabase.instance.ref('user');
-
-                                      return StatefulBuilder(builder: (context, setState) {
-                                        return AlertDialog(
-                                          title: const Text('Available Riders'),
-                                          content: Container(
-                                            width: double.maxFinite,
-                                            child: Stack(
-                                              children: [
-                                                Padding(
-                                                  padding: const EdgeInsets.only(top: 8.0),
-                                                  child: Row(
-                                                    children: [
-                                                      Padding(
-                                                        padding: const EdgeInsets.only(left: 5, right: 5),
-                                                        child: ActionChip(
-                                                          avatar: _rateFilterState == 1
-                                                              ? const Icon(
-                                                                  Icons.arrow_upward_outlined,
-                                                                  color: Colors.black,
-                                                                )
-                                                              : const Icon(
-                                                                  Icons.arrow_downward_outlined,
-                                                                  color: Colors.black,
-                                                                ),
-                                                          label: const Text('Rating'),
-                                                          backgroundColor:
-                                                              _activeChip == 0 ? Colors.transparent : Colors.transparent,
-                                                          onPressed: () {
-                                                            setState(() {
-                                                              _activeChip = 0;
-                                                              if (_rateFilterState == 0) {
-                                                                _userList.sort((a, b) {
-                                                                  // Ensure that both maps have the 'driverSelfRating' key before comparing
-                                                                  if (a.containsKey('driverRating') &&
-                                                                      b.containsKey('driverRating')) {
-                                                                    return b['driverRating'].compareTo(a['driverRating']);
-                                                                  } else if (a.containsKey('driverRating')) {
-                                                                    return -1; // a comes before b if only a has driverSelfRating
-                                                                  } else if (b.containsKey('driverRating')) {
-                                                                    return 1; // b comes before a if only b has driverSelfRating
-                                                                  } else {
-                                                                    return 0; // both are equal if neither has driverSelfRating
-                                                                  }
-                                                                });
-                                                                _rateFilterState = 1;
-                                                              } else if (_rateFilterState == 1) {
-                                                                _userList.sort((a, b) {
-                                                                  // Ensure that both maps have the 'driverRating' key before comparing
-                                                                  if (a.containsKey('driverRating') &&
-                                                                      b.containsKey('driverRating')) {
-                                                                    return a['driverRating'].compareTo(b['driverRating']);
-                                                                  } else if (a.containsKey('driverRating')) {
-                                                                    return -1; // a comes before b if only a has driverRating
-                                                                  } else if (b.containsKey('driverRating')) {
-                                                                    return 1; // b comes before a if only b has driverRating
-                                                                  } else {
-                                                                    return 0; // both are equal if neither has driverRating
-                                                                  }
-                                                                });
-                                                                _rateFilterState = 0;
-                                                              }
-                                                            });
-                                                            print(_userList);
-                                                          },
-                                                        ),
-                                                      ),
-                                                      Padding(
-                                                        padding: const EdgeInsets.only(left: 5, right: 5),
-                                                        child: ActionChip(
-                                                          avatar: _chargeFilterState == 1
-                                                              ? const Icon(
-                                                                  Icons.arrow_upward_outlined,
-                                                                  color: Colors.black,
-                                                                )
-                                                              : const Icon(
-                                                                  Icons.arrow_downward_outlined,
-                                                                  color: Colors.black,
-                                                                ),
-                                                          label: const Text('Charge'),
-                                                          backgroundColor:
-                                                              _activeChip == 1 ? Colors.transparent : Colors.transparent,
-                                                          onPressed: () {
-                                                            print(_chargeFilterState);
-                                                            setState(() {
-                                                              _activeChip = 1;
-                                                              if (_chargeFilterState == 0) {
-                                                                _userList.sort((a, b) {
-                                                                  // Ensure that both maps have the 'driverSelfRating' key before comparing
-                                                                  if (a.containsKey('driverSelfRating') &&
-                                                                      b.containsKey('driverSelfRating')) {
-                                                                    return b['driverSelfRating'].compareTo(a['driverSelfRating']);
-                                                                  } else if (a.containsKey('driverSelfRating')) {
-                                                                    return -1; // a comes before b if only a has driverSelfRating
-                                                                  } else if (b.containsKey('driverSelfRating')) {
-                                                                    return 1; // b comes before a if only b has driverSelfRating
-                                                                  } else {
-                                                                    return 0; // both are equal if neither has driverSelfRating
-                                                                  }
-                                                                });
-                                                                _chargeFilterState = 1;
-                                                              } else if (_chargeFilterState == 1) {
-                                                                _userList.sort((a, b) {
-                                                                  // Ensure that both maps have the 'driverRating' key before comparing
-                                                                  if (a.containsKey('driverSelfRating') &&
-                                                                      b.containsKey('driverSelfRating')) {
-                                                                    return a['driverSelfRating'].compareTo(b['driverSelfRating']);
-                                                                  } else if (a.containsKey('driverSelfRating')) {
-                                                                    return -1; // a comes before b if only a has driverRating
-                                                                  } else if (b.containsKey('driverSelfRating')) {
-                                                                    return 1; // b comes before a if only b has driverRating
-                                                                  } else {
-                                                                    return 0; // both are equal if neither has driverRating
-                                                                  }
-                                                                });
-                                                                _chargeFilterState = 0;
-                                                              }
-                                                            });
-                                                          },
-                                                        ),
-                                                      )
-                                                    ],
-                                                  ),
-                                                ),
-                                                Padding(
-                                                  padding: const EdgeInsets.only(top: 50.0),
-                                                  child: SizedBox(
-                                                    width: double.maxFinite,
-                                                    child: ListView.builder(
-                                                      itemCount: _userList.length,
-                                                      itemBuilder: (BuildContext context, int index) {
-                                                        final drivers = _userList[index];
-                                                        return ListTile(
-                                                          leading: CircleAvatar(
-                                                            backgroundImage: drivers['profilePictureUrl'] != null &&
-                                                                    drivers['profilePictureUrl'] != ''
-                                                                ? NetworkImage(drivers['profilePictureUrl'])
-                                                                : null,
-                                                          ),
-                                                          title: Text(drivers['displayName']),
-                                                          subtitle: Column(
-                                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                                            children: [
-                                                              //Text(drivers['emailAddress']),
-                                                              Text('Rating : ${drivers['driverRating']}'),
-                                                              RatingBarIndicator(
-                                                                rating: double.parse(drivers['driverRating'].toString()),
-                                                                itemBuilder: (context, index) => const Icon(
-                                                                  Icons.star,
-                                                                  color: Colors.amber,
-                                                                ),
-                                                                itemCount: 5,
-                                                                itemSize: 15.0,
-                                                                direction: Axis.horizontal,
+                                                  Padding(
+                                                    padding: const EdgeInsets.only(top: 50.0),
+                                                    child: SizedBox(
+                                                      width: double.maxFinite,
+                                                      child: ListView.builder(
+                                                        itemCount: _userList.length,
+                                                        itemBuilder: (BuildContext context, int index) {
+                                                          print(_userList[index]);
+                                                          dynamic drivers;
+                                                          if (_userList[index]['vehicle'] == order.vehicleType) {
+                                                            drivers = _userList[index];
+                                                            return ListTile(
+                                                              leading: CircleAvatar(
+                                                                backgroundImage: drivers['profilePictureUrl'] != null &&
+                                                                        drivers['profilePictureUrl'] != ''
+                                                                    ? NetworkImage(drivers['profilePictureUrl'])
+                                                                    : null,
                                                               ),
-                                                              Text('Charge : ${drivers['driverSelfRating'] ?? 0}')
-                                                            ],
-                                                          ),
-                                                          onTap: () {
-                                                            Proposal proposal = Proposal(uid: drivers['uid'], orderId: orderKey);
-                                                            insertProposal(proposal).then((value) {
-                                                              //Navigator.pop(context);
-                                                              DatabaseReference orderReference =
-                                                                  FirebaseDatabase.instance.ref('order/$orderKey');
+                                                              title: Text(drivers['displayName']),
+                                                              subtitle: Column(
+                                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                                children: [
+                                                                  //Text(drivers['emailAddress']),
+                                                                  Text('Rating : ${drivers['driverRating']}'),
+                                                                  RatingBarIndicator(
+                                                                    rating: double.parse(drivers['driverRating'].toString()),
+                                                                    itemBuilder: (context, index) => const Icon(
+                                                                      Icons.star,
+                                                                      color: Colors.amber,
+                                                                    ),
+                                                                    itemCount: 5,
+                                                                    itemSize: 15.0,
+                                                                    direction: Axis.horizontal,
+                                                                  ),
+                                                                  Text('Charge : ${drivers['driverSelfRating'] ?? 0}')
+                                                                ],
+                                                              ),
+                                                              onTap: () {
+                                                                Proposal proposal =
+                                                                    Proposal(uid: drivers['uid'], orderId: orderKey);
+                                                                insertProposal(proposal).then((value) {
+                                                                  //Navigator.pop(context);
+                                                                  DatabaseReference orderReference =
+                                                                      FirebaseDatabase.instance.ref('order/$orderKey');
 
-                                                              orderReference.update({'driverId': drivers['uid']});
-                                                              orderReference.onValue.listen((DatabaseEvent event) {
-                                                                final data = event.snapshot.value;
-                                                                print(data);
-                                                                if (data != null && data is Map<Object?, Object?>) {
-                                                                  final dynamic status = data['status'];
-                                                                  dynamic driverId = drivers['uid'];
-                                                                  dynamic orderId = data['key'];
-                                                                  dynamic userId = user?.uid;
-                                                                  String commentText = '';
+                                                                  orderReference.update({'driverId': drivers['uid']});
+                                                                  orderReference.onValue.listen((DatabaseEvent event) {
+                                                                    final data = event.snapshot.value;
+                                                                    print(data);
+                                                                    if (data != null && data is Map<Object?, Object?>) {
+                                                                      final dynamic status = data['status'];
+                                                                      dynamic driverId = drivers['uid'];
+                                                                      dynamic orderId = data['key'];
+                                                                      dynamic userId = user?.uid;
+                                                                      String commentText = '';
 
-                                                                  Navigator.pop(context);
-                                                                  Navigator.push(
-                                                                    context,
-                                                                    MaterialPageRoute(
-                                                                        builder: (context) => const DashboardScreen()),
-                                                                  );
+                                                                      Navigator.pop(context);
+                                                                      Navigator.push(
+                                                                        context,
+                                                                        MaterialPageRoute(
+                                                                            builder: (context) => const DashboardScreen()),
+                                                                      );
 
+                                                                      if (status != null) {
+                                                                        print(status);
+                                                                      } else {
+                                                                        print("Status not found in data.");
+                                                                      }
+                                                                    } else {
+                                                                      print("Data is null or not in the expected format.");
+                                                                    }
+                                                                  });
                                                                   ScaffoldMessenger.of(context).showSnackBar(
                                                                     const SnackBar(content: Text('Order Scheduled!')),
                                                                   );
-                                                                  if (status != null) {
-                                                                    print(status);
-                                                                  } else {
-                                                                    print("Status not found in data.");
-                                                                  }
-                                                                } else {
-                                                                  print("Data is null or not in the expected format.");
-                                                                }
-                                                              });
-                                                            });
-                                                          },
-                                                        );
-                                                      },
+                                                                });
+                                                              },
+                                                            );
+                                                          }
+                                                        },
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
-                                              ],
+                                                ],
+                                              ),
                                             ),
-                                          ),
-                                        );
-                                      });
-                                    },
-                                  );
-                                });
-                              }
-                            });
-                          },
-                          style: TextButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: Colors.black54,
-                            padding: const EdgeInsets.only(top: 15.0, bottom: 15.0),
+                                          );
+                                        });
+                                      },
+                                    );
+                                  });
+                                }
+                              });
+                            },
+                            style: TextButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: Colors.black54,
+                              padding: const EdgeInsets.only(top: 15.0, bottom: 15.0),
+                            ),
+                            child: const Icon(
+                              Icons.timer_outlined,
+                              size: 30.0,
+                            ),
                           ),
-                          child: const Icon(
-                            Icons.timer_outlined,
-                            size: 30.0,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

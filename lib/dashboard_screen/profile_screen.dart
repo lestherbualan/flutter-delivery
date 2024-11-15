@@ -66,7 +66,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _driverSelfRate.text = currentUser['driverSelfRating'];
       _usernameController.text = user?.email ?? '';
       _phoneController.text = currentUser['contactNumber'] ?? '';
-      vehicleType = currentUser['vehicle'] ?? '';
+      if (currentUser.containsKey('vehicle')) {
+        vehicleType = currentUser['vehicle'] ?? '';
+      } else {
+        vehicleType = 'Bike';
+      }
     });
   }
 
@@ -209,14 +213,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         controller: _displayNameController,
                       ),
-                      ProfileInputField(
-                        labelText: 'Phone Number',
-                        hintText: 'Please enter your contact number',
-                        icon: const Padding(
-                          padding: EdgeInsets.only(left: 10),
-                          child: Icon(Icons.phone_android_outlined),
+                      Visibility(
+                        visible: !currentUser['isRider'],
+                        child: ProfileInputField(
+                          labelText: 'Phone Number',
+                          hintText: 'Please enter your contact number',
+                          icon: const Padding(
+                            padding: EdgeInsets.only(left: 10),
+                            child: Icon(Icons.phone_android_outlined),
+                          ),
+                          controller: _phoneController,
                         ),
-                        controller: _phoneController,
                       ),
                       Visibility(
                         visible: currentUser['isRider'],
@@ -265,7 +272,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             ),
                                           ))
                                       .toList(),
-                                  value: vehicleType == null ? vehicleType : 'Motorcycle',
+                                  value: vehicleType,
                                   onChanged: (String? value) {
                                     setState(() {
                                       vehicleType = value!;
@@ -280,7 +287,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       border: Border.all(
                                         color: Colors.black,
                                       ),
-                                      color: Colors.white60,
+                                      //color: Colors.white60,
                                     ),
                                   ),
                                   menuItemStyleData: const MenuItemStyleData(
