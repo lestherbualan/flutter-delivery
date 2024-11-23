@@ -204,7 +204,7 @@ class _RegistrationFormState extends State<RegistrationForm> {
                         driverRating: 0,
                         firstOpen: true,
                         driverSelfRating: '0',
-                        contactNumber: _phoneController.value.text == '' ? _phoneController.value.text : '',
+                        contactNumber: _phoneController.value.text,
                       );
 
                       insertUser(user).then((value) {});

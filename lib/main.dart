@@ -1,3 +1,4 @@
+import 'package:delivery/commons/review_screen.dart';
 import 'package:delivery/dashboard_screen/profile_screen.dart';
 import 'package:delivery/driver/driver_dashboard.dart';
 import 'package:delivery/firebase_options.dart';
@@ -95,7 +96,6 @@ class MyApp extends StatelessWidget {
                 );
               } else {
                 if (snapshot.hasData && snapshot.data!) {
-                  print(snapshot.data!);
                   // User is authenticated in your database
                   return ShowCaseWidget(
                       builder: (context) => const MaterialApp(

@@ -1,21 +1,47 @@
 class Review {
-  String reviewerId;
+  String reviewerUserType;
+  String driverId;
+  String driverName;
   String? message;
   String orderId;
   double rating;
-  String revieweeId;
+  String customerId;
+  String customerName;
+  String timestamp;
   Review({
-    required this.reviewerId,
+    required this.reviewerUserType,
+    required this.driverId,
+    required this.driverName,
     this.message,
     required this.orderId,
     required this.rating,
-    required this.revieweeId,
+    required this.customerId,
+    required this.customerName,
+    required this.timestamp,
   });
   Map<String, dynamic> toJson() => {
-        'driverId': reviewerId,
+        'reviewerUserType': reviewerUserType,
+        'driverId': driverId,
+        'driverName': driverName,
         'message': message,
         'orderId': orderId,
         'rating': rating,
-        'userId': revieweeId,
+        'customerId': customerId,
+        'customerName': customerName,
+        'timestamp': timestamp,
       };
+
+  factory Review.fromMap(Map<String, dynamic> data) {
+    return Review(
+      reviewerUserType: data['reviewerUserType'],
+      driverId: data['driverId'],
+      driverName: data['driverName'],
+      message: data['message'] ?? '',
+      orderId: data['orderId'],
+      rating: double.parse(data['rating'].toString()),
+      customerId: data['customerId'],
+      customerName: data['customerName'],
+      timestamp: data['timestamp'],
+    );
+  }
 }

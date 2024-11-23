@@ -1,3 +1,4 @@
+import 'package:delivery/commons/review_screen.dart';
 import 'package:delivery/dashboard_screen/profile_screen.dart';
 import 'package:delivery/driver/driver_actions.dart';
 import 'package:delivery/model/order.dart';
@@ -75,6 +76,7 @@ class _DriverDashboardState extends State<DriverDashboard> {
                 netWeight: double.parse(orderData['netWeight'].toString()),
                 rate: orderData['rate'],
                 isRated: orderData['isRated'] ? true : false,
+                noteToRider: orderData['noteToRider'] ?? '',
               );
               orderList.add(order);
             });
@@ -117,6 +119,7 @@ class _DriverDashboardState extends State<DriverDashboard> {
                     netWeight: double.parse(orderData['netWeight'].toString()),
                     rate: orderData['rate'],
                     isRated: orderData['isRated'] ? true : false,
+                    noteToRider: orderData['noteToRider'] ?? '',
                   );
                   orderList.add(order);
                 });
@@ -393,7 +396,7 @@ class _DriverDashboardState extends State<DriverDashboard> {
                   right: 10, // Adjust position as needed
                   child: Container(
                     width: 180,
-                    height: 120,
+                    height: 175,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(10),
@@ -420,6 +423,22 @@ class _DriverDashboardState extends State<DriverDashboard> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) => ProfileScreen()),
+                            );
+                            toggleDropdownVisibility(); // Close dropdown after action
+                          },
+                        ),
+                        ListTile(
+                          leading: const Icon(
+                            Icons.person_2_outlined,
+                            size: 25.0,
+                            color: Colors.black,
+                          ),
+                          title: const Text('Reviews'),
+                          onTap: () {
+                            // Implement action for dropdown item 1
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const ReviewScreen()),
                             );
                             toggleDropdownVisibility(); // Close dropdown after action
                           },

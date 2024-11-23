@@ -7,6 +7,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:delivery/model/order.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DriverMap extends StatefulWidget {
   final Order orderInformation;
@@ -28,10 +29,16 @@ class _DriverMapState extends State<DriverMap> {
   bool accepted = false;
   Color containerColor = Colors.blue;
   User? user = FirebaseAuth.instance.currentUser;
+  String? customerContact;
 
   @override
   void initState() {
     super.initState();
+    getCustomerContact(widget.orderInformation.uid).then((onValue) {
+      setState(() {
+        customerContact = onValue['contactNumber'];
+      });
+    });
     Future.delayed(const Duration(milliseconds: 500), () {
       widget.controller.addMarker(
         GeoPoint(
@@ -84,6 +91,13 @@ class _DriverMapState extends State<DriverMap> {
     if (widget.orderInformation.status == 'ACCEPTED') {
       containerColor = Color.fromARGB(255, 22, 198, 113);
     }
+    print(widget.orderInformation.noteToRider);
+  }
+
+  Future getCustomerContact(String uid) async {
+    final ref = FirebaseDatabase.instance.ref();
+    final snapshot = await ref.child("user/$uid").get();
+    return snapshot.value;
   }
 
   Future insertReview(Review review) async {
@@ -97,7 +111,7 @@ class _DriverMapState extends State<DriverMap> {
       Map<dynamic, dynamic> reviews = reviewSnapshot.value as Map<dynamic, dynamic>;
 
       reviews.forEach((key, value) {
-        if (value['driverId'] == review.reviewerId) {
+        if (value['driverId'] == review.driverId) {
           driverReviewList.add(value['rating']);
           counter++;
         }
@@ -107,7 +121,7 @@ class _DriverMapState extends State<DriverMap> {
       double calculatedRating = totalRating / counter;
       calculatedRating = double.parse(calculatedRating.toStringAsFixed(2));
 
-      DatabaseReference driver = FirebaseDatabase.instance.ref("user/${review.reviewerId}");
+      DatabaseReference driver = FirebaseDatabase.instance.ref("user/${review.customerId}");
       driver.update({'driverRating': calculatedRating});
     }).catchError((onError) => {print(onError)});
   }
@@ -161,6 +175,10 @@ class _DriverMapState extends State<DriverMap> {
     setState(() {
       containerColor = Colors.lightBlue; // Change container color to light blue
     });
+  }
+
+  String truncateWithEllipsis(int maxLength, String text) {
+    return (text.length > maxLength) ? '${text.substring(0, maxLength)}...' : text;
   }
 
   @override
@@ -255,9 +273,42 @@ class _DriverMapState extends State<DriverMap> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      'Distance: ${double.parse(widget.orderInformation.distance).toStringAsFixed(3)} km',
-                      style: const TextStyle(color: Colors.black, fontSize: 18.0),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Distance: ${double.parse(widget.orderInformation.distance).toStringAsFixed(3)} km',
+                          style: const TextStyle(color: Colors.black, fontSize: 18.0),
+                        ),
+                        GestureDetector(
+                          onTap: () async {
+                            final Uri phoneUri = Uri(scheme: 'tel', path: customerContact);
+                            await launchUrl(phoneUri);
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.only(left: 15.0, right: 15.0, top: 5.0, bottom: 5.0),
+                            decoration: BoxDecoration(
+                              color: Colors.white60,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(width: 0.8),
+                            ),
+                            child: Row(
+                              children: [
+                                Text(
+                                  customerContact ?? '',
+                                  style: const TextStyle(color: Colors.black, fontSize: 18.0),
+                                ),
+                                const SizedBox(width: 8),
+                                const Icon(
+                                  Icons.call_made,
+                                  size: 20.0,
+                                  color: Colors.black87,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 8),
                     Row(
@@ -265,7 +316,7 @@ class _DriverMapState extends State<DriverMap> {
                       children: [
                         // Container for Distance
                         Container(
-                          width: MediaQuery.of(context).size.width * 0.4, // Adjust width as needed
+                          //width: MediaQuery.of(context).size.width * 0.4, // Adjust width as needed
                           decoration: BoxDecoration(
                             color: Colors.white60,
                             borderRadius: BorderRadius.circular(10),
@@ -276,7 +327,7 @@ class _DriverMapState extends State<DriverMap> {
                             children: [
                               const Text(
                                 'Net Weight:',
-                                style: TextStyle(color: Colors.black, fontSize: 18.0),
+                                style: TextStyle(color: Colors.black, fontSize: 12.0),
                               ),
                               const SizedBox(height: 4),
                               Center(
@@ -291,7 +342,7 @@ class _DriverMapState extends State<DriverMap> {
                         const SizedBox(width: 8), // Add spacing between containers
                         // Container for Rate
                         Container(
-                          width: MediaQuery.of(context).size.width * 0.4, // Adjust width as needed
+                          //width: MediaQuery.of(context).size.width * 0.4, // Adjust width as needed
                           decoration: BoxDecoration(
                             color: Colors.white60,
                             borderRadius: BorderRadius.circular(10),
@@ -302,7 +353,7 @@ class _DriverMapState extends State<DriverMap> {
                             children: [
                               const Text(
                                 'Rate:',
-                                style: TextStyle(color: Colors.black, fontSize: 18.0),
+                                style: TextStyle(color: Colors.black, fontSize: 12.0),
                               ),
                               const SizedBox(height: 4),
                               Center(
@@ -312,6 +363,65 @@ class _DriverMapState extends State<DriverMap> {
                                 ),
                               ),
                             ],
+                          ),
+                        ),
+                        const SizedBox(width: 8), // Add spacing between containers
+                        // Container for Rate
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: const Text('Customer Note'),
+                                    content: TextFormField(
+                                      initialValue: widget.orderInformation.noteToRider,
+                                      readOnly: true,
+                                      decoration: const InputDecoration(
+                                        border: OutlineInputBorder(),
+                                      ),
+                                      maxLines: null,
+                                      keyboardType: TextInputType.multiline,
+                                    ),
+                                    actions: <Widget>[
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: const Text('Close'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                            child: Container(
+                              //width: MediaQuery.of(context).size.width * 0.4, // Adjust width as needed
+                              decoration: BoxDecoration(
+                                color: Colors.white60,
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(width: 0.8),
+                              ),
+                              padding: const EdgeInsets.all(10.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Note from Customer (Click to view)',
+                                    style: TextStyle(color: Colors.black, fontSize: 12.0),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Center(
+                                    child: Text(
+                                      truncateWithEllipsis(15,
+                                          '${widget.orderInformation.noteToRider}'), // Replace 'rate' with your actual rate value
+                                      style: const TextStyle(color: Colors.black, fontSize: 20.0),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
                       ],
@@ -329,7 +439,7 @@ class _DriverMapState extends State<DriverMap> {
                                 padding: const EdgeInsets.all(15.0),
                               ),
                               child: const Text(
-                                'Accept',
+                                'Confirm',
                                 style: TextStyle(
                                   color: Colors.black,
                                   fontWeight: FontWeight.bold,
@@ -342,14 +452,19 @@ class _DriverMapState extends State<DriverMap> {
                           Expanded(
                             child: TextButton(
                               onPressed: () {
-                                Navigator.pop(context);
+                                _cancelOrder();
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const DriverDashboard()),
+                                );
+                                //Navigator.pop(context);
                               },
                               style: TextButton.styleFrom(
                                 backgroundColor: Colors.white,
                                 padding: const EdgeInsets.all(15.0),
                               ),
                               child: const Text(
-                                'Close',
+                                'Cancel',
                                 style: TextStyle(
                                   color: Colors.black,
                                   fontWeight: FontWeight.bold,
@@ -369,73 +484,83 @@ class _DriverMapState extends State<DriverMap> {
                                 int rating = 0;
                                 String commentText = '';
                                 _completeOrder();
-                                Navigator.pop(context);
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => const DriverDashboard()),
-                                );
+                                // Navigator.pop(context);
+                                // Navigator.pushReplacement(
+                                //   context,
+                                //   MaterialPageRoute(builder: (context) => const DriverDashboard()),
+                                // );
                                 showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        title: const Text('Rate your Customer'),
-                                        content: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            const Text('We value our riders as we value our customer. Send a review :'),
-                                            // Star rating widget
-                                            RatingBar.builder(
-                                              initialRating: rating.toDouble(),
-                                              minRating: 1,
-                                              direction: Axis.horizontal,
-                                              allowHalfRating: false,
-                                              itemCount: 5,
-                                              itemSize: 40,
-                                              itemBuilder: (context, _) => const Icon(
-                                                Icons.star,
-                                                color: Colors.amber,
-                                              ),
-                                              onRatingUpdate: (value) {
-                                                rating = value.toInt(); // Update the rating value
-                                              },
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: const Text('Rate your Customer'),
+                                      content: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Text('We value our riders as we value our customer. Send a review :'),
+                                          // Star rating widget
+                                          RatingBar.builder(
+                                            initialRating: rating.toDouble(),
+                                            minRating: 1,
+                                            direction: Axis.horizontal,
+                                            allowHalfRating: false,
+                                            itemCount: 5,
+                                            itemSize: 40,
+                                            itemBuilder: (context, _) => const Icon(
+                                              Icons.star,
+                                              color: Colors.amber,
                                             ),
-                                            const SizedBox(height: 20),
-                                            // Text input for comments
-                                            TextFormField(
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  commentText = value;
-                                                });
-                                              },
-                                              decoration: const InputDecoration(
-                                                hintText: 'Add your comments (optional)',
-                                                border: OutlineInputBorder(),
-                                              ),
-                                              maxLines: null,
-                                              keyboardType: TextInputType.multiline,
-                                            ),
-                                          ],
-                                        ),
-                                        actions: <Widget>[
-                                          TextButton(
-                                            onPressed: () async {
-                                              print(widget.orderInformation.uid);
-                                              Review review = Review(
-                                                reviewerId: user?.uid ?? 'Unknown Driver',
-                                                orderId: 'Unknown Order',
-                                                rating: double.parse(rating?.toString() ?? '0.0'),
-                                                revieweeId: widget.orderInformation.uid ?? 'Unknown User',
-                                                message: commentText ?? 'No comment provided',
-                                              );
-                                              await insertReview(review).then((value) {
-                                                Navigator.pop(context);
-                                              });
+                                            onRatingUpdate: (value) {
+                                              rating = value.toInt(); // Update the rating value
                                             },
-                                            child: const Text('Submit'),
+                                          ),
+                                          const SizedBox(height: 20),
+                                          // Text input for comments
+                                          TextFormField(
+                                            onChanged: (value) {
+                                              setState(() {
+                                                commentText = value;
+                                              });
+                                              print(commentText);
+                                            },
+                                            decoration: const InputDecoration(
+                                              hintText: 'Add your comments (optional)',
+                                              border: OutlineInputBorder(),
+                                            ),
+                                            maxLines: null,
+                                            keyboardType: TextInputType.multiline,
                                           ),
                                         ],
-                                      );
-                                    });
+                                      ),
+                                      actions: <Widget>[
+                                        TextButton(
+                                          onPressed: () async {
+                                            print(widget.orderInformation.uid);
+                                            Review review = Review(
+                                              reviewerUserType: 'Rider',
+                                              driverId: user?.uid ?? 'Unknown Driver',
+                                              orderId: 'Order ID here',
+                                              rating: double.parse(rating?.toString() ?? '0.0'),
+                                              customerId: widget.orderInformation.uid ?? 'Unknown User',
+                                              customerName: widget.orderInformation.name,
+                                              driverName: user?.displayName ?? "",
+                                              message: commentText ?? 'No comment provided',
+                                              timestamp: DateTime.now().toString(),
+                                            );
+                                            await insertReview(review).then((value) {
+                                              Navigator.pop(context);
+                                              Navigator.pushReplacement(
+                                                context,
+                                                MaterialPageRoute(builder: (context) => const DriverDashboard()),
+                                              );
+                                            });
+                                          },
+                                          child: const Text('Submit'),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
                               },
                               style: TextButton.styleFrom(
                                 backgroundColor: Colors.white,
@@ -451,31 +576,31 @@ class _DriverMapState extends State<DriverMap> {
                               ),
                             ),
                           ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: TextButton(
-                              onPressed: () {
-                                // Handle cancellation logic
-                                _cancelOrder();
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => const DriverDashboard()),
-                                );
-                              },
-                              style: TextButton.styleFrom(
-                                backgroundColor: Colors.white,
-                                padding: const EdgeInsets.all(15.0),
-                              ),
-                              child: const Text(
-                                'Cancel',
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 20,
-                                ),
-                              ),
-                            ),
-                          ),
+                          // const SizedBox(width: 10),
+                          // Expanded(
+                          //   child: TextButton(
+                          //     onPressed: () {
+                          //       // Handle cancellation logic
+                          //       _cancelOrder();
+                          //       Navigator.pushReplacement(
+                          //         context,
+                          //         MaterialPageRoute(builder: (context) => const DriverDashboard()),
+                          //       );
+                          //     },
+                          //     style: TextButton.styleFrom(
+                          //       backgroundColor: Colors.white,
+                          //       padding: const EdgeInsets.all(15.0),
+                          //     ),
+                          //     child: const Text(
+                          //       'Cancel',
+                          //       style: TextStyle(
+                          //         color: Colors.black,
+                          //         fontWeight: FontWeight.bold,
+                          //         fontSize: 20,
+                          //       ),
+                          //     ),
+                          //   ),
+                          // ),
                         ],
                       ),
                   ],
