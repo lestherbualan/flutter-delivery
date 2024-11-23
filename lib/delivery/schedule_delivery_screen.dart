@@ -204,11 +204,11 @@ class _ScheduleDeliveryScreenState extends State<ScheduleDeliveryScreen> {
                         int rating = 0; // Initialize the rating variable
 
                         return AlertDialog(
-                          title: const Text('Rate the driver'),
+                          title: const Text('Rate the rider'),
                           content: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Text('Please rate the driver for this order:'),
+                              const Text('Please rate the rider for this order:'),
                               // Star rating widget
                               RatingBar.builder(
                                 initialRating: rating.toDouble(),

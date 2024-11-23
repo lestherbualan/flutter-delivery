@@ -1067,7 +1067,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                                                   children: [
                                                                                     CircularProgressIndicator(),
                                                                                     SizedBox(width: 20),
-                                                                                    Text("Waiting for the driver to accept"),
+                                                                                    Text("Waiting for the rider to confirm"),
                                                                                   ],
                                                                                 ),
                                                                               );

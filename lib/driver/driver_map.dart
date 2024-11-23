@@ -452,7 +452,12 @@ class _DriverMapState extends State<DriverMap> {
                           Expanded(
                             child: TextButton(
                               onPressed: () {
-                                Navigator.pop(context);
+                                _cancelOrder();
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const DriverDashboard()),
+                                );
+                                //Navigator.pop(context);
                               },
                               style: TextButton.styleFrom(
                                 backgroundColor: Colors.white,
@@ -571,31 +576,31 @@ class _DriverMapState extends State<DriverMap> {
                               ),
                             ),
                           ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: TextButton(
-                              onPressed: () {
-                                // Handle cancellation logic
-                                _cancelOrder();
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => const DriverDashboard()),
-                                );
-                              },
-                              style: TextButton.styleFrom(
-                                backgroundColor: Colors.white,
-                                padding: const EdgeInsets.all(15.0),
-                              ),
-                              child: const Text(
-                                'Cancel',
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 20,
-                                ),
-                              ),
-                            ),
-                          ),
+                          // const SizedBox(width: 10),
+                          // Expanded(
+                          //   child: TextButton(
+                          //     onPressed: () {
+                          //       // Handle cancellation logic
+                          //       _cancelOrder();
+                          //       Navigator.pushReplacement(
+                          //         context,
+                          //         MaterialPageRoute(builder: (context) => const DriverDashboard()),
+                          //       );
+                          //     },
+                          //     style: TextButton.styleFrom(
+                          //       backgroundColor: Colors.white,
+                          //       padding: const EdgeInsets.all(15.0),
+                          //     ),
+                          //     child: const Text(
+                          //       'Cancel',
+                          //       style: TextStyle(
+                          //         color: Colors.black,
+                          //         fontWeight: FontWeight.bold,
+                          //         fontSize: 20,
+                          //       ),
+                          //     ),
+                          //   ),
+                          // ),
                         ],
                       ),
                   ],
