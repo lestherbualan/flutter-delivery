@@ -75,13 +75,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final GlobalKey _six = GlobalKey();
   final GlobalKey _seven = GlobalKey();
 
-  final List<double> items = [
-    1,
-    2,
-    5,
-    10,
-    15,
-  ];
+  final Map<String, List<double>> vehicleWeightLimits = {
+    'Motorcycle': [5, 15, 30, 40, 50],
+    'Car': [50, 70, 85, 100],
+    'Bike': [5, 7.5, 10],
+  };
+
+  List<double> items = [];
+
   double? selectedValue;
 
   int? _activeChip;
@@ -264,6 +265,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     super.initState();
     // sharedVar = context.read<SharedData>().sharedVariable;
     // Initialize MapInitializer widget here
+
+    setState(() {
+      items = vehicleWeightLimits['Motorcycle']!;
+    });
     _mapInitializer = MapInitializer(
       onUpdate: updateMapData,
     );
@@ -410,9 +415,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             // rectangular container view happens here.
             DraggableScrollableSheet(
-              initialChildSize: 0.61,
+              initialChildSize: 0.57,
               minChildSize: 0.2,
-              maxChildSize: 0.61,
+              maxChildSize: 0.57,
               snap: true,
               builder: (context, scrollController) => SingleChildScrollView(
                 controller: scrollController,
@@ -449,7 +454,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ],
                     ),
                     Container(
-                      height: 455,
+                      height: 430,
                       padding: const EdgeInsets.all(10),
                       decoration: const BoxDecoration(
                         color: Color(0xFFEDE1D5),
@@ -541,146 +546,113 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               targetPadding: const EdgeInsets.all(1),
                               key: _four,
                               title: 'Vehicle Type',
-                              description: "You can select your prefered vehicle depending on the item you want to be delivered",
+                              description: "You can select your preferred vehicle depending on the item you want to be delivered",
                               tooltipBackgroundColor: Theme.of(context).primaryColor,
                               textColor: Colors.white,
-                              child: ListView(
-                                shrinkWrap: true,
-                                scrollDirection: Axis.horizontal,
+                              child: Row(
                                 children: <Widget>[
-                                  Container(
-                                    width: 160,
-                                    height: 80,
-                                    margin: const EdgeInsets.only(right: 10.0),
-                                    decoration: BoxDecoration(
-                                      color: _motorBG,
-                                      borderRadius: const BorderRadius.all(
-                                        Radius.circular(10),
-                                      ),
-                                      border: Border.all(
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                    child: Center(
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Transform.scale(
-                                            scale: 1.9,
-                                            child: IconButton(
-                                              onPressed: () {
-                                                setState(() {
-                                                  if (_motorBG == Colors.white) {
-                                                    _motorBG = Colors.orange;
-                                                    _carBG = Colors.white;
-                                                    _bikeBG = Colors.white;
-
-                                                    vehicleType = 'Motorcycle';
-                                                  } else {
-                                                    _motorBG = Colors.white;
-                                                  }
-                                                });
-                                              },
-                                              icon: Image.asset(
-                                                'assets/images/Motorcycle.png',
-                                                width: 150.0,
-                                                height: 90.0,
-                                              ),
-                                            ),
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  Container(
-                                    width: 160,
-                                    height: 80,
-                                    margin: const EdgeInsets.only(right: 10.0),
-                                    decoration: BoxDecoration(
-                                      color: _carBG,
-                                      borderRadius: const BorderRadius.all(
-                                        Radius.circular(10),
-                                      ),
-                                      border: Border.all(
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                    child: Center(
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Transform.scale(
-                                            scale: 1.5,
-                                            child: IconButton(
-                                              onPressed: () {
-                                                setState(() {
-                                                  if (_carBG == Colors.white) {
-                                                    _carBG = Colors.orange;
-                                                    _bikeBG = Colors.white;
-                                                    _motorBG = Colors.white;
-
-                                                    vehicleType = 'Car';
-                                                  } else {
-                                                    _carBG = Colors.white;
-                                                  }
-                                                });
-                                              },
-                                              icon: Image.asset(
-                                                'assets/images/Car.png',
-                                                width: 170.0,
-                                                height: 105.0,
-                                              ),
-                                            ),
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  Container(
-                                    width: 160,
-                                    height: 80,
-                                    margin: const EdgeInsets.only(right: 10.0),
-                                    decoration: BoxDecoration(
-                                      color: _bikeBG,
-                                      borderRadius: const BorderRadius.all(
-                                        Radius.circular(10),
-                                      ),
-                                      border: Border.all(
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                    child: Center(
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Transform.scale(
+                                  Expanded(
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          if (_motorBG == Colors.white) {
+                                            _motorBG = Colors.orange;
+                                            _carBG = Colors.white;
+                                            _bikeBG = Colors.white;
+                                            vehicleType = 'Motorcycle';
+                                            items = vehicleWeightLimits[vehicleType]!;
+                                          } else {
+                                            _motorBG = Colors.white;
+                                          }
+                                        });
+                                      },
+                                      child: Container(
+                                        height: 80,
+                                        margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                                        decoration: BoxDecoration(
+                                          color: _motorBG,
+                                          borderRadius: BorderRadius.circular(10),
+                                          border: Border.all(color: Colors.black),
+                                        ),
+                                        child: Center(
+                                          child: Transform.scale(
                                             scale: 1.3,
-                                            child: IconButton(
-                                              onPressed: () {
-                                                setState(() {
-                                                  if (_bikeBG == Colors.white) {
-                                                    _bikeBG = Colors.orange;
-                                                    _carBG = Colors.white;
-                                                    _motorBG = Colors.white;
-
-                                                    vehicleType = 'Bike';
-                                                  } else {
-                                                    _bikeBG = Colors.white;
-                                                  }
-                                                });
-                                              },
-                                              icon: Image.asset(
-                                                'assets/images/Bicycle.png',
-                                                width: 150.0,
-                                                height: 90.0,
-                                              ),
+                                            child: Image.asset(
+                                              'assets/images/Motorcycle.png',
+                                              fit: BoxFit.contain,
                                             ),
-                                          )
-                                        ],
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
-                                  // Add more containers as needed
+                                  Expanded(
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          if (_carBG == Colors.white) {
+                                            _carBG = Colors.orange;
+                                            _bikeBG = Colors.white;
+                                            _motorBG = Colors.white;
+                                            vehicleType = 'Car';
+                                            items = vehicleWeightLimits[vehicleType]!;
+                                          } else {
+                                            _carBG = Colors.white;
+                                          }
+                                        });
+                                      },
+                                      child: Container(
+                                        height: 80,
+                                        margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                                        decoration: BoxDecoration(
+                                          color: _carBG,
+                                          borderRadius: BorderRadius.circular(10),
+                                          border: Border.all(color: Colors.black),
+                                        ),
+                                        child: Center(
+                                          child: Transform.scale(
+                                            scale: 1.2,
+                                            child: Image.asset(
+                                              'assets/images/Car.png',
+                                              fit: BoxFit.contain,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          if (_bikeBG == Colors.white) {
+                                            _bikeBG = Colors.orange;
+                                            _carBG = Colors.white;
+                                            _motorBG = Colors.white;
+                                            vehicleType = 'Bike';
+                                            items = vehicleWeightLimits[vehicleType]!;
+                                          } else {
+                                            _bikeBG = Colors.white;
+                                          }
+                                        });
+                                      },
+                                      child: Container(
+                                        height: 80,
+                                        margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                                        decoration: BoxDecoration(
+                                          color: _bikeBG,
+                                          borderRadius: BorderRadius.circular(10),
+                                          border: Border.all(color: Colors.black),
+                                        ),
+                                        child: Center(
+                                          child: Image.asset(
+                                            'assets/images/Bicycle.png',
+                                            fit: BoxFit.contain,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -1555,7 +1527,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   padding: const EdgeInsets.only(top: 15.0, bottom: 15.0),
                                 ),
                                 child: const Icon(
-                                  Icons.timer_outlined,
+                                  Icons.calendar_month,
                                   size: 30.0,
                                 ),
                               ),
