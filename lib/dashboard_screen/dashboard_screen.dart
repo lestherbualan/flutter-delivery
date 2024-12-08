@@ -676,11 +676,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   child: DropdownButtonHideUnderline(
                                     child: DropdownButton2<double>(
                                       isExpanded: true,
-                                      hint: Text(
-                                        'Select Package Weight in kg',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: Theme.of(context).hintColor,
+                                      hint: Center(
+                                        child: Text(
+                                          'Package Weight',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: Theme.of(context).hintColor,
+                                          ),
                                         ),
                                       ),
                                       items: items
@@ -726,29 +728,54 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 description: "Rate is calculated depending on how far the item to be delivered.",
                                 tooltipBackgroundColor: Theme.of(context).primaryColor,
                                 textColor: Colors.white,
-                                child: Container(
-                                  width: MediaQuery.of(context).size.width * 0.4, // Adjust width as needed
-                                  decoration: BoxDecoration(
-                                    color: Colors.white60,
-                                    borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  padding: const EdgeInsets.only(top: 11.0, bottom: 11.0),
-                                  child: Center(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          //(rate * (distance.round())).toString(),
-                                          rate.toString(),
-                                          style:
-                                              const TextStyle(color: Colors.black, fontSize: 25.0, fontWeight: FontWeight.bold),
+                                child: Stack(
+                                  children: [
+                                    Container(
+                                      width: MediaQuery.of(context).size.width * 0.4, // Adjust width as needed
+                                      decoration: BoxDecoration(
+                                        color: Colors.white60,
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(
+                                          color: Colors.black,
                                         ),
-                                      ],
+                                      ),
+                                      padding: const EdgeInsets.only(top: 11.0, bottom: 11.0),
+                                      child: Center(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              //(rate * (distance.round())).toString(),
+                                              rate.toString(),
+                                              style: const TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 25.0,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                     ),
-                                  ),
+                                    Positioned(
+                                      top: 0,
+                                      left: 0,
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8.5, vertical: 4.5),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(5),
+                                        ),
+                                        child: Text(
+                                          'Cost',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: Theme.of(context).hintColor,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
