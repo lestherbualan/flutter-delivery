@@ -53,7 +53,6 @@ class MapTapController {
       } else {
         if (pointsRoad.length <= 1) {
           pointsRoad.add(tappedPoint);
-
           double firstDistance = _calculateDistance();
           if ((firstDistance < 1.0)) {
             showDialog(
@@ -107,6 +106,34 @@ class MapTapController {
                 );
               },
             );
+          } else {
+            getCoordinateInfo(pointsRoad[1].latitude, pointsRoad[1].longitude).then((value) {
+              updateEndingAddress?.call(value);
+              updateEndingGeopoint?.call(tappedPoint);
+            });
+            await controller.addMarker(
+              tappedPoint,
+              markerIcon: const MarkerIcon(
+                icon: Icon(
+                  Icons.person_pin_circle,
+                  color: Colors.blueAccent,
+                  size: 48,
+                ),
+              ),
+            );
+            controller.drawRoad(
+              pointsRoad.first,
+              pointsRoad.last,
+              roadType: RoadType.bike,
+              intersectPoint: pointsRoad.sublist(1),
+              roadOption: const RoadOption(
+                roadColor: Colors.blue,
+                roadWidth: 10,
+                zoomInto: true,
+              ),
+            );
+            double distance = _calculateDistance();
+            updateDistance?.call(distance);
           }
         }
       }
