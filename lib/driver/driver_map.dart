@@ -1,5 +1,6 @@
 import 'package:delivery/driver/driver_dashboard.dart';
 import 'package:delivery/model/review.dart';
+import 'package:delivery/model/user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
@@ -12,12 +13,14 @@ import 'package:url_launcher/url_launcher.dart';
 class DriverMap extends StatefulWidget {
   final Order orderInformation;
   final MapController controller;
+  final dynamic driverInformation;
 
   const DriverMap({
-    Key? key,
+    super.key,
     required this.orderInformation,
     required this.controller,
-  }) : super(key: key);
+    required this.driverInformation,
+  });
 
   @override
   State<DriverMap> createState() => _DriverMapState();
@@ -29,16 +32,23 @@ class _DriverMapState extends State<DriverMap> {
   bool accepted = false;
   Color containerColor = Colors.blue;
   User? user = FirebaseAuth.instance.currentUser;
+  DatabaseReference _userRef = FirebaseDatabase.instance.ref('user');
   String? customerContact;
+  late DatabaseReference driverInformationRef;
+
+  late DataSnapshot userSnapshot;
 
   @override
   void initState() {
     super.initState();
+
+    loadUserInfo();
     getCustomerContact(widget.orderInformation.uid).then((onValue) {
       setState(() {
         customerContact = onValue['contactNumber'];
       });
     });
+
     Future.delayed(const Duration(milliseconds: 500), () {
       widget.controller.addMarker(
         GeoPoint(
@@ -94,6 +104,12 @@ class _DriverMapState extends State<DriverMap> {
     print(widget.orderInformation.noteToRider);
   }
 
+  Future loadUserInfo() async {
+    driverInformationRef = FirebaseDatabase.instance.ref('user/${user?.uid}');
+    DataSnapshot currentUserSnapshot = await driverInformationRef.get();
+    return currentUserSnapshot.value;
+  }
+
   Future getCustomerContact(String uid) async {
     final ref = FirebaseDatabase.instance.ref();
     final snapshot = await ref.child("user/$uid").get();
@@ -131,6 +147,9 @@ class _DriverMapState extends State<DriverMap> {
       '${widget.orderInformation.key}/status': 'ACCEPTED',
       '${widget.orderInformation.key}/driverId': user?.uid,
     });
+
+    await driverInformationRef.update({'isUserBooked': true});
+
     setState(() {
       accepted = true;
       containerColor = Color.fromARGB(255, 22, 198, 113); // Change container color to light blue
@@ -141,6 +160,7 @@ class _DriverMapState extends State<DriverMap> {
     await ref.update({
       '${widget.orderInformation.key}/status': 'COMPLETED',
     });
+    await driverInformationRef.update({'isUserBooked': false});
 
     setState(() {
       containerColor = Colors.lightBlue; // Change container color to light blue
@@ -152,6 +172,7 @@ class _DriverMapState extends State<DriverMap> {
       '${widget.orderInformation.key}/status': 'CANCELED',
     });
 
+    await driverInformationRef.update({'isUserBooked': false});
     DataSnapshot snapshot = await proposalRef.get();
     if (snapshot.exists) {
       Map<dynamic, dynamic> proposals = snapshot.value as Map<dynamic, dynamic>;

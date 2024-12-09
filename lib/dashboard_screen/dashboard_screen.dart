@@ -237,7 +237,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         if (data != null) {
           List<Map<dynamic, dynamic>> userList = [];
           data.forEach((key, value) {
-            if (value['isRider'] == true && value['online'] == true) {
+            if (value['isRider'] == true && value['online'] == true && value['isUserBooked'] == false) {
               //if(value['vehicle'] == )
               userList.add(Map<dynamic, dynamic>.from(value));
             }

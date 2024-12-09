@@ -379,7 +379,9 @@ class _DriverDashboardState extends State<DriverDashboard> {
                             onTap: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => DriverActions(orderInformation: orderInfo)),
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        DriverActions(orderInformation: orderInfo, driverInformation: _fetchCurrentUserData())),
                               );
                             },
                           );
