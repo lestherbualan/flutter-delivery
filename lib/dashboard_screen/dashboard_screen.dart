@@ -463,9 +463,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             // rectangular container view happens here.
             DraggableScrollableSheet(
-              initialChildSize: 0.59,
+              initialChildSize: 0.61,
               minChildSize: 0.2,
-              maxChildSize: 0.59,
+              maxChildSize: 0.61,
               snap: true,
               builder: (context, scrollController) => SingleChildScrollView(
                 controller: scrollController,
@@ -502,7 +502,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ],
                     ),
                     Container(
-                      height: 440,
+                      height: 460,
                       padding: const EdgeInsets.all(10),
                       decoration: const BoxDecoration(
                         color: Color(0xFFEDE1D5),
@@ -588,7 +588,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               style: const TextStyle(color: Colors.black),
                             ),
                           ),
-                          const SizedBox(height: 10),
+                          const SizedBox(height: 2),
                           Expanded(
                             child: Showcase(
                               targetPadding: const EdgeInsets.all(1),
@@ -597,148 +597,157 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               description: "You can select your preferred vehicle depending on the item you want to be delivered",
                               tooltipBackgroundColor: Theme.of(context).primaryColor,
                               textColor: Colors.white,
-                              child: Row(
-                                children: <Widget>[
-                                  Expanded(
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          if (_motorBG == Colors.white) {
-                                            _motorBG = Colors.orange;
-                                            _carBG = Colors.white;
-                                            _bikeBG = Colors.white;
-                                            vehicleType = 'Motorcycle';
-                                            items = vehicleWeightLimits[vehicleType]!;
-                                          } else {
-                                            _motorBG = Colors.white;
-                                          }
-                                        });
-                                      },
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Container(
-                                            height: 80,
-                                            margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                                            decoration: BoxDecoration(
-                                              color: _motorBG,
-                                              borderRadius: BorderRadius.circular(10),
-                                              border: Border.all(color: Colors.black),
-                                            ),
-                                            child: Center(
-                                              child: Transform.scale(
-                                                scale: 1.3,
-                                                child: Image.asset(
-                                                  'assets/images/Motorcycle.png',
-                                                  fit: BoxFit.contain,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(height: 2), // Space between image and text
-                                          const Text(
-                                            'Motorcycle',
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              //fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                              child: Column(
+                                children: [
+                                  const Expanded(
+                                    child: Center(
+                                      child: Text("Choose Vehicles"),
                                     ),
                                   ),
-                                  Expanded(
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          if (_carBG == Colors.white) {
-                                            _carBG = Colors.orange;
-                                            _bikeBG = Colors.white;
-                                            _motorBG = Colors.white;
-                                            vehicleType = 'Car';
-                                            items = vehicleWeightLimits[vehicleType]!;
-                                          } else {
-                                            _carBG = Colors.white;
-                                          }
-                                        });
-                                      },
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Container(
-                                            height: 80,
-                                            margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                                            decoration: BoxDecoration(
-                                              color: _carBG,
-                                              borderRadius: BorderRadius.circular(10),
-                                              border: Border.all(color: Colors.black),
-                                            ),
-                                            child: Center(
-                                              child: Transform.scale(
-                                                scale: 1.2,
-                                                child: Image.asset(
-                                                  'assets/images/Car.png',
-                                                  fit: BoxFit.contain,
+                                  Row(
+                                    children: <Widget>[
+                                      Expanded(
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              if (_motorBG == Colors.white) {
+                                                _motorBG = Colors.orange;
+                                                _carBG = Colors.white;
+                                                _bikeBG = Colors.white;
+                                                vehicleType = 'Motorcycle';
+                                                items = vehicleWeightLimits[vehicleType]!;
+                                              } else {
+                                                _motorBG = Colors.white;
+                                              }
+                                            });
+                                          },
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Container(
+                                                height: 80,
+                                                margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                                                decoration: BoxDecoration(
+                                                  color: _motorBG,
+                                                  borderRadius: BorderRadius.circular(10),
+                                                  border: Border.all(color: Colors.black),
+                                                ),
+                                                child: Center(
+                                                  child: Transform.scale(
+                                                    scale: 1.3,
+                                                    child: Image.asset(
+                                                      'assets/images/Motorcycle.png',
+                                                      fit: BoxFit.contain,
+                                                    ),
+                                                  ),
                                                 ),
                                               ),
-                                            ),
-                                          ),
-                                          const SizedBox(height: 2), // Space between image and text
-                                          const Text(
-                                            'Car',
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              //fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          if (_bikeBG == Colors.white) {
-                                            _bikeBG = Colors.orange;
-                                            _carBG = Colors.white;
-                                            _motorBG = Colors.white;
-                                            vehicleType = 'Bike';
-                                            items = vehicleWeightLimits[vehicleType]!;
-                                          } else {
-                                            _bikeBG = Colors.white;
-                                          }
-                                        });
-                                      },
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Container(
-                                            height: 80,
-                                            margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                                            decoration: BoxDecoration(
-                                              color: _bikeBG,
-                                              borderRadius: BorderRadius.circular(10),
-                                              border: Border.all(color: Colors.black),
-                                            ),
-                                            child: Center(
-                                              child: Image.asset(
-                                                'assets/images/Bicycle.png',
-                                                fit: BoxFit.contain,
+                                              const SizedBox(height: 2), // Space between image and text
+                                              const Text(
+                                                'Motorcycle',
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  //fontWeight: FontWeight.bold,
+                                                ),
                                               ),
-                                            ),
+                                            ],
                                           ),
-                                          const SizedBox(height: 2), // Space between image and text
-                                          const Text(
-                                            'Bicycle',
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              //fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ],
+                                        ),
                                       ),
-                                    ),
+                                      Expanded(
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              if (_carBG == Colors.white) {
+                                                _carBG = Colors.orange;
+                                                _bikeBG = Colors.white;
+                                                _motorBG = Colors.white;
+                                                vehicleType = 'Car';
+                                                items = vehicleWeightLimits[vehicleType]!;
+                                              } else {
+                                                _carBG = Colors.white;
+                                              }
+                                            });
+                                          },
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Container(
+                                                height: 80,
+                                                margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                                                decoration: BoxDecoration(
+                                                  color: _carBG,
+                                                  borderRadius: BorderRadius.circular(10),
+                                                  border: Border.all(color: Colors.black),
+                                                ),
+                                                child: Center(
+                                                  child: Transform.scale(
+                                                    scale: 1.2,
+                                                    child: Image.asset(
+                                                      'assets/images/Car.png',
+                                                      fit: BoxFit.contain,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(height: 2), // Space between image and text
+                                              const Text(
+                                                'Car',
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  //fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              if (_bikeBG == Colors.white) {
+                                                _bikeBG = Colors.orange;
+                                                _carBG = Colors.white;
+                                                _motorBG = Colors.white;
+                                                vehicleType = 'Bike';
+                                                items = vehicleWeightLimits[vehicleType]!;
+                                              } else {
+                                                _bikeBG = Colors.white;
+                                              }
+                                            });
+                                          },
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Container(
+                                                height: 80,
+                                                margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                                                decoration: BoxDecoration(
+                                                  color: _bikeBG,
+                                                  borderRadius: BorderRadius.circular(10),
+                                                  border: Border.all(color: Colors.black),
+                                                ),
+                                                child: Center(
+                                                  child: Image.asset(
+                                                    'assets/images/Bicycle.png',
+                                                    fit: BoxFit.contain,
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(height: 2), // Space between image and text
+                                              const Text(
+                                                'Bicycle',
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  //fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
@@ -996,7 +1005,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           builder: (BuildContext context) {
                                             DatabaseReference userRef = FirebaseDatabase.instance.ref('user');
 
-                                            return StatefulBuilder(builder: (context, setState) {
+                                            return StatefulBuilder(builder: (listContext, setState) {
                                               // Showing the available driver pop up
                                               return AlertDialog(
                                                 title: const Text('Available Riders'),
@@ -1160,186 +1169,389 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                                     ],
                                                                   ),
                                                                   onTap: () {
-                                                                    Proposal proposal =
-                                                                        Proposal(uid: drivers['uid'], orderId: orderKey);
-                                                                    insertProposal(proposal).then((value) {
-                                                                      //Navigator.pop(context);
-                                                                      DatabaseReference orderReference =
-                                                                          FirebaseDatabase.instance.ref('order/$orderKey');
-                                                                      orderReference.onValue.listen((DatabaseEvent event) {
-                                                                        final data = event.snapshot.value;
-                                                                        print(data);
-                                                                        if (data != null && data is Map<Object?, Object?>) {
-                                                                          final dynamic status = data['status'];
-                                                                          dynamic driverId = drivers['uid'];
-                                                                          dynamic driverName = drivers['displayName'];
-                                                                          dynamic orderId = data['key'];
-                                                                          dynamic userId = user?.uid;
-                                                                          String commentText = '';
-                                                                          if (status != null) {
-                                                                            print(status);
-                                                                            if (status == 'PROPOSE') {
-                                                                              showDialog(
-                                                                                context: context,
-                                                                                barrierDismissible: false,
-                                                                                builder: (BuildContext context) {
-                                                                                  return const AlertDialog(
-                                                                                    content: Row(
-                                                                                      children: [
-                                                                                        CircularProgressIndicator(),
-                                                                                        SizedBox(width: 20),
-                                                                                        Text("Waiting for the rider to confirm"),
-                                                                                      ],
-                                                                                    ),
-                                                                                  );
-                                                                                },
-                                                                              );
-                                                                            }
-                                                                            if (status == 'ACCEPTED') {
-                                                                              print('driver id here');
-                                                                              print(data);
-                                                                              Navigator.pop(context);
-                                                                              showDialog(
-                                                                                context: context,
-                                                                                barrierDismissible: false,
-                                                                                builder: (BuildContext context) {
-                                                                                  return const AlertDialog(
-                                                                                    content: Row(
-                                                                                      children: [
-                                                                                        CircularProgressIndicator(),
-                                                                                        SizedBox(width: 20),
-                                                                                        Text("Rider is on the way ..."),
-                                                                                      ],
-                                                                                    ),
-                                                                                  );
-                                                                                },
-                                                                              );
-                                                                            }
-                                                                            if (status == 'CANCELED') {
-                                                                              print('driver id here');
-                                                                              print(data);
-                                                                              Navigator.pop(context);
-                                                                              showDialog(
-                                                                                context: context,
-                                                                                barrierDismissible: false,
-                                                                                builder: (BuildContext context) {
-                                                                                  return const AlertDialog(
-                                                                                    content: Row(
-                                                                                      children: [
-                                                                                        CircularProgressIndicator(),
-                                                                                        SizedBox(width: 20),
-                                                                                        Text("Driver canceled the request!"),
-                                                                                      ],
-                                                                                    ),
-                                                                                  );
-                                                                                },
-                                                                              );
-                                                                              Future.delayed(const Duration(seconds: 2), () {
-                                                                                Navigator.pop(
-                                                                                    context); // Close the loading dialog
-                                                                                Navigator.pop(context);
-                                                                              });
-                                                                            }
-                                                                            if (status == 'COMPLETED') {
-                                                                              Navigator.pop(context);
-                                                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                                                const SnackBar(
-                                                                                    content: Text('Order is complete!')),
-                                                                              );
-                                                                              // Show the rating pop-up here
-                                                                              showDialog(
-                                                                                context: context,
-                                                                                barrierDismissible: false,
-                                                                                builder: (BuildContext context) {
-                                                                                  int rating =
-                                                                                      0; // Initialize the rating variable
+                                                                    //Navigator.of(context).pop();
+                                                                    showDialog(
+                                                                      context: context,
+                                                                      builder: (BuildContext context) {
+                                                                        TextEditingController from =
+                                                                            TextEditingController(text: startingPoint);
+                                                                        TextEditingController to =
+                                                                            TextEditingController(text: endPoint);
+                                                                        TextEditingController weight = TextEditingController(
+                                                                            text: order.netWeight.toString());
+                                                                        TextEditingController vehicle =
+                                                                            TextEditingController(text: order.vehicleType);
+                                                                        TextEditingController note =
+                                                                            TextEditingController(text: order.noteToRider);
+                                                                        int reviewRate =
+                                                                            order.rate + int.parse(drivers['driverSelfRating']);
 
-                                                                                  return AlertDialog(
-                                                                                    title: const Text('Rate the Rider'),
-                                                                                    content: Column(
-                                                                                      mainAxisSize: MainAxisSize.min,
-                                                                                      children: [
-                                                                                        const Text(
-                                                                                            'Please rate the rider for this delivery:'),
-                                                                                        // Star rating widget
-                                                                                        RatingBar.builder(
-                                                                                          initialRating: rating.toDouble(),
-                                                                                          minRating: 1,
-                                                                                          direction: Axis.horizontal,
-                                                                                          allowHalfRating: false,
-                                                                                          itemCount: 5,
-                                                                                          itemSize: 40,
-                                                                                          itemBuilder: (context, _) => const Icon(
-                                                                                            Icons.star,
-                                                                                            color: Colors.amber,
-                                                                                          ),
-                                                                                          onRatingUpdate: (value) {
-                                                                                            rating = value
-                                                                                                .toInt(); // Update the rating value
-                                                                                          },
-                                                                                        ),
-                                                                                        const SizedBox(height: 20),
-                                                                                        // Text input for comments
-                                                                                        TextFormField(
-                                                                                          onChanged: (value) {
-                                                                                            setState(() {
-                                                                                              commentText = value;
-                                                                                            });
-                                                                                          },
-                                                                                          decoration: const InputDecoration(
-                                                                                            hintText:
-                                                                                                'Add your comments (optional)',
-                                                                                            border: OutlineInputBorder(),
-                                                                                          ),
-                                                                                          maxLines: null,
-                                                                                          keyboardType: TextInputType.multiline,
-                                                                                        ),
-                                                                                      ],
+                                                                        return AlertDialog(
+                                                                          shape: RoundedRectangleBorder(
+                                                                            borderRadius: BorderRadius.circular(20),
+                                                                          ),
+                                                                          content: SizedBox(
+                                                                            width: 300, // Adjust width to fit the form
+                                                                            child: Column(
+                                                                              mainAxisSize: MainAxisSize.min,
+                                                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                                                              children: [
+                                                                                // const Text(
+                                                                                //   "TIME:",
+                                                                                //   style: TextStyle(
+                                                                                //     fontWeight: FontWeight.bold,
+                                                                                //     fontSize: 16,
+                                                                                //   ),
+                                                                                // ),
+                                                                                // const SizedBox(height: 10),
+                                                                                const Align(
+                                                                                  alignment: Alignment.topLeft,
+                                                                                  child: Text(
+                                                                                    "FROM:",
+                                                                                    style: TextStyle(
+                                                                                      fontSize: 14,
+                                                                                      fontWeight: FontWeight.w500,
                                                                                     ),
-                                                                                    actions: <Widget>[
-                                                                                      TextButton(
-                                                                                        onPressed: () async {
-                                                                                          Review review = Review(
-                                                                                            reviewerUserType: 'Customer',
-                                                                                            driverId: driverId?.toString() ??
-                                                                                                'Unknown Driver',
-                                                                                            driverName: driverName,
-                                                                                            orderId: orderKey ?? 'Unknown Order',
-                                                                                            rating: double.parse(
-                                                                                                rating?.toString() ?? '0.0'),
-                                                                                            customerId: userId ?? 'Unknown User',
-                                                                                            customerName: user!.displayName ?? '',
-                                                                                            message: commentText ??
-                                                                                                'No comment provided',
-                                                                                            timestamp: DateTime.now().toString(),
+                                                                                  ),
+                                                                                ),
+                                                                                const SizedBox(height: 5),
+                                                                                TextField(
+                                                                                  controller: from,
+                                                                                  readOnly: true,
+                                                                                  decoration: const InputDecoration(
+                                                                                    border: OutlineInputBorder(),
+                                                                                  ),
+                                                                                ),
+                                                                                const SizedBox(height: 10),
+                                                                                const Align(
+                                                                                  alignment: Alignment.topLeft,
+                                                                                  child: Text(
+                                                                                    "TO:",
+                                                                                    style: TextStyle(
+                                                                                      fontSize: 14,
+                                                                                      fontWeight: FontWeight.w500,
+                                                                                    ),
+                                                                                  ),
+                                                                                ),
+                                                                                const SizedBox(height: 5),
+                                                                                TextField(
+                                                                                  controller: to,
+                                                                                  readOnly: true,
+                                                                                  decoration: const InputDecoration(
+                                                                                    border: OutlineInputBorder(),
+                                                                                  ),
+                                                                                ),
+                                                                                const SizedBox(height: 10),
+                                                                                const Align(
+                                                                                  alignment: Alignment.topLeft,
+                                                                                  child: Text(
+                                                                                    "WEIGHT:",
+                                                                                    style: TextStyle(
+                                                                                      fontSize: 14,
+                                                                                      fontWeight: FontWeight.w500,
+                                                                                    ),
+                                                                                  ),
+                                                                                ),
+                                                                                const SizedBox(height: 5),
+                                                                                TextField(
+                                                                                  controller: weight,
+                                                                                  readOnly: true,
+                                                                                  decoration: const InputDecoration(
+                                                                                    border: OutlineInputBorder(),
+                                                                                  ),
+                                                                                ),
+                                                                                const SizedBox(height: 10),
+                                                                                const Align(
+                                                                                  alignment: Alignment.topLeft,
+                                                                                  child: Text(
+                                                                                    "VEHICLE USE:",
+                                                                                    style: TextStyle(
+                                                                                      fontSize: 14,
+                                                                                      fontWeight: FontWeight.w500,
+                                                                                    ),
+                                                                                  ),
+                                                                                ),
+                                                                                const SizedBox(height: 5),
+                                                                                TextField(
+                                                                                  controller: vehicle,
+                                                                                  readOnly: true,
+                                                                                  decoration: const InputDecoration(
+                                                                                    border: OutlineInputBorder(),
+                                                                                  ),
+                                                                                ),
+                                                                                const SizedBox(height: 10),
+                                                                                const Align(
+                                                                                  alignment: Alignment.topLeft,
+                                                                                  child: Text(
+                                                                                    "Note:",
+                                                                                    style: TextStyle(
+                                                                                      fontSize: 14,
+                                                                                      fontWeight: FontWeight.w500,
+                                                                                    ),
+                                                                                  ),
+                                                                                ),
+                                                                                const SizedBox(height: 5),
+                                                                                TextField(
+                                                                                  controller: note,
+                                                                                  readOnly: true,
+                                                                                  maxLines: 3,
+                                                                                  decoration: const InputDecoration(
+                                                                                    border: OutlineInputBorder(),
+                                                                                  ),
+                                                                                ),
+                                                                                const SizedBox(height: 10),
+                                                                                Row(
+                                                                                  mainAxisAlignment:
+                                                                                      MainAxisAlignment.spaceBetween,
+                                                                                  children: [
+                                                                                    const Text(
+                                                                                      "TOTAL COST:",
+                                                                                      style:
+                                                                                          TextStyle(fontWeight: FontWeight.bold),
+                                                                                    ),
+                                                                                    Text(
+                                                                                      reviewRate
+                                                                                          .toString(), // Placeholder for total cost
+                                                                                      style: const TextStyle(
+                                                                                          fontSize: 30,
+                                                                                          fontWeight: FontWeight.bold),
+                                                                                    ),
+                                                                                  ],
+                                                                                ),
+                                                                              ],
+                                                                            ),
+                                                                          ),
+                                                                          actions: [
+                                                                            TextButton(
+                                                                              onPressed: () {
+                                                                                Navigator.of(context).pop(); // Close the dialog
+                                                                              },
+                                                                              child: const Text(
+                                                                                "Cancel",
+                                                                                style: TextStyle(color: Colors.red),
+                                                                              ),
+                                                                            ),
+                                                                            TextButton(
+                                                                              onPressed: () {
+                                                                                // Add your action for "Proceed" here
+
+                                                                                //Navigator.of(context).pop();
+                                                                                //Navigator.of(listContext).pop();
+
+                                                                                Proposal proposal = Proposal(
+                                                                                    uid: drivers['uid'], orderId: orderKey);
+                                                                                insertProposal(proposal).then((value) {
+                                                                                  //Navigator.pop(context);
+                                                                                  DatabaseReference orderReference =
+                                                                                      FirebaseDatabase.instance
+                                                                                          .ref('order/$orderKey');
+                                                                                  orderReference.onValue
+                                                                                      .listen((DatabaseEvent event) {
+                                                                                    final data = event.snapshot.value;
+                                                                                    print(data);
+                                                                                    if (data != null &&
+                                                                                        data is Map<Object?, Object?>) {
+                                                                                      final dynamic status = data['status'];
+                                                                                      dynamic driverId = drivers['uid'];
+                                                                                      dynamic driverName = drivers['displayName'];
+                                                                                      dynamic orderId = data['key'];
+                                                                                      dynamic userId = user?.uid;
+                                                                                      String commentText = '';
+                                                                                      if (status != null) {
+                                                                                        print(status);
+                                                                                        if (status == 'PROPOSE') {
+                                                                                          showDialog(
+                                                                                            context: context,
+                                                                                            barrierDismissible: false,
+                                                                                            builder: (BuildContext context) {
+                                                                                              return const AlertDialog(
+                                                                                                content: Row(
+                                                                                                  children: [
+                                                                                                    CircularProgressIndicator(),
+                                                                                                    SizedBox(width: 20),
+                                                                                                    Text(
+                                                                                                        "Waiting for the rider to confirm"),
+                                                                                                  ],
+                                                                                                ),
+                                                                                              );
+                                                                                            },
                                                                                           );
-                                                                                          await insertReview(review)
-                                                                                              .then((value) {
+                                                                                        }
+                                                                                        if (status == 'ACCEPTED') {
+                                                                                          print('driver id here');
+                                                                                          print(data);
+                                                                                          Navigator.pop(context);
+                                                                                          showDialog(
+                                                                                            context: context,
+                                                                                            barrierDismissible: false,
+                                                                                            builder: (BuildContext context) {
+                                                                                              return const AlertDialog(
+                                                                                                content: Row(
+                                                                                                  children: [
+                                                                                                    CircularProgressIndicator(),
+                                                                                                    SizedBox(width: 20),
+                                                                                                    Text(
+                                                                                                        "Rider is on the way ..."),
+                                                                                                  ],
+                                                                                                ),
+                                                                                              );
+                                                                                            },
+                                                                                          );
+                                                                                        }
+                                                                                        if (status == 'CANCELED') {
+                                                                                          print('driver id here');
+                                                                                          print(data);
+                                                                                          Navigator.pop(context);
+                                                                                          showDialog(
+                                                                                            context: context,
+                                                                                            barrierDismissible: false,
+                                                                                            builder: (BuildContext context) {
+                                                                                              return const AlertDialog(
+                                                                                                content: Row(
+                                                                                                  children: [
+                                                                                                    CircularProgressIndicator(),
+                                                                                                    SizedBox(width: 20),
+                                                                                                    Text(
+                                                                                                        "Driver canceled the request!"),
+                                                                                                  ],
+                                                                                                ),
+                                                                                              );
+                                                                                            },
+                                                                                          );
+                                                                                          Future.delayed(
+                                                                                              const Duration(seconds: 2), () {
+                                                                                            Navigator.pop(
+                                                                                                context); // Close the loading dialog
                                                                                             Navigator.pop(context);
-                                                                                            Navigator.push(
-                                                                                              context,
-                                                                                              MaterialPageRoute(
-                                                                                                  builder: (context) =>
-                                                                                                      const DashboardScreen()),
-                                                                                            );
-                                                                                            //Navigator.pop(context);
                                                                                           });
-                                                                                        },
-                                                                                        child: const Text('Submit'),
-                                                                                      ),
-                                                                                    ],
-                                                                                  );
-                                                                                },
-                                                                              );
-                                                                            }
-                                                                          } else {
-                                                                            print("Status not found in data.");
-                                                                          }
-                                                                        } else {
-                                                                          print("Data is null or not in the expected format.");
-                                                                        }
-                                                                      });
-                                                                    });
+                                                                                        }
+                                                                                        if (status == 'COMPLETED') {
+                                                                                          Navigator.pop(context);
+                                                                                          ScaffoldMessenger.of(context)
+                                                                                              .showSnackBar(
+                                                                                            const SnackBar(
+                                                                                                content:
+                                                                                                    Text('Order is complete!')),
+                                                                                          );
+                                                                                          // Show the rating pop-up here
+                                                                                          showDialog(
+                                                                                            context: context,
+                                                                                            barrierDismissible: false,
+                                                                                            builder: (BuildContext context) {
+                                                                                              int rating =
+                                                                                                  0; // Initialize the rating variable
+
+                                                                                              return AlertDialog(
+                                                                                                title:
+                                                                                                    const Text('Rate the Rider'),
+                                                                                                content: Column(
+                                                                                                  mainAxisSize: MainAxisSize.min,
+                                                                                                  children: [
+                                                                                                    const Text(
+                                                                                                        'Please rate the rider for this delivery:'),
+                                                                                                    // Star rating widget
+                                                                                                    RatingBar.builder(
+                                                                                                      initialRating:
+                                                                                                          rating.toDouble(),
+                                                                                                      minRating: 1,
+                                                                                                      direction: Axis.horizontal,
+                                                                                                      allowHalfRating: false,
+                                                                                                      itemCount: 5,
+                                                                                                      itemSize: 40,
+                                                                                                      itemBuilder: (context, _) =>
+                                                                                                          const Icon(
+                                                                                                        Icons.star,
+                                                                                                        color: Colors.amber,
+                                                                                                      ),
+                                                                                                      onRatingUpdate: (value) {
+                                                                                                        rating = value
+                                                                                                            .toInt(); // Update the rating value
+                                                                                                      },
+                                                                                                    ),
+                                                                                                    const SizedBox(height: 20),
+                                                                                                    // Text input for comments
+                                                                                                    TextFormField(
+                                                                                                      onChanged: (value) {
+                                                                                                        setState(() {
+                                                                                                          commentText = value;
+                                                                                                        });
+                                                                                                      },
+                                                                                                      decoration:
+                                                                                                          const InputDecoration(
+                                                                                                        hintText:
+                                                                                                            'Add your comments (optional)',
+                                                                                                        border:
+                                                                                                            OutlineInputBorder(),
+                                                                                                      ),
+                                                                                                      maxLines: null,
+                                                                                                      keyboardType:
+                                                                                                          TextInputType.multiline,
+                                                                                                    ),
+                                                                                                  ],
+                                                                                                ),
+                                                                                                actions: <Widget>[
+                                                                                                  TextButton(
+                                                                                                    onPressed: () async {
+                                                                                                      Review review = Review(
+                                                                                                        reviewerUserType:
+                                                                                                            'Customer',
+                                                                                                        driverId: driverId
+                                                                                                                ?.toString() ??
+                                                                                                            'Unknown Driver',
+                                                                                                        driverName: driverName,
+                                                                                                        orderId: orderKey ??
+                                                                                                            'Unknown Order',
+                                                                                                        rating: double.parse(
+                                                                                                            rating?.toString() ??
+                                                                                                                '0.0'),
+                                                                                                        customerId: userId ??
+                                                                                                            'Unknown User',
+                                                                                                        customerName:
+                                                                                                            user!.displayName ??
+                                                                                                                '',
+                                                                                                        message: commentText ??
+                                                                                                            'No comment provided',
+                                                                                                        timestamp: DateTime.now()
+                                                                                                            .toString(),
+                                                                                                      );
+                                                                                                      await insertReview(review)
+                                                                                                          .then((value) {
+                                                                                                        Navigator.pop(context);
+                                                                                                        Navigator.push(
+                                                                                                          context,
+                                                                                                          MaterialPageRoute(
+                                                                                                              builder: (context) =>
+                                                                                                                  const DashboardScreen()),
+                                                                                                        );
+                                                                                                        //Navigator.pop(context);
+                                                                                                      });
+                                                                                                    },
+                                                                                                    child: const Text('Submit'),
+                                                                                                  ),
+                                                                                                ],
+                                                                                              );
+                                                                                            },
+                                                                                          );
+                                                                                        }
+                                                                                      } else {
+                                                                                        print("Status not found in data.");
+                                                                                      }
+                                                                                    } else {
+                                                                                      print(
+                                                                                          "Data is null or not in the expected format.");
+                                                                                    }
+                                                                                  });
+                                                                                });
+                                                                              },
+                                                                              child: const Text(
+                                                                                "Proceed",
+                                                                                style: TextStyle(color: Colors.green),
+                                                                              ),
+                                                                            ),
+                                                                          ],
+                                                                        );
+                                                                      },
+                                                                    );
                                                                   },
                                                                 );
                                                               }
