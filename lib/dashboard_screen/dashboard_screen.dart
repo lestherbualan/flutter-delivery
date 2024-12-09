@@ -463,9 +463,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             // rectangular container view happens here.
             DraggableScrollableSheet(
-              initialChildSize: 0.57,
+              initialChildSize: 0.59,
               minChildSize: 0.2,
-              maxChildSize: 0.57,
+              maxChildSize: 0.59,
               snap: true,
               builder: (context, scrollController) => SingleChildScrollView(
                 controller: scrollController,
@@ -502,7 +502,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ],
                     ),
                     Container(
-                      height: 430,
+                      height: 440,
                       padding: const EdgeInsets.all(10),
                       decoration: const BoxDecoration(
                         color: Color(0xFFEDE1D5),
@@ -614,23 +614,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           }
                                         });
                                       },
-                                      child: Container(
-                                        height: 80,
-                                        margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                                        decoration: BoxDecoration(
-                                          color: _motorBG,
-                                          borderRadius: BorderRadius.circular(10),
-                                          border: Border.all(color: Colors.black),
-                                        ),
-                                        child: Center(
-                                          child: Transform.scale(
-                                            scale: 1.3,
-                                            child: Image.asset(
-                                              'assets/images/Motorcycle.png',
-                                              fit: BoxFit.contain,
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Container(
+                                            height: 80,
+                                            margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                                            decoration: BoxDecoration(
+                                              color: _motorBG,
+                                              borderRadius: BorderRadius.circular(10),
+                                              border: Border.all(color: Colors.black),
+                                            ),
+                                            child: Center(
+                                              child: Transform.scale(
+                                                scale: 1.3,
+                                                child: Image.asset(
+                                                  'assets/images/Motorcycle.png',
+                                                  fit: BoxFit.contain,
+                                                ),
+                                              ),
                                             ),
                                           ),
-                                        ),
+                                          const SizedBox(height: 2), // Space between image and text
+                                          const Text(
+                                            'Motorcycle',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              //fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ),
@@ -649,23 +662,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           }
                                         });
                                       },
-                                      child: Container(
-                                        height: 80,
-                                        margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                                        decoration: BoxDecoration(
-                                          color: _carBG,
-                                          borderRadius: BorderRadius.circular(10),
-                                          border: Border.all(color: Colors.black),
-                                        ),
-                                        child: Center(
-                                          child: Transform.scale(
-                                            scale: 1.2,
-                                            child: Image.asset(
-                                              'assets/images/Car.png',
-                                              fit: BoxFit.contain,
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Container(
+                                            height: 80,
+                                            margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                                            decoration: BoxDecoration(
+                                              color: _carBG,
+                                              borderRadius: BorderRadius.circular(10),
+                                              border: Border.all(color: Colors.black),
+                                            ),
+                                            child: Center(
+                                              child: Transform.scale(
+                                                scale: 1.2,
+                                                child: Image.asset(
+                                                  'assets/images/Car.png',
+                                                  fit: BoxFit.contain,
+                                                ),
+                                              ),
                                             ),
                                           ),
-                                        ),
+                                          const SizedBox(height: 2), // Space between image and text
+                                          const Text(
+                                            'Car',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              //fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ),
@@ -684,20 +710,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           }
                                         });
                                       },
-                                      child: Container(
-                                        height: 80,
-                                        margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                                        decoration: BoxDecoration(
-                                          color: _bikeBG,
-                                          borderRadius: BorderRadius.circular(10),
-                                          border: Border.all(color: Colors.black),
-                                        ),
-                                        child: Center(
-                                          child: Image.asset(
-                                            'assets/images/Bicycle.png',
-                                            fit: BoxFit.contain,
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Container(
+                                            height: 80,
+                                            margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                                            decoration: BoxDecoration(
+                                              color: _bikeBG,
+                                              borderRadius: BorderRadius.circular(10),
+                                              border: Border.all(color: Colors.black),
+                                            ),
+                                            child: Center(
+                                              child: Image.asset(
+                                                'assets/images/Bicycle.png',
+                                                fit: BoxFit.contain,
+                                              ),
+                                            ),
                                           ),
-                                        ),
+                                          const SizedBox(height: 2), // Space between image and text
+                                          const Text(
+                                            'Bicycle',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              //fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ),
