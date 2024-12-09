@@ -53,7 +53,6 @@ class MapTapController {
       } else {
         if (pointsRoad.length <= 1) {
           pointsRoad.add(tappedPoint);
-
           double firstDistance = _calculateDistance();
           if ((firstDistance < 1.0)) {
             showDialog(
