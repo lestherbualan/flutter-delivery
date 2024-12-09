@@ -55,48 +55,53 @@ class MapTapController {
           pointsRoad.add(tappedPoint);
 
           double firstDistance = _calculateDistance();
-          if (!(firstDistance < 1.0)) {
-            getCoordinateInfo(pointsRoad[1].latitude, pointsRoad[1].longitude).then((value) {
-              updateEndingAddress?.call(value);
-              updateEndingGeopoint?.call(tappedPoint);
-            });
-            await controller.addMarker(
-              tappedPoint,
-              markerIcon: const MarkerIcon(
-                icon: Icon(
-                  Icons.person_pin_circle,
-                  color: Colors.blueAccent,
-                  size: 48,
-                ),
-              ),
-            );
-            controller.drawRoad(
-              pointsRoad.first,
-              pointsRoad.last,
-              roadType: RoadType.bike,
-              intersectPoint: pointsRoad.sublist(1),
-              roadOption: const RoadOption(
-                roadColor: Colors.blue,
-                roadWidth: 10,
-                zoomInto: true,
-              ),
-            );
-            double distance = _calculateDistance();
-            updateDistance?.call(distance);
-          } else {
-            pointsRoad.removeLast();
+          if ((firstDistance < 1.0)) {
             showDialog(
               context: _context!,
               builder: (BuildContext context) {
                 return AlertDialog(
-                  title: const Text('Invalid Point'),
-                  content: const Text('The points are too close to each other. Please select a point further away.'),
+                  title: const Text('Points too close'),
+                  content: const Text('The pinned points are too close. Do you still want to proceed?'),
                   actions: [
                     TextButton(
                       onPressed: () {
+                        pointsRoad.removeLast();
                         Navigator.of(context).pop(); // Close the dialog
                       },
-                      child: const Text('OK'),
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () async {
+                        Navigator.of(context).pop(); // Close the dialog
+                        getCoordinateInfo(pointsRoad[1].latitude, pointsRoad[1].longitude).then((value) {
+                          updateEndingAddress?.call(value);
+                          updateEndingGeopoint?.call(tappedPoint);
+                        });
+                        await controller.addMarker(
+                          tappedPoint,
+                          markerIcon: const MarkerIcon(
+                            icon: Icon(
+                              Icons.person_pin_circle,
+                              color: Colors.blueAccent,
+                              size: 48,
+                            ),
+                          ),
+                        );
+                        controller.drawRoad(
+                          pointsRoad.first,
+                          pointsRoad.last,
+                          roadType: RoadType.bike,
+                          intersectPoint: pointsRoad.sublist(1),
+                          roadOption: const RoadOption(
+                            roadColor: Colors.blue,
+                            roadWidth: 10,
+                            zoomInto: true,
+                          ),
+                        );
+                        double distance = _calculateDistance();
+                        updateDistance?.call(distance);
+                      },
+                      child: const Text('Proceed'),
                     ),
                   ],
                 );
