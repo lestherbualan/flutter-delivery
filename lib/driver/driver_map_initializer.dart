@@ -7,7 +7,12 @@ import '../model/order.dart';
 
 class DriverMapInitializer extends StatefulWidget {
   final Order orderInformation;
-  const DriverMapInitializer({super.key, required this.orderInformation});
+  final dynamic driverInformation;
+  const DriverMapInitializer({
+    super.key,
+    required this.orderInformation,
+    required this.driverInformation,
+  });
 
   @override
   State<DriverMapInitializer> createState() => _DriverMapInitializerState();
@@ -25,9 +30,7 @@ class _DriverMapInitializerState extends State<DriverMapInitializer> {
           return Center(child: Text('Error: ${snapshot.error}'));
         } else {
           return DriverMap(
-            controller: snapshot.data!,
-            orderInformation: widget.orderInformation,
-          );
+              controller: snapshot.data!, orderInformation: widget.orderInformation, driverInformation: widget.driverInformation);
           //return Text('hello map initializer');
         }
       },
@@ -39,8 +42,7 @@ class _DriverMapInitializerState extends State<DriverMapInitializer> {
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
-        if (permission != LocationPermission.whileInUse &&
-            permission != LocationPermission.always) {
+        if (permission != LocationPermission.whileInUse && permission != LocationPermission.always) {
           throw Exception('Location permission not granted');
         }
       }

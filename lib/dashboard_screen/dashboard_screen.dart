@@ -75,13 +75,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final GlobalKey _six = GlobalKey();
   final GlobalKey _seven = GlobalKey();
 
-  final List<double> items = [
-    1,
-    2,
-    5,
-    10,
-    15,
-  ];
+  final Map<String, List<double>> vehicleWeightLimits = {
+    'Motorcycle': [5, 15, 30, 40, 50],
+    'Car': [50, 70, 85, 100],
+    'Bike': [5, 7.5, 10],
+  };
+
+  List<double> items = [];
+
   double? selectedValue;
 
   int? _activeChip;
@@ -236,7 +237,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         if (data != null) {
           List<Map<dynamic, dynamic>> userList = [];
           data.forEach((key, value) {
-            if (value['isRider'] == true && value['online'] == true) {
+            if (value['isRider'] == true && value['online'] == true && value['isUserBooked'] == false) {
               //if(value['vehicle'] == )
               userList.add(Map<dynamic, dynamic>.from(value));
             }
@@ -259,11 +260,63 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return currentUserSnapshot.value;
   }
 
+  Future<List<Map<dynamic, dynamic>>> checkDriverAvailability(List<Map<dynamic, dynamic>> userList, dynamic datetime) async {
+    DatabaseReference _orderRef = FirebaseDatabase.instance.ref('order');
+    DataSnapshot orderSnapshot = await _orderRef.get();
+
+    DateTime requestedDateTime;
+    if (datetime is String) {
+      requestedDateTime = DateTime.parse(datetime);
+    } else if (datetime is DateTime) {
+      requestedDateTime = datetime;
+    } else {
+      throw ArgumentError("Invalid datetime type. Must be String or DateTime.");
+    }
+
+    List<Map<dynamic, dynamic>> availableDrivers = [];
+
+    for (var userMap in userList) {
+      bool isDriverAvailable = true;
+
+      for (var child in orderSnapshot.children) {
+        Map order = Map<dynamic, dynamic>.from(child.value as Map);
+
+        if (order['driverId'] == userMap['uid']) {
+          var orderDateRaw = order['date'];
+          DateTime orderDateTime;
+
+          if (orderDateRaw is String) {
+            orderDateTime = DateTime.parse(orderDateRaw);
+          } else if (orderDateRaw is DateTime) {
+            orderDateTime = orderDateRaw;
+          } else {
+            continue;
+          }
+
+          if (orderDateTime == requestedDateTime) {
+            isDriverAvailable = false;
+            break;
+          }
+        }
+      }
+
+      if (isDriverAvailable) {
+        availableDrivers.add(userMap);
+      }
+    }
+
+    return availableDrivers;
+  }
+
   @override
   void initState() {
     super.initState();
     // sharedVar = context.read<SharedData>().sharedVariable;
     // Initialize MapInitializer widget here
+
+    setState(() {
+      items = vehicleWeightLimits['Motorcycle']!;
+    });
     _mapInitializer = MapInitializer(
       onUpdate: updateMapData,
     );
@@ -410,9 +463,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             // rectangular container view happens here.
             DraggableScrollableSheet(
-              initialChildSize: 0.61,
+              initialChildSize: 0.57,
               minChildSize: 0.2,
-              maxChildSize: 0.61,
+              maxChildSize: 0.57,
               snap: true,
               builder: (context, scrollController) => SingleChildScrollView(
                 controller: scrollController,
@@ -449,7 +502,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ],
                     ),
                     Container(
-                      height: 455,
+                      height: 430,
                       padding: const EdgeInsets.all(10),
                       decoration: const BoxDecoration(
                         color: Color(0xFFEDE1D5),
@@ -541,146 +594,113 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               targetPadding: const EdgeInsets.all(1),
                               key: _four,
                               title: 'Vehicle Type',
-                              description: "You can select your prefered vehicle depending on the item you want to be delivered",
+                              description: "You can select your preferred vehicle depending on the item you want to be delivered",
                               tooltipBackgroundColor: Theme.of(context).primaryColor,
                               textColor: Colors.white,
-                              child: ListView(
-                                shrinkWrap: true,
-                                scrollDirection: Axis.horizontal,
+                              child: Row(
                                 children: <Widget>[
-                                  Container(
-                                    width: 160,
-                                    height: 80,
-                                    margin: const EdgeInsets.only(right: 10.0),
-                                    decoration: BoxDecoration(
-                                      color: _motorBG,
-                                      borderRadius: const BorderRadius.all(
-                                        Radius.circular(10),
-                                      ),
-                                      border: Border.all(
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                    child: Center(
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Transform.scale(
-                                            scale: 1.9,
-                                            child: IconButton(
-                                              onPressed: () {
-                                                setState(() {
-                                                  if (_motorBG == Colors.white) {
-                                                    _motorBG = Colors.orange;
-                                                    _carBG = Colors.white;
-                                                    _bikeBG = Colors.white;
-
-                                                    vehicleType = 'Motorcycle';
-                                                  } else {
-                                                    _motorBG = Colors.white;
-                                                  }
-                                                });
-                                              },
-                                              icon: Image.asset(
-                                                'assets/images/Motorcycle.png',
-                                                width: 150.0,
-                                                height: 90.0,
-                                              ),
-                                            ),
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  Container(
-                                    width: 160,
-                                    height: 80,
-                                    margin: const EdgeInsets.only(right: 10.0),
-                                    decoration: BoxDecoration(
-                                      color: _carBG,
-                                      borderRadius: const BorderRadius.all(
-                                        Radius.circular(10),
-                                      ),
-                                      border: Border.all(
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                    child: Center(
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Transform.scale(
-                                            scale: 1.5,
-                                            child: IconButton(
-                                              onPressed: () {
-                                                setState(() {
-                                                  if (_carBG == Colors.white) {
-                                                    _carBG = Colors.orange;
-                                                    _bikeBG = Colors.white;
-                                                    _motorBG = Colors.white;
-
-                                                    vehicleType = 'Car';
-                                                  } else {
-                                                    _carBG = Colors.white;
-                                                  }
-                                                });
-                                              },
-                                              icon: Image.asset(
-                                                'assets/images/Car.png',
-                                                width: 170.0,
-                                                height: 105.0,
-                                              ),
-                                            ),
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  Container(
-                                    width: 160,
-                                    height: 80,
-                                    margin: const EdgeInsets.only(right: 10.0),
-                                    decoration: BoxDecoration(
-                                      color: _bikeBG,
-                                      borderRadius: const BorderRadius.all(
-                                        Radius.circular(10),
-                                      ),
-                                      border: Border.all(
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                    child: Center(
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Transform.scale(
+                                  Expanded(
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          if (_motorBG == Colors.white) {
+                                            _motorBG = Colors.orange;
+                                            _carBG = Colors.white;
+                                            _bikeBG = Colors.white;
+                                            vehicleType = 'Motorcycle';
+                                            items = vehicleWeightLimits[vehicleType]!;
+                                          } else {
+                                            _motorBG = Colors.white;
+                                          }
+                                        });
+                                      },
+                                      child: Container(
+                                        height: 80,
+                                        margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                                        decoration: BoxDecoration(
+                                          color: _motorBG,
+                                          borderRadius: BorderRadius.circular(10),
+                                          border: Border.all(color: Colors.black),
+                                        ),
+                                        child: Center(
+                                          child: Transform.scale(
                                             scale: 1.3,
-                                            child: IconButton(
-                                              onPressed: () {
-                                                setState(() {
-                                                  if (_bikeBG == Colors.white) {
-                                                    _bikeBG = Colors.orange;
-                                                    _carBG = Colors.white;
-                                                    _motorBG = Colors.white;
-
-                                                    vehicleType = 'Bike';
-                                                  } else {
-                                                    _bikeBG = Colors.white;
-                                                  }
-                                                });
-                                              },
-                                              icon: Image.asset(
-                                                'assets/images/Bicycle.png',
-                                                width: 150.0,
-                                                height: 90.0,
-                                              ),
+                                            child: Image.asset(
+                                              'assets/images/Motorcycle.png',
+                                              fit: BoxFit.contain,
                                             ),
-                                          )
-                                        ],
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
-                                  // Add more containers as needed
+                                  Expanded(
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          if (_carBG == Colors.white) {
+                                            _carBG = Colors.orange;
+                                            _bikeBG = Colors.white;
+                                            _motorBG = Colors.white;
+                                            vehicleType = 'Car';
+                                            items = vehicleWeightLimits[vehicleType]!;
+                                          } else {
+                                            _carBG = Colors.white;
+                                          }
+                                        });
+                                      },
+                                      child: Container(
+                                        height: 80,
+                                        margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                                        decoration: BoxDecoration(
+                                          color: _carBG,
+                                          borderRadius: BorderRadius.circular(10),
+                                          border: Border.all(color: Colors.black),
+                                        ),
+                                        child: Center(
+                                          child: Transform.scale(
+                                            scale: 1.2,
+                                            child: Image.asset(
+                                              'assets/images/Car.png',
+                                              fit: BoxFit.contain,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          if (_bikeBG == Colors.white) {
+                                            _bikeBG = Colors.orange;
+                                            _carBG = Colors.white;
+                                            _motorBG = Colors.white;
+                                            vehicleType = 'Bike';
+                                            items = vehicleWeightLimits[vehicleType]!;
+                                          } else {
+                                            _bikeBG = Colors.white;
+                                          }
+                                        });
+                                      },
+                                      child: Container(
+                                        height: 80,
+                                        margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                                        decoration: BoxDecoration(
+                                          color: _bikeBG,
+                                          borderRadius: BorderRadius.circular(10),
+                                          border: Border.all(color: Colors.black),
+                                        ),
+                                        child: Center(
+                                          child: Image.asset(
+                                            'assets/images/Bicycle.png',
+                                            fit: BoxFit.contain,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -704,11 +724,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   child: DropdownButtonHideUnderline(
                                     child: DropdownButton2<double>(
                                       isExpanded: true,
-                                      hint: Text(
-                                        'Select Package Weight in kg',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: Theme.of(context).hintColor,
+                                      hint: Center(
+                                        child: Text(
+                                          'Package Weight',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: Theme.of(context).hintColor,
+                                          ),
                                         ),
                                       ),
                                       items: items
@@ -754,29 +776,54 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 description: "Rate is calculated depending on how far the item to be delivered.",
                                 tooltipBackgroundColor: Theme.of(context).primaryColor,
                                 textColor: Colors.white,
-                                child: Container(
-                                  width: MediaQuery.of(context).size.width * 0.4, // Adjust width as needed
-                                  decoration: BoxDecoration(
-                                    color: Colors.white60,
-                                    borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  padding: const EdgeInsets.only(top: 11.0, bottom: 11.0),
-                                  child: Center(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          //(rate * (distance.round())).toString(),
-                                          rate.toString(),
-                                          style:
-                                              const TextStyle(color: Colors.black, fontSize: 25.0, fontWeight: FontWeight.bold),
+                                child: Stack(
+                                  children: [
+                                    Container(
+                                      width: MediaQuery.of(context).size.width * 0.4, // Adjust width as needed
+                                      decoration: BoxDecoration(
+                                        color: Colors.white60,
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(
+                                          color: Colors.black,
                                         ),
-                                      ],
+                                      ),
+                                      padding: const EdgeInsets.only(top: 11.0, bottom: 11.0),
+                                      child: Center(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              //(rate * (distance.round())).toString(),
+                                              rate.toString(),
+                                              style: const TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 25.0,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                     ),
-                                  ),
+                                    Positioned(
+                                      top: 0,
+                                      left: 0,
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8.5, vertical: 4.5),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(5),
+                                        ),
+                                        child: Text(
+                                          'Cost',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: Theme.of(context).hintColor,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
@@ -1294,6 +1341,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 ),
                               ),
                               const SizedBox(width: 10),
+                              // Schedule Booking
                               OutlinedButton(
                                 onPressed: () {
                                   // Select Date Function for schedule function. For Reference, see _selectDateAndTime function above.
@@ -1324,227 +1372,231 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     );
                                     // By clicking Schedule Order button, this function triggers calling the insertOrder function. See insertOrder function above.
                                     if (dateTime != null) {
-                                      insertOrder(order).then((orderKey) {
-                                        showDialog(
-                                          context: context,
-                                          barrierDismissible: false,
-                                          builder: (BuildContext context) {
-                                            DatabaseReference userRef = FirebaseDatabase.instance.ref('user');
+                                      checkDriverAvailability(_userList, dateTime).then((value) {
+                                        _userList = value;
+                                        insertOrder(order).then((orderKey) {
+                                          showDialog(
+                                            context: context,
+                                            barrierDismissible: false,
+                                            builder: (BuildContext context) {
+                                              DatabaseReference userRef = FirebaseDatabase.instance.ref('user');
 
-                                            return StatefulBuilder(builder: (context, setState) {
-                                              return AlertDialog(
-                                                title: const Text('Available Riders'),
-                                                content: Container(
-                                                  width: double.maxFinite,
-                                                  child: Stack(
-                                                    children: [
-                                                      Padding(
-                                                        padding: const EdgeInsets.only(top: 8.0),
-                                                        child: Row(
-                                                          children: [
-                                                            Padding(
-                                                              padding: const EdgeInsets.only(left: 5, right: 5),
-                                                              child: ActionChip(
-                                                                avatar: _rateFilterState == 1
-                                                                    ? const Icon(
-                                                                        Icons.arrow_upward_outlined,
-                                                                        color: Colors.black,
-                                                                      )
-                                                                    : const Icon(
-                                                                        Icons.arrow_downward_outlined,
-                                                                        color: Colors.black,
-                                                                      ),
-                                                                label: const Text('Rating'),
-                                                                backgroundColor:
-                                                                    _activeChip == 0 ? Colors.transparent : Colors.transparent,
-                                                                onPressed: () {
-                                                                  setState(() {
-                                                                    _activeChip = 0;
-                                                                    if (_rateFilterState == 0) {
-                                                                      _userList.sort((a, b) {
-                                                                        // Ensure that both maps have the 'driverSelfRating' key before comparing
-                                                                        if (a.containsKey('driverRating') &&
-                                                                            b.containsKey('driverRating')) {
-                                                                          return b['driverRating'].compareTo(a['driverRating']);
-                                                                        } else if (a.containsKey('driverRating')) {
-                                                                          return -1; // a comes before b if only a has driverSelfRating
-                                                                        } else if (b.containsKey('driverRating')) {
-                                                                          return 1; // b comes before a if only b has driverSelfRating
-                                                                        } else {
-                                                                          return 0; // both are equal if neither has driverSelfRating
-                                                                        }
-                                                                      });
-                                                                      _rateFilterState = 1;
-                                                                    } else if (_rateFilterState == 1) {
-                                                                      _userList.sort((a, b) {
-                                                                        // Ensure that both maps have the 'driverRating' key before comparing
-                                                                        if (a.containsKey('driverRating') &&
-                                                                            b.containsKey('driverRating')) {
-                                                                          return a['driverRating'].compareTo(b['driverRating']);
-                                                                        } else if (a.containsKey('driverRating')) {
-                                                                          return -1; // a comes before b if only a has driverRating
-                                                                        } else if (b.containsKey('driverRating')) {
-                                                                          return 1; // b comes before a if only b has driverRating
-                                                                        } else {
-                                                                          return 0; // both are equal if neither has driverRating
-                                                                        }
-                                                                      });
-                                                                      _rateFilterState = 0;
-                                                                    }
-                                                                  });
-                                                                  print(_userList);
-                                                                },
-                                                              ),
-                                                            ),
-                                                            Padding(
-                                                              padding: const EdgeInsets.only(left: 5, right: 5),
-                                                              child: ActionChip(
-                                                                avatar: _chargeFilterState == 1
-                                                                    ? const Icon(
-                                                                        Icons.arrow_upward_outlined,
-                                                                        color: Colors.black,
-                                                                      )
-                                                                    : const Icon(
-                                                                        Icons.arrow_downward_outlined,
-                                                                        color: Colors.black,
-                                                                      ),
-                                                                label: const Text('Charge'),
-                                                                backgroundColor:
-                                                                    _activeChip == 1 ? Colors.transparent : Colors.transparent,
-                                                                onPressed: () {
-                                                                  print(_chargeFilterState);
-                                                                  setState(() {
-                                                                    _activeChip = 1;
-                                                                    if (_chargeFilterState == 0) {
-                                                                      _userList.sort((a, b) {
-                                                                        // Ensure that both maps have the 'driverSelfRating' key before comparing
-                                                                        if (a.containsKey('driverSelfRating') &&
-                                                                            b.containsKey('driverSelfRating')) {
-                                                                          return b['driverSelfRating']
-                                                                              .compareTo(a['driverSelfRating']);
-                                                                        } else if (a.containsKey('driverSelfRating')) {
-                                                                          return -1; // a comes before b if only a has driverSelfRating
-                                                                        } else if (b.containsKey('driverSelfRating')) {
-                                                                          return 1; // b comes before a if only b has driverSelfRating
-                                                                        } else {
-                                                                          return 0; // both are equal if neither has driverSelfRating
-                                                                        }
-                                                                      });
-                                                                      _chargeFilterState = 1;
-                                                                    } else if (_chargeFilterState == 1) {
-                                                                      _userList.sort((a, b) {
-                                                                        // Ensure that both maps have the 'driverRating' key before comparing
-                                                                        if (a.containsKey('driverSelfRating') &&
-                                                                            b.containsKey('driverSelfRating')) {
-                                                                          return a['driverSelfRating']
-                                                                              .compareTo(b['driverSelfRating']);
-                                                                        } else if (a.containsKey('driverSelfRating')) {
-                                                                          return -1; // a comes before b if only a has driverRating
-                                                                        } else if (b.containsKey('driverSelfRating')) {
-                                                                          return 1; // b comes before a if only b has driverRating
-                                                                        } else {
-                                                                          return 0; // both are equal if neither has driverRating
-                                                                        }
-                                                                      });
-                                                                      _chargeFilterState = 0;
-                                                                    }
-                                                                  });
-                                                                },
-                                                              ),
-                                                            )
-                                                          ],
-                                                        ),
-                                                      ),
-                                                      Padding(
-                                                        padding: const EdgeInsets.only(top: 50.0),
-                                                        child: SizedBox(
-                                                          width: double.maxFinite,
-                                                          child: ListView.builder(
-                                                            itemCount: _userList.length,
-                                                            itemBuilder: (BuildContext context, int index) {
-                                                              print(_userList[index]);
-                                                              dynamic drivers;
-                                                              if (_userList[index]['vehicle'] == order.vehicleType) {
-                                                                drivers = _userList[index];
-                                                                return ListTile(
-                                                                  leading: CircleAvatar(
-                                                                    backgroundImage: drivers['profilePictureUrl'] != null &&
-                                                                            drivers['profilePictureUrl'] != ''
-                                                                        ? NetworkImage(drivers['profilePictureUrl'])
-                                                                        : null,
-                                                                  ),
-                                                                  title: Text(drivers['displayName']),
-                                                                  subtitle: Column(
-                                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                                    children: [
-                                                                      //Text(drivers['emailAddress']),
-                                                                      Text('Rating : ${drivers['driverRating']}'),
-                                                                      RatingBarIndicator(
-                                                                        rating: double.parse(drivers['driverRating'].toString()),
-                                                                        itemBuilder: (context, index) => const Icon(
-                                                                          Icons.star,
-                                                                          color: Colors.amber,
+                                              return StatefulBuilder(builder: (context, setState) {
+                                                return AlertDialog(
+                                                  title: const Text('Available Riders'),
+                                                  content: Container(
+                                                    width: double.maxFinite,
+                                                    child: Stack(
+                                                      children: [
+                                                        Padding(
+                                                          padding: const EdgeInsets.only(top: 8.0),
+                                                          child: Row(
+                                                            children: [
+                                                              Padding(
+                                                                padding: const EdgeInsets.only(left: 5, right: 5),
+                                                                child: ActionChip(
+                                                                  avatar: _rateFilterState == 1
+                                                                      ? const Icon(
+                                                                          Icons.arrow_upward_outlined,
+                                                                          color: Colors.black,
+                                                                        )
+                                                                      : const Icon(
+                                                                          Icons.arrow_downward_outlined,
+                                                                          color: Colors.black,
                                                                         ),
-                                                                        itemCount: 5,
-                                                                        itemSize: 15.0,
-                                                                        direction: Axis.horizontal,
-                                                                      ),
-                                                                      Text('Charge : ${drivers['driverSelfRating'] ?? 0}')
-                                                                    ],
-                                                                  ),
-                                                                  onTap: () {
-                                                                    Proposal proposal =
-                                                                        Proposal(uid: drivers['uid'], orderId: orderKey);
-                                                                    insertProposal(proposal).then((value) {
-                                                                      //Navigator.pop(context);
-                                                                      DatabaseReference orderReference =
-                                                                          FirebaseDatabase.instance.ref('order/$orderKey');
-
-                                                                      orderReference.update({'driverId': drivers['uid']});
-                                                                      orderReference.onValue.listen((DatabaseEvent event) {
-                                                                        final data = event.snapshot.value;
-                                                                        print(data);
-                                                                        if (data != null && data is Map<Object?, Object?>) {
-                                                                          final dynamic status = data['status'];
-                                                                          dynamic driverId = drivers['uid'];
-                                                                          dynamic orderId = data['key'];
-                                                                          dynamic userId = user?.uid;
-                                                                          String commentText = '';
-
-                                                                          Navigator.pop(context);
-                                                                          Navigator.push(
-                                                                            context,
-                                                                            MaterialPageRoute(
-                                                                                builder: (context) => const DashboardScreen()),
-                                                                          );
-
-                                                                          if (status != null) {
-                                                                            print(status);
+                                                                  label: const Text('Rating'),
+                                                                  backgroundColor:
+                                                                      _activeChip == 0 ? Colors.transparent : Colors.transparent,
+                                                                  onPressed: () {
+                                                                    setState(() {
+                                                                      _activeChip = 0;
+                                                                      if (_rateFilterState == 0) {
+                                                                        _userList.sort((a, b) {
+                                                                          // Ensure that both maps have the 'driverSelfRating' key before comparing
+                                                                          if (a.containsKey('driverRating') &&
+                                                                              b.containsKey('driverRating')) {
+                                                                            return b['driverRating'].compareTo(a['driverRating']);
+                                                                          } else if (a.containsKey('driverRating')) {
+                                                                            return -1; // a comes before b if only a has driverSelfRating
+                                                                          } else if (b.containsKey('driverRating')) {
+                                                                            return 1; // b comes before a if only b has driverSelfRating
                                                                           } else {
-                                                                            print("Status not found in data.");
+                                                                            return 0; // both are equal if neither has driverSelfRating
                                                                           }
-                                                                        } else {
-                                                                          print("Data is null or not in the expected format.");
-                                                                        }
-                                                                      });
-                                                                      ScaffoldMessenger.of(context).showSnackBar(
-                                                                        const SnackBar(content: Text('Order Scheduled!')),
-                                                                      );
+                                                                        });
+                                                                        _rateFilterState = 1;
+                                                                      } else if (_rateFilterState == 1) {
+                                                                        _userList.sort((a, b) {
+                                                                          // Ensure that both maps have the 'driverRating' key before comparing
+                                                                          if (a.containsKey('driverRating') &&
+                                                                              b.containsKey('driverRating')) {
+                                                                            return a['driverRating'].compareTo(b['driverRating']);
+                                                                          } else if (a.containsKey('driverRating')) {
+                                                                            return -1; // a comes before b if only a has driverRating
+                                                                          } else if (b.containsKey('driverRating')) {
+                                                                            return 1; // b comes before a if only b has driverRating
+                                                                          } else {
+                                                                            return 0; // both are equal if neither has driverRating
+                                                                          }
+                                                                        });
+                                                                        _rateFilterState = 0;
+                                                                      }
+                                                                    });
+                                                                    print(_userList);
+                                                                  },
+                                                                ),
+                                                              ),
+                                                              Padding(
+                                                                padding: const EdgeInsets.only(left: 5, right: 5),
+                                                                child: ActionChip(
+                                                                  avatar: _chargeFilterState == 1
+                                                                      ? const Icon(
+                                                                          Icons.arrow_upward_outlined,
+                                                                          color: Colors.black,
+                                                                        )
+                                                                      : const Icon(
+                                                                          Icons.arrow_downward_outlined,
+                                                                          color: Colors.black,
+                                                                        ),
+                                                                  label: const Text('Charge'),
+                                                                  backgroundColor:
+                                                                      _activeChip == 1 ? Colors.transparent : Colors.transparent,
+                                                                  onPressed: () {
+                                                                    print(_chargeFilterState);
+                                                                    setState(() {
+                                                                      _activeChip = 1;
+                                                                      if (_chargeFilterState == 0) {
+                                                                        _userList.sort((a, b) {
+                                                                          // Ensure that both maps have the 'driverSelfRating' key before comparing
+                                                                          if (a.containsKey('driverSelfRating') &&
+                                                                              b.containsKey('driverSelfRating')) {
+                                                                            return b['driverSelfRating']
+                                                                                .compareTo(a['driverSelfRating']);
+                                                                          } else if (a.containsKey('driverSelfRating')) {
+                                                                            return -1; // a comes before b if only a has driverSelfRating
+                                                                          } else if (b.containsKey('driverSelfRating')) {
+                                                                            return 1; // b comes before a if only b has driverSelfRating
+                                                                          } else {
+                                                                            return 0; // both are equal if neither has driverSelfRating
+                                                                          }
+                                                                        });
+                                                                        _chargeFilterState = 1;
+                                                                      } else if (_chargeFilterState == 1) {
+                                                                        _userList.sort((a, b) {
+                                                                          // Ensure that both maps have the 'driverRating' key before comparing
+                                                                          if (a.containsKey('driverSelfRating') &&
+                                                                              b.containsKey('driverSelfRating')) {
+                                                                            return a['driverSelfRating']
+                                                                                .compareTo(b['driverSelfRating']);
+                                                                          } else if (a.containsKey('driverSelfRating')) {
+                                                                            return -1; // a comes before b if only a has driverRating
+                                                                          } else if (b.containsKey('driverSelfRating')) {
+                                                                            return 1; // b comes before a if only b has driverRating
+                                                                          } else {
+                                                                            return 0; // both are equal if neither has driverRating
+                                                                          }
+                                                                        });
+                                                                        _chargeFilterState = 0;
+                                                                      }
                                                                     });
                                                                   },
-                                                                );
-                                                              }
-                                                            },
+                                                                ),
+                                                              )
+                                                            ],
                                                           ),
                                                         ),
-                                                      ),
-                                                    ],
+                                                        Padding(
+                                                          padding: const EdgeInsets.only(top: 50.0),
+                                                          child: SizedBox(
+                                                            width: double.maxFinite,
+                                                            child: ListView.builder(
+                                                              itemCount: _userList.length,
+                                                              itemBuilder: (BuildContext context, int index) {
+                                                                print(_userList[index]);
+                                                                dynamic drivers;
+                                                                if (_userList[index]['vehicle'] == order.vehicleType) {
+                                                                  drivers = _userList[index];
+                                                                  return ListTile(
+                                                                    leading: CircleAvatar(
+                                                                      backgroundImage: drivers['profilePictureUrl'] != null &&
+                                                                              drivers['profilePictureUrl'] != ''
+                                                                          ? NetworkImage(drivers['profilePictureUrl'])
+                                                                          : null,
+                                                                    ),
+                                                                    title: Text(drivers['displayName']),
+                                                                    subtitle: Column(
+                                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                                      children: [
+                                                                        //Text(drivers['emailAddress']),
+                                                                        Text('Rating : ${drivers['driverRating']}'),
+                                                                        RatingBarIndicator(
+                                                                          rating:
+                                                                              double.parse(drivers['driverRating'].toString()),
+                                                                          itemBuilder: (context, index) => const Icon(
+                                                                            Icons.star,
+                                                                            color: Colors.amber,
+                                                                          ),
+                                                                          itemCount: 5,
+                                                                          itemSize: 15.0,
+                                                                          direction: Axis.horizontal,
+                                                                        ),
+                                                                        Text('Charge : ${drivers['driverSelfRating'] ?? 0}')
+                                                                      ],
+                                                                    ),
+                                                                    onTap: () {
+                                                                      Proposal proposal =
+                                                                          Proposal(uid: drivers['uid'], orderId: orderKey);
+                                                                      insertProposal(proposal).then((value) {
+                                                                        //Navigator.pop(context);
+                                                                        DatabaseReference orderReference =
+                                                                            FirebaseDatabase.instance.ref('order/$orderKey');
+
+                                                                        orderReference.update({'driverId': drivers['uid']});
+                                                                        orderReference.onValue.listen((DatabaseEvent event) {
+                                                                          final data = event.snapshot.value;
+                                                                          print(data);
+                                                                          if (data != null && data is Map<Object?, Object?>) {
+                                                                            final dynamic status = data['status'];
+                                                                            dynamic driverId = drivers['uid'];
+                                                                            dynamic orderId = data['key'];
+                                                                            dynamic userId = user?.uid;
+                                                                            String commentText = '';
+
+                                                                            Navigator.pop(context);
+                                                                            Navigator.push(
+                                                                              context,
+                                                                              MaterialPageRoute(
+                                                                                  builder: (context) => const DashboardScreen()),
+                                                                            );
+
+                                                                            if (status != null) {
+                                                                              print(status);
+                                                                            } else {
+                                                                              print("Status not found in data.");
+                                                                            }
+                                                                          } else {
+                                                                            print("Data is null or not in the expected format.");
+                                                                          }
+                                                                        });
+                                                                        ScaffoldMessenger.of(context).showSnackBar(
+                                                                          const SnackBar(content: Text('Order Scheduled!')),
+                                                                        );
+                                                                      });
+                                                                    },
+                                                                  );
+                                                                }
+                                                              },
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
                                                   ),
-                                                ),
-                                              );
-                                            });
-                                          },
-                                        );
+                                                );
+                                              });
+                                            },
+                                          );
+                                        });
                                       });
                                     }
                                   });
@@ -1555,7 +1607,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   padding: const EdgeInsets.only(top: 15.0, bottom: 15.0),
                                 ),
                                 child: const Icon(
-                                  Icons.timer_outlined,
+                                  Icons.calendar_month,
                                   size: 30.0,
                                 ),
                               ),

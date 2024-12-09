@@ -4,7 +4,7 @@ import 'package:delivery/map_app/map_controller.dart';
 
 class MapDisplay extends StatefulWidget {
   final MapController controller;
-   final MapTapController tapController;
+  final MapTapController tapController;
   List<GeoPoint> pointsRoad = [];
   final Function(String, String, double, GeoPoint, GeoPoint) onUpdate;
 
@@ -61,6 +61,14 @@ class _MapDisplayState extends State<MapDisplay> {
   String end = '';
   GeoPoint startingGeopoint = GeoPoint(latitude: 0, longitude: 0);
   GeoPoint endingGeopoint = GeoPoint(latitude: 0, longitude: 0);
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Set the BuildContext for the MapTapController
+    widget.tapController.setContext(context);
+  }
 
   void _updateData() {
     widget.onUpdate(start, end, distance, startingGeopoint, endingGeopoint);

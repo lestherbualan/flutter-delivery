@@ -1,11 +1,13 @@
 import 'package:delivery/driver/driver_map.dart';
 import 'package:delivery/driver/driver_map_initializer.dart';
 import 'package:delivery/model/order.dart';
+import 'package:delivery/model/user.dart';
 import 'package:flutter/material.dart';
 
 class DriverActions extends StatefulWidget {
   final Order orderInformation;
-  const DriverActions({super.key, required this.orderInformation});
+  final dynamic driverInformation;
+  const DriverActions({super.key, required this.orderInformation, required this.driverInformation});
 
   @override
   State<DriverActions> createState() => _DriverActionsState();
@@ -26,6 +28,7 @@ class _DriverActionsState extends State<DriverActions> {
           child: Material(
         child: DriverMapInitializer(
           orderInformation: orderInfo,
+          driverInformation: widget.driverInformation,
         ),
       )),
     );
