@@ -15,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:intl/intl.dart';
 // import 'package:provider/provider.dart';
 // import '../commons/sharedData.dart';
 import '../delivery/schedule_delivery_screen.dart';
@@ -1328,7 +1329,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                                               },
                                                                               child: const Text(
                                                                                 "Cancel",
-                                                                                style: TextStyle(color: Colors.red),
+                                                                                style: TextStyle(color: Colors.black),
                                                                               ),
                                                                             ),
                                                                             TextButton(
@@ -1544,7 +1545,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                                                 });
                                                                               },
                                                                               child: const Text(
-                                                                                "Proceed",
+                                                                                "Book Now",
                                                                                 style: TextStyle(color: Colors.green),
                                                                               ),
                                                                             ),
@@ -1584,7 +1585,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     padding: const EdgeInsets.all(15.0),
                                   ),
                                   child: const Text(
-                                    'Book Now',
+                                    'Find a Rider',
                                     style: TextStyle(
                                       color: Colors.black,
                                       fontWeight: FontWeight.bold,
@@ -1809,44 +1810,233 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                                       onTap: () {
                                                                         Proposal proposal =
                                                                             Proposal(uid: drivers['uid'], orderId: orderKey);
-                                                                        insertProposal(proposal).then((value) {
-                                                                          //Navigator.pop(context);
-                                                                          DatabaseReference orderReference =
-                                                                              FirebaseDatabase.instance.ref('order/$orderKey');
 
-                                                                          orderReference.update({'driverId': drivers['uid']});
-                                                                          orderReference.onValue.listen((DatabaseEvent event) {
-                                                                            final data = event.snapshot.value;
-                                                                            print(data);
-                                                                            if (data != null && data is Map<Object?, Object?>) {
-                                                                              final dynamic status = data['status'];
-                                                                              dynamic driverId = drivers['uid'];
-                                                                              dynamic orderId = data['key'];
-                                                                              dynamic userId = user?.uid;
-                                                                              String commentText = '';
+                                                                        TextEditingController from =
+                                                                            TextEditingController(text: startingPoint);
+                                                                        TextEditingController to =
+                                                                            TextEditingController(text: endPoint);
+                                                                        TextEditingController weight = TextEditingController(
+                                                                            text: order.netWeight.toString());
+                                                                        TextEditingController vehicle =
+                                                                            TextEditingController(text: order.vehicleType);
+                                                                        TextEditingController note =
+                                                                            TextEditingController(text: order.noteToRider);
+                                                                        int reviewRate =
+                                                                            order.rate + int.parse(drivers['driverSelfRating']);
 
-                                                                              Navigator.pop(context);
-                                                                              Navigator.push(
-                                                                                context,
-                                                                                MaterialPageRoute(
-                                                                                    builder: (context) =>
-                                                                                        const DashboardScreen()),
-                                                                              );
+                                                                        DateTime parseDateTime =
+                                                                            DateTime.parse(dateTime.toString());
+                                                                        String formattedTime =
+                                                                            DateFormat("yyyy-MM-dd hh:mma").format(parseDateTime);
 
-                                                                              if (status != null) {
-                                                                                print(status);
-                                                                              } else {
-                                                                                print("Status not found in data.");
-                                                                              }
-                                                                            } else {
-                                                                              print(
-                                                                                  "Data is null or not in the expected format.");
-                                                                            }
-                                                                          });
-                                                                          ScaffoldMessenger.of(context).showSnackBar(
-                                                                            const SnackBar(content: Text('Order Scheduled!')),
-                                                                          );
-                                                                        });
+                                                                        showDialog(
+                                                                          context: context,
+                                                                          builder: (BuildContext context) {
+                                                                            return AlertDialog(
+                                                                              shape: RoundedRectangleBorder(
+                                                                                borderRadius: BorderRadius.circular(20),
+                                                                              ),
+                                                                              content: SizedBox(
+                                                                                width: 300, // Adjust width to fit the form
+                                                                                child: Column(
+                                                                                  mainAxisSize: MainAxisSize.min,
+                                                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                                                  children: [
+                                                                                    Text(
+                                                                                      "TIME: $formattedTime",
+                                                                                      style: const TextStyle(
+                                                                                        fontWeight: FontWeight.bold,
+                                                                                        fontSize: 16,
+                                                                                      ),
+                                                                                    ),
+                                                                                    const SizedBox(height: 10),
+                                                                                    const Align(
+                                                                                      alignment: Alignment.topLeft,
+                                                                                      child: Text(
+                                                                                        "FROM:",
+                                                                                        style: TextStyle(
+                                                                                          fontSize: 14,
+                                                                                          fontWeight: FontWeight.w500,
+                                                                                        ),
+                                                                                      ),
+                                                                                    ),
+                                                                                    const SizedBox(height: 5),
+                                                                                    TextField(
+                                                                                      controller: from,
+                                                                                      readOnly: true,
+                                                                                      decoration: const InputDecoration(
+                                                                                        border: OutlineInputBorder(),
+                                                                                      ),
+                                                                                    ),
+                                                                                    const SizedBox(height: 10),
+                                                                                    const Align(
+                                                                                      alignment: Alignment.topLeft,
+                                                                                      child: Text(
+                                                                                        "TO:",
+                                                                                        style: TextStyle(
+                                                                                          fontSize: 14,
+                                                                                          fontWeight: FontWeight.w500,
+                                                                                        ),
+                                                                                      ),
+                                                                                    ),
+                                                                                    const SizedBox(height: 5),
+                                                                                    TextField(
+                                                                                      controller: to,
+                                                                                      readOnly: true,
+                                                                                      decoration: const InputDecoration(
+                                                                                        border: OutlineInputBorder(),
+                                                                                      ),
+                                                                                    ),
+                                                                                    const SizedBox(height: 10),
+                                                                                    const Align(
+                                                                                      alignment: Alignment.topLeft,
+                                                                                      child: Text(
+                                                                                        "WEIGHT:",
+                                                                                        style: TextStyle(
+                                                                                          fontSize: 14,
+                                                                                          fontWeight: FontWeight.w500,
+                                                                                        ),
+                                                                                      ),
+                                                                                    ),
+                                                                                    const SizedBox(height: 5),
+                                                                                    TextField(
+                                                                                      controller: weight,
+                                                                                      readOnly: true,
+                                                                                      decoration: const InputDecoration(
+                                                                                        border: OutlineInputBorder(),
+                                                                                      ),
+                                                                                    ),
+                                                                                    const SizedBox(height: 10),
+                                                                                    const Align(
+                                                                                      alignment: Alignment.topLeft,
+                                                                                      child: Text(
+                                                                                        "VEHICLE USE:",
+                                                                                        style: TextStyle(
+                                                                                          fontSize: 14,
+                                                                                          fontWeight: FontWeight.w500,
+                                                                                        ),
+                                                                                      ),
+                                                                                    ),
+                                                                                    const SizedBox(height: 5),
+                                                                                    TextField(
+                                                                                      controller: vehicle,
+                                                                                      readOnly: true,
+                                                                                      decoration: const InputDecoration(
+                                                                                        border: OutlineInputBorder(),
+                                                                                      ),
+                                                                                    ),
+                                                                                    const SizedBox(height: 10),
+                                                                                    const Align(
+                                                                                      alignment: Alignment.topLeft,
+                                                                                      child: Text(
+                                                                                        "Note:",
+                                                                                        style: TextStyle(
+                                                                                          fontSize: 14,
+                                                                                          fontWeight: FontWeight.w500,
+                                                                                        ),
+                                                                                      ),
+                                                                                    ),
+                                                                                    const SizedBox(height: 5),
+                                                                                    TextField(
+                                                                                      controller: note,
+                                                                                      readOnly: true,
+                                                                                      maxLines: 3,
+                                                                                      decoration: const InputDecoration(
+                                                                                        border: OutlineInputBorder(),
+                                                                                      ),
+                                                                                    ),
+                                                                                    const SizedBox(height: 10),
+                                                                                    Row(
+                                                                                      mainAxisAlignment:
+                                                                                          MainAxisAlignment.spaceBetween,
+                                                                                      children: [
+                                                                                        const Text(
+                                                                                          "TOTAL COST:",
+                                                                                          style: TextStyle(
+                                                                                              fontWeight: FontWeight.bold),
+                                                                                        ),
+                                                                                        Text(
+                                                                                          reviewRate
+                                                                                              .toString(), // Placeholder for total cost
+                                                                                          style: const TextStyle(
+                                                                                              fontSize: 30,
+                                                                                              fontWeight: FontWeight.bold),
+                                                                                        ),
+                                                                                      ],
+                                                                                    ),
+                                                                                  ],
+                                                                                ),
+                                                                              ),
+                                                                              actions: [
+                                                                                TextButton(
+                                                                                  onPressed: () {
+                                                                                    Navigator.of(context)
+                                                                                        .pop(); // Close the dialog
+                                                                                  },
+                                                                                  child: Text(
+                                                                                    "Cancel",
+                                                                                    style: TextStyle(color: Colors.red),
+                                                                                  ),
+                                                                                ),
+                                                                                TextButton(
+                                                                                  onPressed: () {
+                                                                                    // Add your action for "Proceed" here
+                                                                                    insertProposal(proposal).then((value) {
+                                                                                      //Navigator.pop(context);
+                                                                                      DatabaseReference orderReference =
+                                                                                          FirebaseDatabase.instance
+                                                                                              .ref('order/$orderKey');
+
+                                                                                      orderReference
+                                                                                          .update({'driverId': drivers['uid']});
+                                                                                      orderReference.onValue
+                                                                                          .listen((DatabaseEvent event) {
+                                                                                        final data = event.snapshot.value;
+                                                                                        print(data);
+                                                                                        if (data != null &&
+                                                                                            data is Map<Object?, Object?>) {
+                                                                                          final dynamic status = data['status'];
+                                                                                          dynamic driverId = drivers['uid'];
+                                                                                          dynamic orderId = data['key'];
+                                                                                          dynamic userId = user?.uid;
+                                                                                          String commentText = '';
+
+                                                                                          Navigator.pop(context);
+                                                                                          Navigator.push(
+                                                                                            context,
+                                                                                            MaterialPageRoute(
+                                                                                                builder: (context) =>
+                                                                                                    const DashboardScreen()),
+                                                                                          );
+
+                                                                                          if (status != null) {
+                                                                                            print(status);
+                                                                                          } else {
+                                                                                            print("Status not found in data.");
+                                                                                          }
+                                                                                        } else {
+                                                                                          print(
+                                                                                              "Data is null or not in the expected format.");
+                                                                                        }
+                                                                                      });
+                                                                                      ScaffoldMessenger.of(context).showSnackBar(
+                                                                                        const SnackBar(
+                                                                                            content: Text('Order Scheduled!')),
+                                                                                      );
+                                                                                    });
+
+                                                                                    // Navigator.of(context)
+                                                                                    //     .pop(); // Close the dialog
+                                                                                  },
+                                                                                  child: Text(
+                                                                                    "Schedule Now",
+                                                                                    style: TextStyle(color: Colors.green),
+                                                                                  ),
+                                                                                ),
+                                                                              ],
+                                                                            );
+                                                                          },
+                                                                        );
                                                                       },
                                                                     );
                                                                   }
